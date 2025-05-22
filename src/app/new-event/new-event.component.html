@@ -1,0 +1,80 @@
+<html style="height: 100%; background-color: #121212; overflow-y: auto;">
+  <head>
+    <!-- Font Awesome CDN -->
+    <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
+    <style>
+      ::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+  </head>
+  <body style="height: 100vh; margin: 0; font-family: Arial, sans-serif; background-color: #121212; color: white; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; overflow-y: auto; overflow-x: hidden;">
+
+    <!-- Contenedor principal -->
+    <div style="width: 95%; max-width: 800px; margin-top: 20px; padding: 10px; display: flex; flex-direction: column; gap: 20px; margin-bottom: 40px;">
+      
+      <!-- Mensaje de error -->
+      <div *ngIf="errorMessage" style="color: #ff6b6b; text-align: center; margin-bottom: 10px; font-size: 14px;">
+        {{ errorMessage }}
+      </div>
+
+      <!-- Formulario -->
+      <div style="padding: 15px;">
+        <div style="display: flex; align-items: center; margin-bottom: 25px;">
+          <i class="fa-solid fa-arrow-left" style="font-size: 20px; color: rgba(255,255,255,0.7); cursor: pointer;" (click)="goBack()"></i>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+          <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="imagen" style="font-size: 14px; color: rgba(255,255,255,0.5);">Imagen del Evento</label>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="width: 100%; height: 150px; border: 2px dashed rgba(255,255,255,0.2); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; background: rgba(255,255,255,0.02);">
+                <i class="fa-solid fa-image" style="font-size: 30px; color: rgba(255,255,255,0.3); margin-bottom: 10px;"></i>
+                <span style="font-size: 14px; color: rgba(255,255,255,0.5);">Haz clic para subir una imagen</span>
+              </div>
+              <p style="margin: 0; font-size: 13px; color: rgba(255,255,255,0.4); text-align: right;">Esta imagen se mostrará en el perfil del evento</p>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="nombre" style="font-size: 14px; color: rgba(255,255,255,0.5);">Nombre del Evento</label>
+            <input type="text" id="nombre" [(ngModel)]="evento.nombre" placeholder="Ej: Fiesta de Verano" style="padding: 10px 15px; border: none; border-radius: 8px; background: rgba(255,255,255,0.05); color: white; font-size: 15px;">
+          </div>
+    
+          <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="fecha" style="font-size: 14px; color: rgba(255,255,255,0.5);">Fecha</label>
+            <input type="date" id="fecha" [(ngModel)]="evento.fecha" style="padding: 10px 15px; border: none; border-radius: 8px; background: rgba(255,255,255,0.05); color: white; font-size: 15px;">
+          </div>
+    
+          <div style="display: flex; gap: 10px;">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
+              <label for="hora-inicio" style="font-size: 14px; color: rgba(255,255,255,0.5);">Hora Inicio</label>
+              <input type="time" id="hora-inicio" [(ngModel)]="evento.horaInicio" style="padding: 10px 15px; border: none; border-radius: 8px; background: rgba(255,255,255,0.05); color: white; font-size: 15px;">
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
+              <label for="hora-fin" style="font-size: 14px; color: rgba(255,255,255,0.5);">Hora Fin</label>
+              <input type="time" id="hora-fin" [(ngModel)]="evento.horaFin" style="padding: 10px 15px; border: none; border-radius: 8px; background: rgba(255,255,255,0.05); color: white; font-size: 15px;">
+            </div>
+          </div>
+    
+          <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="lugar" style="font-size: 14px; color: rgba(255,255,255,0.5);">Lugar</label>
+            <input type="text" id="lugar" [(ngModel)]="evento.lugar" placeholder="Ej: Playa Marbella" style="padding: 10px 15px; border: none; border-radius: 8px; background: rgba(255,255,255,0.05); color: white; font-size: 15px;">
+          </div>
+    
+          <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="descripcion" style="font-size: 14px; color: rgba(255,255,255,0.5);">Descripción</label>
+            <textarea id="descripcion" rows="4" [(ngModel)]="evento.descripcion" placeholder="Agrega una descripción breve..." style="padding: 10px 15px; border: none; border-radius: 8px; background: rgba(255,255,255,0.05); color: white; font-size: 15px; resize: none;"></textarea>
+          </div>
+    
+          <button type="submit" (click)="crearEvento()" style="width: 100%; padding: 12px 20px; background: linear-gradient(45deg, #6a11cb, #2575fc); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3); transition: all 0.3s ease;">
+            Crear Evento
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </body>
+</html>
+  

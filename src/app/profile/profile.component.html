@@ -1,0 +1,142 @@
+<html style="height: 100%; background-color: #121212; overflow: hidden; scrollbar-width: none; -ms-overflow-style: none;">
+  <head>
+    <!-- Font Awesome CDN -->
+    <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
+    <style>
+      /* Hide scrollbar for Chrome, Safari and Opera */
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      .scroll-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100px;
+        background: linear-gradient(to bottom, #121212 0%, rgba(18, 18, 18, 0.9) 50%, rgba(18, 18, 18, 0) 100%);
+        z-index: 999;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .scroll-overlay.visible {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body style="height: 100vh; margin: 0; font-family: Arial, sans-serif; background-color: #121212; color: white; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; overflow: hidden;">
+    <!-- Overlay que aparece al hacer scroll -->
+    <div id="scrollOverlay" class="scroll-overlay"></div>
+
+    <!-- Contenido -->
+    <div style="padding-top: 8%; width: 90%; max-width: 600px; flex-grow: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; overflow-x: hidden;">
+
+      <!-- Tarjeta de usuario -->
+      <div style="width: 90%; background: rgb(23, 23, 23); border-radius: 16px; padding: 20px;  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); border: none; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 1001;">
+
+        <!-- Icono de ajustes -->
+        <div (click)="goToSettings()" style="position: absolute; top: 15px; right: 15px; cursor: pointer;">
+          <i class="fa-solid fa-gear" style="color: white; font-size: 18px;"></i>
+        </div>
+      
+        <!-- Sección principal: avatar + nombre -->
+        <div style="display: flex; align-items: center; gap: 15px;">
+          <!-- Avatar -->
+          <div style="width: 50px; height: 50px; background-color: #a18cd1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);">
+            U
+          </div>
+      
+          <!-- Info -->
+          <div>
+            <h2 style="margin: 0; font-size: 18px; color: white;">Marta García</h2>
+            <p style="color: gray; margin: 0;">tu_instagram</p>
+          </div>
+        </div>
+      
+        <!-- Stats -->
+        <div style="display: flex; justify-content: space-around; width: 100%; margin-top: 10px;">
+          <div style="text-align: center;">
+            <p style="margin: 5px 0 0; font-size: 14px; color: white;">12</p>
+            <span style="font-size: 12px; color: gray;">Eventos</span>
+          </div>
+          <div style="text-align: center;">
+            <p style="margin: 5px 0 0; font-size: 14px; color: white;">Premium</p>
+            <span style="font-size: 12px; color: gray;">Status</span>
+          </div>
+          <a href="https://instagram.com/oabramovich" target="_blank" style="text-decoration: none;">
+            <div style="text-align: center;">
+              <i class="fa-brands fa-instagram" style="color: #e1306c; font-size: 18px;"></i>
+              <p style="margin: 5px 0 0; font-size: 14px;"></p>
+              <span style="font-size: 12px; color: gray;">Instagram</span>
+            </div>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Botón Nuevo Evento -->
+      <div (click)="qr()" style="position: sticky; top: 0; width: 85%; margin: 16px 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; cursor: pointer; background: linear-gradient(45deg, #8A2BE2, #4169E1); padding: 8px 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(138, 43, 226, 0.2), 0 0 15px rgba(138, 43, 226, 0.1), 0 0 30px rgba(65, 105, 225, 0.05); z-index: 1000; transition: all 0.3s ease;">
+        <i class="fa-solid fa-plus" style="margin-right: 6px; font-size: 12px;"></i>
+        Nuevo Evento
+      </div>
+
+      <!-- Tarjetas de eventos pasados -->
+      <div style="width: 100%; max-width: 600px; margin: 30px auto 150px; display: flex; flex-direction: column; gap: 20px; position: relative;">
+        <!-- Fondo para ocultar contenido al hacer scroll -->
+        <div style="position: fixed; top: 0; left: 0; right: 0; height: 100px; background: linear-gradient(to bottom, #121212 0%, rgba(18, 18, 18, 0.9) 50%, rgba(18, 18, 18, 0) 100%); z-index: 999; pointer-events: none;"></div>
+
+        <!-- Evento 1 -->
+        <div (click)="event()" style="cursor: pointer; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); position: relative;">
+          <img src="https://plus.unsplash.com/premium_photo-1683121131492-9ae8cdfea4f7?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Noche Retro" style="width: 100%; height: 180px; object-fit: cover;">
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0,0,0,0.4), transparent); padding: 20px 15px;">
+            <span style="font-size: 18px; font-weight: bold; color: white;">Noche Retro - Sala Moon</span>
+          </div>
+        </div>
+      
+        <!-- Evento 2 -->
+        <div style="cursor: pointer; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); position: relative;">
+          <img src="https://pbs.twimg.com/profile_images/674974355735126018/HzKL12dc_400x400.jpg" alt="DJ Max" style="width: 100%; height: 180px; object-fit: cover;">
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0,0,0,0.4), transparent); padding: 20px 15px;">
+            <span style="font-size: 18px; font-weight: bold; color: white;">DJ Max Birthday Set</span>
+          </div>
+        </div>
+      
+        <!-- Evento 3 -->
+        <div style="cursor: pointer; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); position: relative;">
+          <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" alt="Fiesta Electrónica" style="width: 100%; height: 180px; object-fit: cover;">
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0,0,0,0.4), transparent); padding: 20px 15px;">
+            <span style="font-size: 18px; font-weight: bold; color: white;">Fiesta Electrónica - Terraza Azul</span>
+          </div>
+        </div>
+
+        <div style="cursor: pointer; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); position: relative;">
+          <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" alt="Fiesta Electrónica" style="width: 100%; height: 180px; object-fit: cover;">
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0,0,0,0.4), transparent); padding: 20px 15px;">
+            <span style="font-size: 18px; font-weight: bold; color: white;">Fiesta Electrónica - Terraza Azul</span>
+          </div>
+        </div>
+
+         <div style="cursor: pointer; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); position: relative;">
+          <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" alt="Fiesta Electrónica" style="width: 100%; height: 180px; object-fit: cover;">
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0,0,0,0.4), transparent); padding: 20px 15px;">
+            <span style="font-size: 18px; font-weight: bold; color: white;">Fiesta Electrónica - Terraza Azul</span>
+          </div>
+        </div>
+      
+      </div>
+      
+      
+    </div>
+    <script>
+      window.addEventListener('scroll', function() {
+        const overlay = document.getElementById('scrollOverlay');
+        if (window.scrollY > 100) {
+          overlay.classList.add('visible');
+        } else {
+          overlay.classList.remove('visible');
+        }
+      });
+    </script>
+  </body>
+</html>

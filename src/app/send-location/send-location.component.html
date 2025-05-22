@@ -1,0 +1,194 @@
+<html style="height: 100%; background-color: #121212; overflow: hidden;">
+  <body style="height: 100vh; margin: 0; font-family: Arial, sans-serif; background-color: #121212; color: white; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; overflow: hidden;">
+    
+    <div style="position: fixed; top: 0; width: 100%; background-color: #222; padding: 4px; box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3); z-index: 1000; text-align: center;">
+      <div style="position: relative; width: 90%; max-width: 600px;">
+        <!-- Ícono de lupa -->
+        <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); 
+            color: gray; font-size: 14px;"></i>
+        
+        <!-- Input de búsqueda -->
+        <input 
+          #queryInput 
+          (input)="searchSongs(queryInput.value)" 
+          placeholder="¿Qué quieres que suene en la fiesta?" 
+          type="text" 
+          style="padding: 8px 8px 8px 35px; width: 100%; border-radius: 6px; border: none; 
+                 outline: none; background: #222; color: white; font-size: 14px;"
+        />
+    </div>
+      </div>
+    
+      <!-- Contenedor de resultados -->
+      <div style="padding-bottom: 15vh; width: 100%; max-width: 600px; padding-top: 12%; flex-grow: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+    
+        <!-- Contenido cuando no hay búsqueda -->
+        <div *ngIf="results.length === 0 && !errorMessage && query.length === 0" style="display: flex; flex-direction: column; gap: 15px; width: 90%; margin-top: 4vh;">
+          
+          <!-- Ventajas Premium -->
+          <div style="
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+          ">
+            <h3 style="
+              color: #e94e77;
+              font-size: 16px;
+              margin-bottom: 15px;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            ">
+              
+              Ventajas Premium
+            </h3>
+            
+            <ul style="
+              list-style: none;
+              padding: 0;
+              margin: 0;
+              display: flex;
+              flex-direction: column;
+              gap: 10px;
+            ">
+              <li style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #f5f5f5;
+                font-size: 14px;
+              ">
+                <i class="fa-solid fa-eye" style="color: #4a90e2;"></i>
+                <span>El DJ te verá primero y priorizará tus peticiones</span>
+              </li>
+              
+              <li style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #f5f5f5;
+                font-size: 14px;
+              ">
+                <i class="fa-brands fa-instagram" style="color: #e94e77;"></i>
+                <span>Tu Instagram aparecerá destacado en la lista de peticiones</span>
+              </li>
+              
+              <li style="
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #f5f5f5;
+                font-size: 14px;
+              ">
+                <i class="fa-solid fa-star" style="color: #ffd700;"></i>
+                <span>Sé quien marque el rumbo de la fiesta con tus peticiones</span>
+              </li>
+            </ul>
+          </div>
+          
+          
+          <!-- Botones -->
+          <button style="
+            background: linear-gradient(45deg, #3b1e6f, #6a1b9a);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(107, 27, 154, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+          " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 15px rgba(107, 27, 154, 0.4)'" 
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 10px rgba(107, 27, 154, 0.3)'">
+            <i class="fa-solid fa-fire" style="font-size: 16px;"></i>
+            Matchings
+          </button>
+          
+          <button style="
+            background: linear-gradient(45deg, #1e3b6f, #1b4a9a);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(30, 59, 111, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+          " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 15px rgba(30, 59, 111, 0.4)'" 
+             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 10px rgba(30, 59, 111, 0.3)'">
+            <i class="fa-solid fa-list" style="font-size: 16px;"></i>
+            Todas las Peticiones
+          </button>
+        </div>
+    
+        <!-- Mensaje si no hay resultados -->
+        <div *ngIf="results.length === 0 && !errorMessage && query.length > 0" style="color: gray; text-align: center; margin-top: 8vh;">
+          Buscando...
+        </div>
+    
+        <!-- Mensaje de error -->
+        <div *ngIf="errorMessage" style="color: red; text-align: center;">
+          {{ errorMessage }}
+        </div>
+    
+        <!-- Lista de canciones -->
+        <div *ngFor="let track of results" 
+             (click)="toggleSelection(track.id)" 
+             [style.background-color]="selectedTrackId === track.id ? '#3b1e6f' : '#121212'"
+             style="padding-top: 8%; display: flex; align-items: center; padding: 6px 6px; margin: 2px 0; border-radius: 6px; cursor: pointer; width: 90%; transition: background 0.3s; position: relative;"   
+        >
+          <!-- Imagen del álbum -->
+          <img 
+            [src]="track.album.images[0]?.url" 
+            [alt]="track.name" 
+            style="width: 45px; height: 45px; border-radius: 4px; margin-right: 8px;"
+          >
+          
+          <!-- Info de la canción -->
+          <div style="display: flex; flex-direction: column; flex-grow: 1; gap: 1px;">
+            <span style="font-size: 14px;">{{ track.name }}</span>
+            <span style="color: gray; font-size: 12px;">{{ getArtistsNames(track.artists) }}</span>
+          </div>
+    
+          <!-- Botones de acción (visible solo si la canción está seleccionada) -->
+          <div *ngIf="selectedTrackId === track.id" style="display: flex; gap: 8px; align-items: center;">
+            <p (click)="sendToDJ(track); $event.stopPropagation()"  
+              style="color: white; font-size: 14px; margin-right: 8px; margin-left: 4px; cursor: pointer;">Enviar</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Menú inferior fijo -->
+      <div style="
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 8px 0;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 1000;
+      ">
+        <!-- QR -->
+        <div style="display: flex; flex-direction: column; align-items: center; color: white; font-size: 11px; cursor: pointer;">
+          <i class="fa-solid fa-qrcode" style="font-size: 18px; margin-bottom: 4px;"></i>
+        </div>
+      </div>
+
+  </body>
+</html>
