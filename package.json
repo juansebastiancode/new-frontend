@@ -19,6 +19,8 @@
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
     "@fortawesome/fontawesome-free": "^6.7.2",
+    "@stripe/stripe-js": "^7.3.0",
+    "@types/stripe": "^8.0.416",
     "firebase": "^10.8.0",
     "leaflet": "^1.9.4",
     "ngx-scanner-qrcode": "^1.7.6",
