@@ -1,6 +1,7 @@
 <!-- dashboard.component.html -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
   * {
     margin: 0;
@@ -498,110 +499,711 @@
     font-size: 14px;
     font-weight: 500;
   }
+
+  #map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 1;
+  }
+
+  .footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 30vh;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .footer-nav {
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+  }
+
+  .footer-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    padding-top: 50px;
+  }
+
+  .footer-left, .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .footer-item {
+    color: white;
+    opacity: 0.7;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .footer-item:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .footer-item.active {
+    opacity: 1;
+    color: #00ff9d;
+  }
+
+  .footer-center {
+    font-size: 18px;
+    font-weight: 500;
+    color: white;
+    opacity: 0.9;
+    letter-spacing: 3px;
+  }
+
+  .big-logo {
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+    opacity: 0.15;
+    letter-spacing: 8px;
+    text-align: center;
+  }
+
+  .location-text {
+    position: absolute;
+    top: 15px;
+    left: 25px;
+    font-size: 18px;
+    color: white;
+    opacity: 0.8;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+  }
+
+  .location-text i {
+    font-size: 16px;
+  }
+
+  .temperature-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 20px;
+    border-radius: 5px;
+    backdrop-filter: blur(5px);
+  }
+
+  .temperature-input {
+    width: 80px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 24px;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  .temperature-input:focus {
+    outline: none;
+  }
+
+  .temperature-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .temperature-unit {
+    color: white;
+    font-size: 20px;
+    opacity: 0.8;
+  }
+
+  .temperature-icon {
+    color: white;
+    font-size: 24px;
+    opacity: 0.8;
+  }
+
+  @media (max-width: 768px) {
+    .footer {
+      height: 25vh;
+    }
+
+    .footer-nav {
+      padding: 0 15px;
+    }
+
+    .footer-item {
+      font-size: 18px;
+    }
+
+    .footer-center {
+      font-size: 16px;
+    }
+
+    .big-logo {
+      font-size: 28px;
+      letter-spacing: 6px;
+    }
+  }
+
+  .event-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 10px 0;
+  }
+
+  .event-card {
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .event-card:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .event-icon {
+    width: 40px;
+    height: 40px;
+    background: #4A90E2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+  }
+
+  .event-info h3 {
+    font-size: 14px;
+    margin: 0;
+    color: #333;
+  }
+
+  .event-info p {
+    font-size: 12px;
+    color: #666;
+    margin: 4px 0 0;
+  }
+
+  @media (min-width: 768px) {
+    .event-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .event-list {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .leaflet-popup-content-wrapper {
+    background: white;
+    color: #333;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .leaflet-popup-tip {
+    background: white;
+  }
+
+  .event-popup {
+    text-align: center;
+    padding: 5px;
+  }
+
+  .event-popup h3 {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .event-popup p {
+    margin: 5px 0 0;
+    font-size: 12px;
+    color: #666;
+  }
+
+  /* Estilos para los controles del mapa */
+  .leaflet-control-zoom {
+    display: none !important;
+  }
+
+  .leaflet-control-zoom a {
+    background: white !important;
+    color: #333 !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .leaflet-control-zoom a:hover {
+    background: #f5f5f5 !important;
+  }
+
+  .weather-content {
+    height: 105px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+  }
+
+  .predictions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+
+  .prediction-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    width: 100%;
+  }
+
+  .prediction-field {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 14px;
+    flex: 1;
+    padding: 4px;
+    text-align: left;
+  }
+
+  .prediction-field:focus {
+    outline: none;
+  }
+
+  .prediction-field::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .prediction-field:disabled {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .prediction-unit {
+    color: white;
+    opacity: 0.7;
+    font-size: 12px;
+  }
+
+  .compact-weather, .tomorrow-weather {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 10px 15px;
+    color: white;
+    width: 340px;
+    height: 160px;
+    z-index: 10;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .compact-weather {
+    top: 20px;
+  }
+
+  .tomorrow-weather {
+    top: 200px;
+  }
+
+  .weather-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    opacity: 0.9;
+    padding: 0 0 8px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .realtime-indicator {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #00ff9d;
+    opacity: 0.9;
+  }
+
+  .realtime-indicator i {
+    font-size: 10px;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+  }
+
+  .weather-icon {
+    font-size: 28px;
+    opacity: 0.9;
+  }
+
+  @media (max-width: 768px) {
+    .compact-weather, .tomorrow-weather {
+      width: 90%;
+      max-width: 340px;
+      padding: 10px 12px;
+    }
+
+    .weather-main, .prediction-input, .weather-header {
+      margin-left: 8px;
+    }
+  }
+
+  .leaflet-container {
+    width: 100%;
+    height: 100vh;
+    cursor: default !important;
+  }
+
+  /* Deshabilitar todos los controles y eventos del mapa */
+  .leaflet-control-container {
+    display: none !important;
+  }
+
+  .leaflet-interactive {
+    cursor: default !important;
+  }
+
+  /* Ocultar atribución pero mantenerla por requisitos de licencia */
+  .leaflet-control-attribution {
+    opacity: 0.3;
+    font-size: 8px;
+  }
+
+  /* Eliminar bordes azules en Firefox */
+  .leaflet-container:focus,
+  .leaflet-container *:focus {
+    outline: none;
+  }
+
+  /* Deshabilitar el texto seleccionable */
+  .leaflet-container {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  .verification-text {
+    font-size: 11px;
+    color: #00ff9d;
+    opacity: 0.9;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .verification-text i {
+    font-size: 10px;
+  }
+
+  .predictions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .predictions-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .current-value {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    border-radius: 8px;
+    width: 180px;
+    color: white;
+    font-size: 14px;
+  }
+
+  .current-value i {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+    opacity: 0.7;
+  }
+
+  .value {
+    flex: 1;
+  }
+
+  .prediction-label {
+    font-size: 12px;
+    opacity: 0.6;
+    margin-bottom: 15px;
+  }
+
+  .weather-content {
+    height: 105px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+  }
+
+  .predictions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+  }
+
+  .prediction-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    width: 100%;
+  }
+
+  ::placeholder {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 500;
+  }
+  
+  ::-webkit-input-placeholder {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 500;
+  }
+  
+  ::-moz-placeholder {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 500;
+  }
+  
+  :-ms-input-placeholder {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 500;
+  }
+
+  @keyframes pulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+  }
+
+  .pulse-icon {
+    animation: pulse 2s infinite;
+  }
 </style>
 
-<div class="main-container">
-  <!-- Tarjeta del evento -->
-  <div class="event-card">
-    <button class="settings-button">
-      <i class="fa-solid fa-gear"></i>
+<div id="map"></div>
+
+<div class="compact-weather" style="position: absolute; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); border-radius: 12px; padding: 10px 15px; color: white; width: 340px; height: 160px; z-index: 10; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); top: 20px;">
+  <div *ngIf="isLoading" style="display: flex; align-items: center; justify-content: center;">
+    <i class="fas fa-spinner" style="font-size: 24px;"></i>
+  </div>
+
+  <div *ngIf="!isLoading && weatherError" style="display: flex; align-items: center; gap: 10px; color: #ff4444;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ weatherError }}</span>
+    <button (click)="loadCurrentWeather()" style="background: none; border: none; color: white; cursor: pointer;">
+      <i class="fas fa-sync-alt"></i>
     </button>
-    
-    <img src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" 
-         alt="Event" 
-         class="event-image">
-    
-    <div class="event-card-content">
-      <div class="event-info">
-        <h2 class="event-title">Concierto en Vivo</h2>
-        <div class="event-details">
-          <p class="event-location"><i class="fa-solid fa-location-dot"></i>Madrid, España</p>
-          <p class="event-date"><i class="fa-solid fa-calendar-days"></i>25 de marzo</p>
-          <div class="event-time">
-            <i class="fa-solid fa-clock"></i>
-            <span>20:00</span>
-            <span class="time-separator">-</span>
-            <span>23:00</span>
+  </div>
+
+  <div *ngIf="!isLoading && !weatherError && currentWeather">
+    <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: 0.9; padding: 0 0 8px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+      <span>Temperatura y humedad de hoy</span>
+    </div>
+
+    <div style="height: 105px; display: flex; flex-direction: column; justify-content: space-between; padding: 0 20px;">
+      <div style="display: flex; justify-content: space-between;">
+        <!-- Columna izquierda - Predicciones de ayer -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 12px; opacity: 0.6; margin-bottom: 5px;">Tu predicción de ayer:</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-thermometer-half" style="font-size: 16px; width: 20px; text-align: center; opacity: 0.7;"></i>
+            <span style="color: white; font-size: 14px;">{{ userYesterdayPrediction }}°C</span>
           </div>
-          <div class="reception-status">
-            <div class="status-indicator"></div>
-            <span class="status-text">Activo</span>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-tint" style="font-size: 16px; width: 20px; text-align: center; opacity: 0.7;"></i>
+            <span style="color: white; font-size: 14px;">{{ userYesterdayHumidityPrediction }}%</span>
+          </div>
+        </div>
+
+        <!-- Separador vertical -->
+        <div style="width: 1px; height: 70px; background: rgba(255, 255, 255, 0.1); margin: 0 15px;"></div>
+
+        <!-- Columna derecha - Valores actuales -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 12px; opacity: 0.6; margin-bottom: 5px;">Valores actuales:</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-thermometer-half" style="font-size: 16px; width: 20px; text-align: center; opacity: 0.7;"></i>
+            <span style="color: white; font-size: 14px;">{{ currentWeather.temp }}°C</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-tint" style="font-size: 16px; width: 20px; text-align: center; opacity: 0.7;"></i>
+            <span style="color: white; font-size: 14px;">{{ currentWeather.humidity }}%</span>
           </div>
         </div>
       </div>
 
-      <div class="qr-section">
-        <div class="qr-container">
-          <img src="https://www.um.es/documents/4874468/11256784/qr-android-2014.png" alt="QR Code">
-          <p>Escanea para acceder</p>
+      <!-- Indicador En directo -->
+      <div style="display: flex; justify-content: flex-end; margin-top: 5px;">
+        <div style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: #00ff9d; opacity: 0.9;">
+          <i class="fas fa-circle pulse-icon" style="font-size: 10px;"></i>
+          En directo
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Sección de Recaudación -->
-  <div class="revenue-section">
-    <div class="revenue-header">
-      <h3 class="revenue-title">Recaudación Total</h3>
-      <span class="revenue-amount">2.450€</span>
-    </div>
-  </div>
-
-  <!-- Sección de Asistentes -->
-  <div class="attendees-section">
-    <div class="attendees-header">
-      <h3 class="attendees-title">Asistentes</h3>
-      <div class="attendees-right">
-        <span class="attendees-count">24 personas</span>
-        <div class="view-all-button">
-          <i class="fa-solid fa-arrow-right"></i>
-          <span>Ver todos</span>
-        </div>
-      </div>
-    </div>
-    <div class="attendees-list">
-      <div class="attendee-item">
-        <img src="https://i.pravatar.cc/150?img=1" alt="User" class="attendee-avatar">
-        <span class="attendee-name">María García</span>
-      </div>
-      <div class="attendee-item">
-        <img src="https://i.pravatar.cc/150?img=2" alt="User" class="attendee-avatar">
-        <span class="attendee-name">Juan Pérez</span>
-      </div>
-      <div class="attendee-item">
-        <img src="https://i.pravatar.cc/150?img=3" alt="User" class="attendee-avatar">
-        <span class="attendee-name">Ana López</span>
-      </div>
-      <div class="attendee-item">
-        <img src="https://i.pravatar.cc/150?img=4" alt="User" class="attendee-avatar">
-        <span class="attendee-name">Carlos Ruiz</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Secciones de canciones -->
-  <div class="section-container">
-    <div class="section-header">
-      <h2 class="section-title">Top canciones</h2>
-      <div class="section-right">
-        <span class="songs-count">60 canciones</span>
-        <div class="view-all-button">
-          <i class="fa-solid fa-arrow-right"></i>
-          <span>Ver todas</span>
-        </div>
-      </div>
-    </div>
-    <div class="song-list">
-      <div *ngFor="let song of receivedSongs" class="song">
-        <img [src]="song.album.images[0]?.url" [alt]="song.name">
-        <div class="song-info">
-          <h3>{{ song.name }}</h3>
-          <p>{{ getArtistNames(song.artists) }}</p>
-        </div>
-      </div>
-      <div *ngIf="receivedSongs.length === 0" style="color: white; text-align: center; font-size: 1.2em; margin-top: 20px;">
-        Aún no hay canciones enviadas...
       </div>
     </div>
   </div>
 </div>
+
+<div class="tomorrow-weather" style="position: absolute; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); border-radius: 12px; padding: 10px 15px; color: white; width: 340px; height: 160px; z-index: 10; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); top: 200px;">
+  <div *ngIf="isLoadingTomorrow" style="display: flex; align-items: center; justify-content: center;">
+    <i class="fas fa-spinner" style="font-size: 24px;"></i>
+  </div>
+
+  <div *ngIf="!isLoadingTomorrow && tomorrowError" style="display: flex; align-items: center; gap: 10px; color: #ff4444;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>{{ tomorrowError }}</span>
+    <button (click)="loadTomorrowTemp()" style="background: none; border: none; color: white; cursor: pointer;">
+      <i class="fas fa-sync-alt"></i>
+    </button>
+  </div>
+
+  <div *ngIf="!isLoadingTomorrow && !tomorrowError && tomorrowTemp">
+    <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: 0.9; padding: 0 0 8px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+      <span>Tu previsión de mañana a las 12:00</span>
+    </div>
+
+    <div style="height: 105px; display: flex; align-items: center; justify-content: center; padding: 0 20px;">
+      <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 280px; margin: 0 auto;">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; width: 100%;">
+          <i class="fas fa-thermometer-half"></i>
+          <input 
+            type="number" 
+            [(ngModel)]="userTomorrowPrediction" 
+            placeholder="Temperatura"
+            style="background: transparent; border: none; color: white; font-size: 14px; flex: 1; padding: 4px; text-align: left; outline: none; -webkit-appearance: none; -moz-appearance: textfield; -webkit-tap-highlight-color: transparent; font-weight: 500;"
+            step="0.1"
+          >
+          <span style="color: white; opacity: 0.7; font-size: 12px;">°C</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; width: 100%;">
+          <i class="fas fa-tint"></i>
+          <input 
+            type="number" 
+            [(ngModel)]="userTomorrowHumidityPrediction" 
+            placeholder="Humedad"
+            style="background: transparent; border: none; color: white; font-size: 14px; flex: 1; padding: 4px; text-align: left; outline: none; -webkit-appearance: none; -moz-appearance: textfield; -webkit-tap-highlight-color: transparent; font-weight: 500;"
+            step="1"
+          >
+          <span style="color: white; opacity: 0.7; font-size: 12px;">%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer style="position: fixed; bottom: 0; width: 100%; height: 30vh; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(8px); display: flex; flex-direction: column; z-index: 2; border-top-left-radius: 12px; border-top-right-radius: 12px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+  <div style="height: 60px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); border-top-left-radius: 16px; border-top-right-radius: 16px;">
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div (click)="refreshPage()" style="color: white; opacity: 0.7; font-size: 20px; cursor: pointer; transition: all 0.3s ease; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+        <i class="fas fa-location-dot"></i>
+      </div>
+    </div>
+    
+    <div style="font-size: 18px; font-weight: 500; color: white; opacity: 0.9; letter-spacing: 3px;">
+      <span></span>
+    </div>
+    
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div (click)="toggleSidebar()" style="color: white; opacity: 0.7; font-size: 20px; cursor: pointer; transition: all 0.3s ease; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+        <i class="fas fa-compass"></i>
+      </div>
+      <div (click)="goToProfile()" style="color: white; opacity: 0.7; font-size: 20px; cursor: pointer; transition: all 0.3s ease; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+        <i class="fas fa-user"></i>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 15px; position: relative; padding-top: 50px;">
+    <div style="position: absolute; top: 15px; left: 25px; font-size: 18px; color: white; opacity: 0.8; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; font-weight: 500;">
+      Ciudad de Madrid
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var map = L.map('map', {
+      center: [40.416775, -3.703790],
+      zoom: 9,
+      dragging: false,
+      touchZoom: false,
+      scrollWheelZoom: false,
+      boxZoom: false,
+      keyboard: false,
+      zoomControl: false,
+      doubleClickZoom: false
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+  });
+</script>
