@@ -33,8 +33,16 @@ export class ProfileComponent {
       this.router.navigate(['/profile-settings']);
     }
 
-    profileSettings() {
+    profileSettings(): void {
       this.router.navigate(['/profile-settings']);
+    }
+
+    sendLocation(): void {
+      this.router.navigate(['/sendlocation']);
+    }
+
+    goToNewEvent(): void {
+      this.router.navigate(['/new-event']);
     }
 
 }

@@ -53,15 +53,9 @@
       @keyframes rain {
         0% {
           background-position: 0% 0%;
-          opacity: 0.3;
-        }
-        50% {
-          opacity: 0.5;
-          background-position: 5% 50%;
         }
         100% {
-          background-position: 10% 100%;
-          opacity: 0.3;
+          background-position: -20% 100%;
         }
       }
 
@@ -134,18 +128,51 @@
       .rain-bg {
         background: 
           linear-gradient(to bottom,
-            rgba(0, 0, 0, 0) 0%,
-            rgba(255, 255, 255, 0.1) 100%),
-          repeating-linear-gradient(
-            -45deg,
-            rgba(255, 255, 255, 0.2),
-            rgba(255, 255, 255, 0.2) 2px,
+            transparent 0%,
+            rgba(255, 255, 255, 0.15) 100%),
+          repeating-linear-gradient(110deg,
+            transparent 0%,
+            transparent 1px,
+            rgba(255, 255, 255, 0.15) 1.5px,
             transparent 2px,
-            transparent 8px
-          );
-        background-size: 200% 200%, 15px 15px;
-        animation: rain 3s linear infinite;
+            transparent 8px);
+        background-size: 100% 100%, 25px 25px;
+        animation: rain 0.8s linear infinite;
         opacity: 0.9;
+      }
+
+      .rain-bg::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+          linear-gradient(to bottom,
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 100%),
+          repeating-linear-gradient(110deg,
+            transparent 0%,
+            transparent 1px,
+            rgba(255, 255, 255, 0.1) 1.5px,
+            transparent 2px,
+            transparent 12px);
+        background-size: 100% 100%, 35px 35px;
+        animation: rain 1.2s linear infinite;
+        opacity: 0.7;
+      }
+
+      .rain-bg::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: inherit;
+        animation: rain 2.5s linear infinite;
+        animation-delay: -0.5s;
+        opacity: 0.3;
+        transform: rotate(5deg) scale(1.3);
       }
 
       .clouds-bg {
@@ -251,6 +278,63 @@
         background-size: 150% 150%, 180% 180%;
         transition: all 0.5s ease;
       }
+
+      /* Estilos para el menú desplegable */
+      .dropdown {
+        position: relative;
+        display: inline-block;
+        z-index: 1001;
+      }
+
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 40px;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        min-width: 160px;
+        border-radius: 12px;
+        padding: 8px 0;
+        z-index: 1001;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .dropdown-content.show {
+        display: block;
+      }
+
+      .dropdown-item {
+        color: white;
+        padding: 10px 15px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .dropdown-item i {
+        font-size: 16px;
+        opacity: 0.9;
+      }
+
+      /* Ajustar el z-index de la barra de búsqueda */
+      .search-bar-container {
+        position: sticky;
+        top: 15px;
+        width: 100%;
+        z-index: 1000;
+        padding: 0 0 15px;
+        background: linear-gradient(to bottom, rgba(17, 17, 17, 1) 60%, rgba(17, 17, 17, 0));
+      }
     </style>
   </head>
   <body style="height: 100vh; margin: 0; background: linear-gradient(135deg, #111111 0%, #000000 100%); color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; overflow: hidden;">
@@ -260,14 +344,38 @@
     <!-- Contenido -->
     <div style="padding-top: 4%; width: 90%; max-width: 600px; flex-grow: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; overflow-x: hidden;">
       
-      <!-- Botones de navegación -->
+      <!-- Reemplazar los botones de navegación -->
       <div style="width: 100%; display: flex; justify-content: flex-end; gap: 25px; margin-bottom: 25px; padding-right: 5px;">
-        <i class="fas fa-chart-line" style="color: rgba(255, 255, 255, 0.9); font-size: 20px; cursor: pointer; transition: color 0.2s ease;" onmouseover="this.style.color='#00ff9d'" onmouseout="this.style.color='rgba(255, 255, 255, 0.9)'"></i>
-        <i (click)="profileSettings()" class="fas fa-gear" style="color: rgba(255, 255, 255, 0.9); font-size: 20px; cursor: pointer; transition: color 0.2s ease;" onmouseover="this.style.color='#00ff9d'" onmouseout="this.style.color='rgba(255, 255, 255, 0.9)'"></i>
+        <div class="dropdown">
+          <i class="fas fa-ellipsis-v" style="color: rgba(255, 255, 255, 0.9); font-size: 20px; cursor: pointer; transition: color 0.2s ease; padding: 10px;" 
+             onclick="document.getElementById('myDropdown').classList.toggle('show')" 
+             onmouseover="this.style.color='#00ff9d'" 
+             onmouseout="this.style.color='rgba(255, 255, 255, 0.9)'"></i>
+          <div id="myDropdown" class="dropdown-content">
+            <div class="dropdown-item" (click)="sendLocation()">
+              <i class="fas fa-map-location-dot"></i>
+              <span>Mapa</span>
+            </div>
+            <div class="dropdown-item">
+              <i class="fas fa-chart-line"></i>
+              <span>Estadísticas</span>
+            </div>
+            <div class="dropdown-item" (click)="goToNewEvent()">
+              <i class="fas fa-wallet"></i>
+              <span>Monedero</span>
+            </div>
+            
+            <div class="dropdown-item" (click)="profileSettings()">
+              <i class="fas fa-gear"></i>
+              <span>Ajustes</span>
+            </div>
+           
+          </div>
+        </div>
       </div>
 
-      <!-- Barra de búsqueda fija -->
-      <div style="position: sticky; top: 15px; width: 100%; z-index: 1000; padding: 0 0 15px; background: linear-gradient(to bottom, rgba(17, 17, 17, 1) 60%, rgba(17, 17, 17, 0));">
+      <!-- Barra de búsqueda con clase actualizada -->
+      <div class="search-bar-container">
         <div style="position: relative; width: 100%;">
           <input type="text" placeholder="Añadir ciudad" style="width: 100%; padding: 8px 45px; background: rgba(75, 75, 75, 0.4); border: none; border-radius: 12px; color: white; font-size: 14px; backdrop-filter: blur(10px); transition: all 0.3s ease; outline: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
           <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.9); font-size: 14px;"></i>
@@ -420,6 +528,19 @@
           overlay.classList.remove('visible');
         }
       });
+
+      // Agregar script para cerrar el menú cuando se hace clic fuera
+      window.onclick = function(event) {
+        if (!event.target.matches('.fa-ellipsis-v')) {
+          var dropdowns = document.getElementsByClassName("dropdown-content");
+          for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+              openDropdown.classList.remove('show');
+            }
+          }
+        }
+      }
     </script>
   </body>
 </html>

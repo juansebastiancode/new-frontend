@@ -34,8 +34,8 @@ export class NewEventComponent {
 
   errorMessage: string = '';
 
-  goBack() {
-    this.router.navigate(['/events']);
+  goBack(): void {
+    this.router.navigate(['/profile']);
   }
 
   async crearEvento() {

@@ -120,7 +120,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       doubleClickZoom: false, // Deshabilitamos zoom con doble clic
       boxZoom: false,      // Deshabilitamos zoom con caja
       keyboard: false,     // Deshabilitamos controles de teclado
-    }).setView([40.9168, -3.7038], 6);  // Zoom 6 para ver la península
+    }).setView([38.9168, -3.7038], 6);  // Zoom 6 para ver la península
 
     // Añadimos el estilo claro del mapa
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
@@ -129,14 +129,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       minZoom: 5
     }).addTo(this.map);
 
-    // Creamos un icono personalizado para el marcador
-    const customIcon = L.icon({
-      iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41]
+    // Crear el marcador personalizado verde
+    const customIcon = L.divIcon({
+      className: 'custom-marker',
+      html: '<div style="background-color: #00ff9d; width: 15px; height: 15px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.8); box-shadow: 0 0 10px rgba(0, 255, 157, 0.5);"></div>',
+      iconSize: [15, 15],
+      iconAnchor: [7.5, 7.5]
     });
 
     // Añadimos el marcador de Madrid
@@ -185,5 +183,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   goToProfile(): void {
     this.router.navigate(['/profile']);
+  }
+
+  sendLocation(): void {
+    this.router.navigate(['/sendlocation']);
   }
 }

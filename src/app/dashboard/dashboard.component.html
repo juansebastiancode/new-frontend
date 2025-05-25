@@ -1056,7 +1056,7 @@
     height: 50vh;
     min-height: 4vh;
     max-height: 90vh;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.35);
     backdrop-filter: blur(8px);
     display: flex;
     flex-direction: column;
@@ -1231,6 +1231,33 @@
     .day-item {
       flex: 1;
     }
+  }
+
+  /* Estilo para el marcador personalizado */
+  .custom-marker {
+    background-color: #00ff9d;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+    transition: all 0.3s ease;
+  }
+
+  .custom-marker:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 15px rgba(0, 255, 157, 0.7);
+  }
+
+  /* También ajustar la opacidad de los elementos dentro del footer */
+  .footer-sections-grid > div {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .days-scroll > div,
+  .stats-grid > div {
+    background: rgba(255, 255, 255, 0.04);
   }
 </style>
 
@@ -1574,6 +1601,18 @@
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Crear el marcador personalizado
+    var customIcon = L.divIcon({
+      className: 'custom-marker',
+      iconSize: [15, 15],
+      iconAnchor: [7.5, 7.5]
+    });
+
+    // Agregar el marcador al mapa
+    L.marker([40.416775, -3.703790], {
+      icon: customIcon
     }).addTo(map);
 
     const footer = document.getElementById('draggableFooter');
