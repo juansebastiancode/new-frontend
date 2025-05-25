@@ -1,4 +1,4 @@
-<html style="height: 100%; background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%); overflow: hidden; scrollbar-width: none; -ms-overflow-style: none;">
+<html style="height: 100%; background: linear-gradient(135deg, #111111 0%, #000000 100%); overflow: hidden; scrollbar-width: none; -ms-overflow-style: none;">
   <head>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -56,10 +56,11 @@
           opacity: 0.3;
         }
         50% {
-          opacity: 0.6;
+          opacity: 0.5;
+          background-position: 5% 50%;
         }
         100% {
-          background-position: 20% 100%;
+          background-position: 10% 100%;
           opacity: 0.3;
         }
       }
@@ -67,30 +68,53 @@
       @keyframes clouds {
         0% {
           background-position: 0% 50%;
-          opacity: 0.3;
+          opacity: 0.4;
+          transform: scale(1);
+        }
+        25% {
+          opacity: 0.6;
+          transform: scale(1.02);
         }
         50% {
-          opacity: 0.5;
+          opacity: 0.7;
           background-position: 50% 50%;
+          transform: scale(1.05);
+        }
+        75% {
+          opacity: 0.6;
+          transform: scale(1.02);
         }
         100% {
           background-position: 100% 50%;
-          opacity: 0.3;
+          opacity: 0.4;
+          transform: scale(1);
         }
       }
 
       @keyframes sunny {
         0% {
-          opacity: 0.2;
-          transform: scale(1);
+          opacity: 0.7;
+          background-size: 140% 140%, 170% 170%;
         }
         50% {
-          opacity: 0.4;
-          transform: scale(1.1);
+          opacity: 0.9;
+          background-size: 160% 160%, 190% 190%;
         }
         100% {
-          opacity: 0.2;
-          transform: scale(1);
+          opacity: 0.7;
+          background-size: 140% 140%, 170% 170%;
+        }
+      }
+
+      @keyframes sunrays {
+        0% {
+          transform: rotate(0deg) scale(1);
+        }
+        50% {
+          transform: rotate(180deg) scale(1.1);
+        }
+        100% {
+          transform: rotate(360deg) scale(1);
         }
       }
 
@@ -103,58 +127,133 @@
         z-index: 0;
         background-size: 200% 200%;
         pointer-events: none;
-        mix-blend-mode: soft-light;
+        mix-blend-mode: screen;
+        transition: all 0.5s ease;
       }
 
       .rain-bg {
-        background: repeating-linear-gradient(
-          -45deg,
-          rgba(255, 255, 255, 0.1),
-          rgba(255, 255, 255, 0.1) 1px,
-          transparent 1px,
-          transparent 5px
-        );
-        background-size: 10px 10px;
-        animation: rain 1s linear infinite;
+        background: 
+          linear-gradient(to bottom,
+            rgba(0, 0, 0, 0) 0%,
+            rgba(255, 255, 255, 0.1) 100%),
+          repeating-linear-gradient(
+            -45deg,
+            rgba(255, 255, 255, 0.2),
+            rgba(255, 255, 255, 0.2) 2px,
+            transparent 2px,
+            transparent 8px
+          );
+        background-size: 200% 200%, 15px 15px;
+        animation: rain 3s linear infinite;
+        opacity: 0.9;
       }
 
       .clouds-bg {
         background: 
           radial-gradient(circle at 50% 50%, 
-            rgba(255, 255, 255, 0.2) 0%,
-            transparent 40%),
+            rgba(160, 160, 160, 0.9) 0%,
+            rgba(160, 160, 160, 0.7) 20%,
+            rgba(160, 160, 160, 0.5) 40%,
+            transparent 70%),
           radial-gradient(circle at 30% 40%, 
-            rgba(255, 255, 255, 0.2) 0%,
-            transparent 30%);
-        animation: clouds 15s ease-in-out infinite;
-      }
-
-      .sunny-bg {
-        background: radial-gradient(
-          circle at 50% 50%,
-          rgba(255, 236, 59, 0.3) 0%,
-          rgba(255, 167, 38, 0.2) 30%,
-          transparent 70%
-        );
-        animation: sunny 8s ease-in-out infinite;
+            rgba(160, 160, 160, 0.9) 0%,
+            rgba(160, 160, 160, 0.7) 20%,
+            rgba(160, 160, 160, 0.5) 40%,
+            transparent 60%),
+          radial-gradient(circle at 70% 50%, 
+            rgba(160, 160, 160, 0.9) 0%,
+            rgba(160, 160, 160, 0.7) 15%,
+            rgba(160, 160, 160, 0.5) 30%,
+            transparent 50%),
+          radial-gradient(circle at 40% 60%, 
+            rgba(160, 160, 160, 0.9) 0%,
+            rgba(160, 160, 160, 0.7) 20%,
+            rgba(160, 160, 160, 0.5) 40%,
+            transparent 60%),
+          radial-gradient(circle at 60% 30%, 
+            rgba(160, 160, 160, 0.9) 0%,
+            rgba(160, 160, 160, 0.7) 25%,
+            rgba(160, 160, 160, 0.5) 45%,
+            transparent 65%);
+        opacity: 1;
+        filter: blur(2px);
+        background-size: 100% 100%;
+        transition: all 0.5s ease;
       }
 
       .city-card {
-        background: rgba(0, 0, 0, 0.4);
+        background: linear-gradient(135deg,
+          rgba(28, 91, 147, 0.6) 0%,
+          rgba(28, 91, 147, 0.4) 100%);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         transition: all 0.3s ease;
+        overflow: hidden;
       }
 
       .city-card:hover {
         transform: translateY(-2px);
-        background: rgba(0, 0, 0, 0.5);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(135deg,
+          rgba(28, 91, 147, 0.7) 0%,
+          rgba(28, 91, 147, 0.5) 100%);
+        box-shadow: 
+          0 8px 25px rgba(0, 0, 0, 0.3),
+          inset 0 0 50px rgba(255, 255, 255, 0.1);
+      }
+
+      .city-card:hover .weather-background {
+        transform: scale(1.1);
+        opacity: 0.9;
+      }
+
+      .city-card:hover .sunny-bg {
+        opacity: 1;
+        background-size: 160% 160%, 190% 190%;
+      }
+
+      .city-card:hover .clouds-bg {
+        filter: blur(1.5px);
+        opacity: 1;
+        transform: scale(1.02);
+      }
+
+      .city-card:hover .rain-bg {
+        animation-duration: 2s;
+      }
+
+      .sunny-bg::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg,
+          rgba(135, 206, 235, 0.2) 0%,
+          rgba(135, 206, 235, 0.1) 50%,
+          transparent 100%);
+        pointer-events: none;
+      }
+
+      .sunny-bg {
+        background: 
+          radial-gradient(circle at 50% 50%,
+            rgba(255, 236, 59, 0.4) 0%,
+            rgba(255, 236, 59, 0.2) 30%,
+            rgba(255, 236, 59, 0.1) 45%,
+            transparent 60%),
+          radial-gradient(circle at 50% 50%,
+            rgba(255, 236, 59, 0.3) 0%,
+            rgba(255, 236, 59, 0.1) 40%,
+            transparent 70%);
+        animation: sunny 30s ease-in-out infinite;
+        opacity: 0.9;
+        background-size: 150% 150%, 180% 180%;
+        transition: all 0.5s ease;
       }
     </style>
   </head>
-  <body style="height: 100vh; margin: 0; background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%); color: #2c3e50; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; overflow: hidden;">
+  <body style="height: 100vh; margin: 0; background: linear-gradient(135deg, #111111 0%, #000000 100%); color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; overflow: hidden;">
     <!-- Overlay que aparece al hacer scroll -->
     <div id="scrollOverlay" class="scroll-overlay"></div>
 
@@ -163,15 +262,15 @@
       
       <!-- Botones de navegación -->
       <div style="width: 100%; display: flex; justify-content: flex-end; gap: 25px; margin-bottom: 25px; padding-right: 5px;">
-        <i class="fas fa-chart-line" style="color: #8e8e93; font-size: 20px; cursor: pointer; transition: color 0.2s ease;" onmouseover="this.style.color='#00ff9d'" onmouseout="this.style.color='#8e8e93'"></i>
-        <i class="fas fa-gear" style="color: #8e8e93; font-size: 20px; cursor: pointer; transition: color 0.2s ease;" onmouseover="this.style.color='#00ff9d'" onmouseout="this.style.color='#8e8e93'"></i>
+        <i class="fas fa-chart-line" style="color: rgba(255, 255, 255, 0.9); font-size: 20px; cursor: pointer; transition: color 0.2s ease;" onmouseover="this.style.color='#00ff9d'" onmouseout="this.style.color='rgba(255, 255, 255, 0.9)'"></i>
+        <i (click)="profileSettings()" class="fas fa-gear" style="color: rgba(255, 255, 255, 0.9); font-size: 20px; cursor: pointer; transition: color 0.2s ease;" onmouseover="this.style.color='#00ff9d'" onmouseout="this.style.color='rgba(255, 255, 255, 0.9)'"></i>
       </div>
 
       <!-- Barra de búsqueda fija -->
-      <div style="position: sticky; top: 15px; width: 100%; z-index: 1000; padding: 0 0 15px; background: linear-gradient(to bottom, rgba(245, 247, 250, 1) 60%, rgba(245, 247, 250, 0));">
+      <div style="position: sticky; top: 15px; width: 100%; z-index: 1000; padding: 0 0 15px; background: linear-gradient(to bottom, rgba(17, 17, 17, 1) 60%, rgba(17, 17, 17, 0));">
         <div style="position: relative; width: 100%;">
-          <input type="text" placeholder="Añadir ciudad" style="width: 100%; padding: 15px 45px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; font-size: 14px; backdrop-filter: blur(10px); transition: all 0.3s ease; outline: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
-          <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.6); font-size: 16px;"></i>
+          <input type="text" placeholder="Añadir ciudad" style="width: 100%; padding: 8px 45px; background: rgba(75, 75, 75, 0.4); border: none; border-radius: 12px; color: white; font-size: 14px; backdrop-filter: blur(10px); transition: all 0.3s ease; outline: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
+          <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.9); font-size: 14px;"></i>
         </div>
       </div>
 
@@ -183,7 +282,7 @@
         <!-- Madrid - Soleado -->
         <div class="city-card" style="border-radius: 12px; overflow: hidden; cursor: pointer; position: relative;">
           <div class="weather-background sunny-bg"></div>
-          <div style="padding: 20px; position: relative; z-index: 1;">
+          <div (click)="dashboard()" style="padding: 20px; position: relative; z-index: 1;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div>
                 <h3 style="margin: 0; font-size: 18px; color: white;">Madrid</h3>
@@ -191,15 +290,17 @@
               </div>
               <div style="text-align: right;">
                 <div style="font-size: 24px; color: white;">22°C</div>
-                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
-                  <i class="fas fa-tint" style="color: rgba(255, 255, 255, 0.6); font-size: 12px;"></i>
-                  <span style="color: rgba(255, 255, 255, 0.6); font-size: 13px;">45%</span>
-                </div>
               </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 4px; margin-top: 15px;">
-              <i class="fas fa-circle" style="color: #00ff9d; font-size: 8px;"></i>
-              <span style="color: #00ff9d; font-size: 11px;">En directo</span>
+            <div style="display: flex; align-items: center; gap: 15px; margin-top: 15px;">
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-users" style="color: rgba(255, 255, 255, 0.9); font-size: 12px;"></i>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 11px;">156 participantes</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-coins" style="color: rgba(255, 215, 0, 1); font-size: 12px;"></i>
+                <span style="color: rgba(255, 215, 0, 1); font-size: 11px;">2.450€</span>
+              </div>
             </div>
           </div>
         </div>
@@ -215,15 +316,17 @@
               </div>
               <div style="text-align: right;">
                 <div style="font-size: 24px; color: white;">24°C</div>
-                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
-                  <i class="fas fa-tint" style="color: rgba(255, 255, 255, 0.6); font-size: 12px;"></i>
-                  <span style="color: rgba(255, 255, 255, 0.6); font-size: 13px;">60%</span>
-                </div>
               </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 4px; margin-top: 15px;">
-              <i class="fas fa-circle" style="color: #00ff9d; font-size: 8px;"></i>
-              <span style="color: #00ff9d; font-size: 11px;">En directo</span>
+            <div style="display: flex; align-items: center; gap: 15px; margin-top: 15px;">
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-users" style="color: rgba(255, 255, 255, 0.9); font-size: 12px;"></i>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 11px;">98 participantes</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-coins" style="color: rgba(255, 215, 0, 1); font-size: 12px;"></i>
+                <span style="color: rgba(255, 215, 0, 1); font-size: 11px;">1.890€</span>
+              </div>
             </div>
           </div>
         </div>
@@ -239,15 +342,17 @@
               </div>
               <div style="text-align: right;">
                 <div style="font-size: 24px; color: white;">25°C</div>
-                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
-                  <i class="fas fa-tint" style="color: rgba(255, 255, 255, 0.6); font-size: 12px;"></i>
-                  <span style="color: rgba(255, 255, 255, 0.6); font-size: 13px;">55%</span>
-                </div>
               </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 4px; margin-top: 15px;">
-              <i class="fas fa-circle" style="color: #00ff9d; font-size: 8px;"></i>
-              <span style="color: #00ff9d; font-size: 11px;">En directo</span>
+            <div style="display: flex; align-items: center; gap: 15px; margin-top: 15px;">
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-users" style="color: rgba(255, 255, 255, 0.9); font-size: 12px;"></i>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 11px;">76 participantes</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-coins" style="color: rgba(255, 215, 0, 1); font-size: 12px;"></i>
+                <span style="color: rgba(255, 215, 0, 1); font-size: 11px;">1.520€</span>
+              </div>
             </div>
           </div>
         </div>
@@ -263,15 +368,17 @@
               </div>
               <div style="text-align: right;">
                 <div style="font-size: 24px; color: white;">28°C</div>
-                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
-                  <i class="fas fa-tint" style="color: rgba(255, 255, 255, 0.6); font-size: 12px;"></i>
-                  <span style="color: rgba(255, 255, 255, 0.6); font-size: 13px;">40%</span>
-                </div>
               </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 4px; margin-top: 15px;">
-              <i class="fas fa-circle" style="color: #00ff9d; font-size: 8px;"></i>
-              <span style="color: #00ff9d; font-size: 11px;">En directo</span>
+            <div style="display: flex; align-items: center; gap: 15px; margin-top: 15px;">
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-users" style="color: rgba(255, 255, 255, 0.9); font-size: 12px;"></i>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 11px;">64 participantes</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-coins" style="color: rgba(255, 215, 0, 1); font-size: 12px;"></i>
+                <span style="color: rgba(255, 215, 0, 1); font-size: 11px;">1.280€</span>
+              </div>
             </div>
           </div>
         </div>
@@ -287,15 +394,17 @@
               </div>
               <div style="text-align: right;">
                 <div style="font-size: 24px; color: white;">19°C</div>
-                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
-                  <i class="fas fa-tint" style="color: rgba(255, 255, 255, 0.6); font-size: 12px;"></i>
-                  <span style="color: rgba(255, 255, 255, 0.6); font-size: 13px;">75%</span>
-                </div>
               </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 4px; margin-top: 15px;">
-              <i class="fas fa-circle" style="color: #00ff9d; font-size: 8px;"></i>
-              <span style="color: #00ff9d; font-size: 11px;">En directo</span>
+            <div style="display: flex; align-items: center; gap: 15px; margin-top: 15px;">
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-users" style="color: rgba(255, 255, 255, 0.9); font-size: 12px;"></i>
+                <span style="color: rgba(255, 255, 255, 0.9); font-size: 11px;">45 participantes</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-coins" style="color: rgba(255, 215, 0, 1); font-size: 12px;"></i>
+                <span style="color: rgba(255, 215, 0, 1); font-size: 11px;">900€</span>
+              </div>
             </div>
           </div>
         </div>

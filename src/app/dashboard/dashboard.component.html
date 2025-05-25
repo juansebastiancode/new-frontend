@@ -847,6 +847,7 @@
     z-index: 10;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: opacity 0.3s ease;
   }
 
   .compact-weather {
@@ -1052,8 +1053,9 @@
     position: fixed;
     bottom: 0;
     width: 100%;
-    min-height: 30vh;
-    max-height: 50vh;
+    height: 50vh;
+    min-height: 4vh;
+    max-height: 90vh;
     background: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(8px);
     display: flex;
@@ -1062,7 +1064,7 @@
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-    transition: transform 0.3s ease;
+    transition: height 0.3s ease;
     touch-action: none;
   }
 
@@ -1072,126 +1074,264 @@
     background: rgba(255, 255, 255, 0.3);
     border-radius: 2px;
     margin: 8px auto;
-    cursor: grab;
+    cursor: pointer;
+    transition: background 0.3s ease;
   }
 
-  .drag-handle:active {
-    cursor: grabbing;
+  .drag-handle:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  /* Contenedor para las tarjetas del tiempo */
+  .weather-cards-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 10;
+    width: 90%;
+    max-width: 340px;
+  }
+
+  /* Media query para escritorio */
+  @media (min-width: 768px) {
+    .weather-cards-container {
+      flex-direction: row;
+      max-width: 700px;
+      justify-content: center;
+      gap: 20px;
+      top: 60px;
+    }
+
+    .compact-weather, .tomorrow-weather {
+      position: static;
+      transform: none;
+      width: 340px;
+    }
+  }
+
+  .compact-weather, .tomorrow-weather {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    border-radius: 12px;
+    padding: 10px 15px;
+    color: white;
+    width: 100%;
+    height: 160px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: opacity 0.3s ease;
+  }
+
+  .footer-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    overflow-y: auto;
+  }
+
+  /* Contenedor para las secciones del footer */
+  .footer-sections-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    width: 100%;
+  }
+
+  /* Media query para escritorio */
+  @media (min-width: 768px) {
+    .footer-sections-grid {
+      grid-template-columns: repeat(2, 1fr);
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Para secciones que queremos que ocupen todo el ancho */
+    .footer-section-full {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .footer-sections-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* Estilos específicos para móvil */
+  @media (max-width: 767px) {
+    .footer-sections-grid {
+      padding: 0;
+    }
+
+    /* Ajustar el scroll de días */
+    .footer-section-full {
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    /* Ajustar el grid de estadísticas en móvil */
+    .stats-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    /* Ajustar los días de previsión */
+    .days-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 5px;
+      margin: 0 -8px;
+      padding: 0 8px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE and Edge */
+    }
+
+    .days-scroll::-webkit-scrollbar {
+      display: none; /* Chrome, Safari and Opera */
+    }
+
+    .day-item {
+      min-width: 60px;
+      flex-shrink: 0;
+    }
+
+    /* Ajustar padding y márgenes en móvil */
+    .prediction-input, 
+    .current-value,
+    .weather-main, 
+    .weather-header {
+      padding: 8px;
+    }
+
+    /* Ajustar tamaños de texto en móvil */
+    .stats-value {
+      font-size: 16px;
+    }
+
+    .stats-label {
+      font-size: 10px;
+    }
+  }
+
+  /* Mantener los estilos de escritorio como están */
+  @media (min-width: 768px) {
+    .days-scroll {
+      display: flex;
+      gap: 12px;
+    }
+
+    .day-item {
+      flex: 1;
+    }
   }
 </style>
 
 <div id="map"></div>
 
-<div class="compact-weather" style="position: absolute; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); border-radius: 12px; padding: 10px 15px; color: white; width: 340px; height: 160px; z-index: 10; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); top: 20px;">
-  <div *ngIf="isLoading" style="display: flex; align-items: center; justify-content: center;">
-    <i class="fas fa-spinner" style="font-size: 24px;"></i>
-  </div>
-
-  <div *ngIf="!isLoading && weatherError" style="display: flex; align-items: center; gap: 10px; color: #ff4444;">
-    <i class="fas fa-exclamation-circle"></i>
-    <span>{{ weatherError }}</span>
-    <button (click)="loadCurrentWeather()" style="background: none; border: none; color: white; cursor: pointer;">
-      <i class="fas fa-sync-alt"></i>
-    </button>
-  </div>
-
-  <div *ngIf="!isLoading && !weatherError && currentWeather">
-    <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: 0.9; padding: 0 0 8px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-      <span>Temperatura y humedad de hoy</span>
+<!-- Contenedor para las tarjetas -->
+<div class="weather-cards-container">
+  <div class="compact-weather">
+    <!-- Contenido de la tarjeta de hoy -->
+    <div *ngIf="isLoading" style="display: flex; align-items: center; justify-content: center;">
+      <i class="fas fa-spinner" style="font-size: 24px;"></i>
     </div>
 
-    <div style="height: 105px; display: flex; flex-direction: column; justify-content: space-between; padding: 0 20px;">
-      <div style="display: flex; justify-content: space-between;">
-        <!-- Columna izquierda - Predicciones de ayer -->
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          <div style="font-size: 12px; opacity: 0.6; margin-bottom: 5px;">Tu previsión de ayer para hoy a las 12:00:</div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-thermometer-half" style="font-size: 16px; width: 20px; text-align: center; opacity: 0.7;"></i>
-            <span style="color: white; font-size: 14px;">{{ userYesterdayPrediction }}°C</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-tint" style="font-size: 16px; width: 20px; text-align: center; opacity: 0.7;"></i>
-            <span style="color: white; font-size: 14px;">{{ userYesterdayHumidityPrediction }}%</span>
-          </div>
-        </div>
-
-        <!-- Separador vertical -->
-        <div style="width: 1px; height: 70px; background: rgba(255, 255, 255, 0.1); margin: 0 15px;"></div>
-
-        <!-- Columna derecha - Valores actuales -->
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          <div style="font-size: 12px; opacity: 0.6; margin-bottom: 5px;">Valores actuales:</div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-thermometer-half" style="font-size: 16px; width: 20px; text-align: center; opacity: 0.7;"></i>
-            <span style="color: white; font-size: 14px;">{{ currentWeather.temp }}°C</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-tint" style="font-size: 16px; width: 20px; text-align: center; opacity: 0.7;"></i>
-            <span style="color: white; font-size: 14px;">{{ currentWeather.humidity }}%</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Indicador En directo -->
-      <div style="display: flex; justify-content: flex-end; margin-top: 5px;">
-        <div style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: #00ff9d; opacity: 0.9;">
-          <i class="fas fa-circle pulse-icon" style="font-size: 10px;"></i>
-          En directo
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="tomorrow-weather" style="position: absolute; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); border-radius: 12px; padding: 15px; color: white; width: 340px; height: 220px; z-index: 10; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); top: 200px;">
-  <div *ngIf="isLoadingTomorrow" style="display: flex; align-items: center; justify-content: center;">
-    <i class="fas fa-spinner" style="font-size: 24px;"></i>
-  </div>
-
-  <div *ngIf="!isLoadingTomorrow && tomorrowError" style="display: flex; align-items: center; gap: 10px; color: #ff4444;">
-    <i class="fas fa-exclamation-circle"></i>
-    <span>{{ tomorrowError }}</span>
-    <button (click)="loadTomorrowTemp()" style="background: none; border: none; color: white; cursor: pointer;">
-      <i class="fas fa-sync-alt"></i>
-    </button>
-  </div>
-
-  <div *ngIf="!isLoadingTomorrow && !tomorrowError && tomorrowTemp">
-    <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: 0.9; padding: 0 0 8px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 25px;">
-      <span>Tu previsión de mañana a las 12:00</span>
-    </div>
-
-    <div style="height: 145px; display: flex; flex-direction: column; justify-content: space-between; padding: 0 20px;">
-      <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 280px; margin: 0 auto;">
-        <div style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; width: 100%;">
-          <i class="fas fa-thermometer-half"></i>
-          <input 
-            type="number" 
-            [(ngModel)]="userTomorrowPrediction" 
-            placeholder="Temperatura"
-            style="background: transparent; border: none; color: white; font-size: 14px; flex: 1; padding: 4px; text-align: left; outline: none; -webkit-appearance: none; -moz-appearance: textfield; -webkit-tap-highlight-color: transparent;"
-            step="0.1"
-          >
-          <span style="color: white; opacity: 0.7; font-size: 12px;">°C</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; width: 100%;">
-          <i class="fas fa-tint"></i>
-          <input 
-            type="number" 
-            [(ngModel)]="userTomorrowHumidityPrediction" 
-            placeholder="Humedad"
-            style="background: transparent; border: none; color: white; font-size: 14px; flex: 1; padding: 4px; text-align: left; outline: none; -webkit-appearance: none; -moz-appearance: textfield; -webkit-tap-highlight-color: transparent;"
-            step="1"
-          >
-          <span style="color: white; opacity: 0.7; font-size: 12px;">%</span>
-        </div>
-      </div>
-
-      <!-- Botón Publicar -->
-      <button style="background: rgba(0, 255, 157, 0.1); border: 1px solid rgba(0, 255, 157, 0.2); color: #00ff9d; font-size: 13px; padding: 8px 0; border-radius: 8px; width: 100%; max-width: 280px; margin: 20px auto 0; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px;">
-        <i class="fas fa-paper-plane" style="font-size: 12px;"></i>
-        Publicar predicción
+    <div *ngIf="!isLoading && weatherError" style="display: flex; align-items: center; gap: 10px; color: #ff4444;">
+      <i class="fas fa-exclamation-circle"></i>
+      <span>{{ weatherError }}</span>
+      <button (click)="loadCurrentWeather()" style="background: none; border: none; color: white; cursor: pointer;">
+        <i class="fas fa-sync-alt"></i>
       </button>
+    </div>
+
+    <div *ngIf="!isLoading && !weatherError && currentWeather">
+      <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: 0.9; padding: 0 0 8px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+        <span>Temperatura de hoy</span>
+      </div>
+
+      <div style="height: 105px; display: flex; flex-direction: column; justify-content: space-between; padding: 0 20px;">
+        <div style="display: flex; justify-content: space-between;">
+          <!-- Columna izquierda - Predicciones de ayer -->
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 12px; opacity: 0.6; margin-bottom: 5px;">Tu previsión de ayer para hoy a las 12:00:</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-thermometer-half" style="font-size: 16px; width: 20px; text-align: center; opacity: 0.7;"></i>
+              <span style="color: white; font-size: 14px;">{{ userYesterdayPrediction }}°C</span>
+            </div>
+          </div>
+
+          <!-- Separador vertical -->
+          <div style="width: 1px; height: 70px; background: rgba(255, 255, 255, 0.1); margin: 0 15px;"></div>
+
+          <!-- Columna derecha - Valores actuales -->
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="font-size: 12px; opacity: 0.6; margin-bottom: 5px;">Valores actuales:</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-thermometer-half" style="font-size: 16px; width: 20px; text-align: center; opacity: 0.7;"></i>
+              <span style="color: white; font-size: 14px;">{{ currentWeather.temp }}°C</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Indicador En directo -->
+        <div style="display: flex; justify-content: flex-end; margin-top: 5px;">
+          <div style="display: flex; align-items: center; gap: 4px; font-size: 11px; color: #00ff9d; opacity: 0.9;">
+            <i class="fas fa-circle pulse-icon" style="font-size: 10px;"></i>
+            En directo
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tomorrow-weather">
+    <!-- Contenido de la tarjeta de mañana -->
+    <div *ngIf="isLoadingTomorrow" style="display: flex; align-items: center; justify-content: center;">
+      <i class="fas fa-spinner" style="font-size: 24px;"></i>
+    </div>
+
+    <div *ngIf="!isLoadingTomorrow && tomorrowError" style="display: flex; align-items: center; gap: 10px; color: #ff4444;">
+      <i class="fas fa-exclamation-circle"></i>
+      <span>{{ tomorrowError }}</span>
+      <button (click)="loadTomorrowTemp()" style="background: none; border: none; color: white; cursor: pointer;">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+    </div>
+
+    <div *ngIf="!isLoadingTomorrow && !tomorrowError && tomorrowTemp">
+      <div style="display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: 0.9; padding: 0 0 8px 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 25px;">
+        <span>Tu previsión de mañana a las 12:00</span>
+      </div>
+
+      <div style="height: 85px; display: flex; flex-direction: column; justify-content: space-between; padding: 0 20px;">
+        <div style="display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 280px; margin: 0 auto;">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 6px 12px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; width: 100%;">
+            <i class="fas fa-thermometer-half"></i>
+            <input 
+              type="number" 
+              [(ngModel)]="userTomorrowPrediction" 
+              placeholder="Temperatura"
+              style="background: transparent; border: none; color: white; font-size: 14px; flex: 1; padding: 4px; text-align: left; outline: none; -webkit-appearance: none; -moz-appearance: textfield; -webkit-tap-highlight-color: transparent;"
+              step="0.1"
+            >
+            <span style="color: white; opacity: 0.7; font-size: 12px;">°C</span>
+          </div>
+        </div>
+
+        <!-- Botón Publicar -->
+        <button style="background: rgba(0, 255, 157, 0.1); border: 1px solid rgba(0, 255, 157, 0.2); color: #00ff9d; font-size: 13px; padding: 8px 0; border-radius: 8px; width: 100%; max-width: 280px; margin: 10px auto 0; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <i class="fas fa-paper-plane" style="font-size: 12px;"></i>
+          Publicar predicción
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -1224,148 +1364,197 @@
       Ciudad de Madrid
     </div>
 
-    <!-- Sección de previsión próximos días -->
-    <div style="background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; margin-bottom: 12px;">
-      <div style="font-size: 13px; color: white; opacity: 0.9; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-calendar-alt" style="opacity: 0.7;"></i>
-        Previsión próximos días
+    <div class="footer-sections-grid">
+      <!-- Sección de previsión próximos días - ancho completo -->
+      <div class="footer-section-full" style="background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; margin-bottom: 12px;">
+        <div style="font-size: 13px; color: white; opacity: 0.9; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-calendar-alt" style="opacity: 0.7;"></i>
+          Previsión próximos días
+        </div>
+        <div class="days-scroll">
+          <!-- Día 1 -->
+          <div class="day-item" style="display: flex; flex-direction: column; align-items: center;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">Mañana</div>
+            <i class="fas fa-cloud" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
+            <div style="font-size: 13px; color: white;">22°C</div>
+          </div>
+          <!-- Día 2 -->
+          <div class="day-item" style="display: flex; flex-direction: column; align-items: center;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">Viernes</div>
+            <i class="fas fa-sun" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
+            <div style="font-size: 13px; color: white;">24°C</div>
+          </div>
+          <!-- Día 3 -->
+          <div class="day-item" style="display: flex; flex-direction: column; align-items: center;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">Sábado</div>
+            <i class="fas fa-cloud-sun" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
+            <div style="font-size: 13px; color: white;">23°C</div>
+          </div>
+          <!-- Día 4 -->
+          <div class="day-item" style="display: flex; flex-direction: column; align-items: center;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">Domingo</div>
+            <i class="fas fa-cloud-rain" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
+            <div style="font-size: 13px; color: white;">20°C</div>
+          </div>
+          <!-- Día 5 -->
+          <div class="day-item" style="display: flex; flex-direction: column; align-items: center;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">Lunes</div>
+            <i class="fas fa-cloud-showers-heavy" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
+            <div style="font-size: 13px; color: white;">19°C</div>
+          </div>
+          <!-- Día 6 -->
+          <div class="day-item" style="display: flex; flex-direction: column; align-items: center;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">Martes</div>
+            <i class="fas fa-cloud-sun" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
+            <div style="font-size: 13px; color: white;">21°C</div>
+          </div>
+          <!-- Día 7 -->
+          <div class="day-item" style="display: flex; flex-direction: column; align-items: center;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">Miércoles</div>
+            <i class="fas fa-sun" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
+            <div style="font-size: 13px; color: white;">23°C</div>
+          </div>
+        </div>
       </div>
-      <div style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch;">
-        <!-- Día 1 -->
-        <div style="display: flex; flex-direction: column; align-items: center; min-width: 65px;">
-          <div style="font-size: 11px; color: white; opacity: 0.7;">Mañana</div>
-          <i class="fas fa-cloud" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
-          <div style="font-size: 13px; color: white;">22°C</div>
-        </div>
-        <!-- Día 2 -->
-        <div style="display: flex; flex-direction: column; align-items: center; min-width: 65px;">
-          <div style="font-size: 11px; color: white; opacity: 0.7;">Viernes</div>
-          <i class="fas fa-sun" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
-          <div style="font-size: 13px; color: white;">24°C</div>
-        </div>
-        <!-- Día 3 -->
-        <div style="display: flex; flex-direction: column; align-items: center; min-width: 65px;">
-          <div style="font-size: 11px; color: white; opacity: 0.7;">Sábado</div>
-          <i class="fas fa-cloud-sun" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
-          <div style="font-size: 13px; color: white;">23°C</div>
-        </div>
-        <!-- Día 4 -->
-        <div style="display: flex; flex-direction: column; align-items: center; min-width: 65px;">
-          <div style="font-size: 11px; color: white; opacity: 0.7;">Domingo</div>
-          <i class="fas fa-cloud-rain" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
-          <div style="font-size: 13px; color: white;">20°C</div>
-        </div>
-        <!-- Día 5 -->
-        <div style="display: flex; flex-direction: column; align-items: center; min-width: 65px;">
-          <div style="font-size: 11px; color: white; opacity: 0.7;">Lunes</div>
-          <i class="fas fa-cloud-showers-heavy" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
-          <div style="font-size: 13px; color: white;">19°C</div>
-        </div>
-        <!-- Día 6 -->
-        <div style="display: flex; flex-direction: column; align-items: center; min-width: 65px;">
-          <div style="font-size: 11px; color: white; opacity: 0.7;">Martes</div>
-          <i class="fas fa-cloud-sun" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
-          <div style="font-size: 13px; color: white;">21°C</div>
-        </div>
-        <!-- Día 7 -->
-        <div style="display: flex; flex-direction: column; align-items: center; min-width: 65px;">
-          <div style="font-size: 11px; color: white; opacity: 0.7;">Miércoles</div>
-          <i class="fas fa-sun" style="font-size: 20px; color: white; opacity: 0.8; margin: 6px 0;"></i>
-          <div style="font-size: 13px; color: white;">23°C</div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Sección de mis previsiones -->
-    <div style="background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; margin-bottom: 12px;">
-      <div style="font-size: 13px; color: white; opacity: 0.9; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-history" style="opacity: 0.7;"></i>
-        Historial de mis previsiones
+      <!-- Sección de mis previsiones -->
+      <div style="background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px;">
+        <div style="font-size: 13px; color: white; opacity: 0.9; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-history" style="opacity: 0.7;"></i>
+          Historial de mis previsiones
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">Ayer</div>
+            <div style="display: flex; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-thermometer-half" style="font-size: 11px; opacity: 0.7;"></i>
+                <span style="font-size: 11px; color: white;">21°C</span>
+              </div>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">Martes</div>
+            <div style="display: flex; gap: 12px;">
+              <div style="display: flex; align-items: center; gap: 4px;">
+                <i class="fas fa-thermometer-half" style="font-size: 11px; opacity: 0.7;"></i>
+                <span style="font-size: 11px; color: white;">19°C</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div style="display: flex; flex-direction: column; gap: 8px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
-          <div style="font-size: 11px; color: white; opacity: 0.7;">Ayer</div>
-          <div style="display: flex; gap: 12px;">
+
+      <!-- Sección de estadísticas -->
+      <div style="background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px;">
+        <div style="font-size: 13px; color: white; opacity: 0.9; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-chart-line" style="opacity: 0.7;"></i>
+          Estadísticas de predicción
+        </div>
+        <div class="stats-grid" style="display: grid; gap: 10px;">
+          <!-- Precisión general -->
+          <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px;">
+            <div class="stats-label" style="color: white; opacity: 0.7; margin-bottom: 4px;">Precisión general</div>
+            <div class="stats-value" style="color: #00ff9d; font-weight: 500;">87%</div>
+          </div>
+          <!-- Racha actual -->
+          <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px;">
+            <div class="stats-label" style="color: white; opacity: 0.7; margin-bottom: 4px;">Racha actual</div>
+            <div class="stats-value" style="color: white; font-weight: 500;">5 días</div>
+          </div>
+          <!-- Predicciones totales -->
+          <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px;">
+            <div class="stats-label" style="color: white; opacity: 0.7; margin-bottom: 4px;">Predicciones totales</div>
+            <div class="stats-value" style="color: white; font-weight: 500;">42</div>
+          </div>
+          <!-- Mejor racha -->
+          <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px;">
+            <div class="stats-label" style="color: white; opacity: 0.7; margin-bottom: 4px;">Mejor racha</div>
+            <div class="stats-value" style="color: white; font-weight: 500;">8 días</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección de temperaturas exactas -->
+      <div style="background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px;">
+        <div style="font-size: 13px; color: white; opacity: 0.9; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <i class="fas fa-history" style="opacity: 0.7;"></i>
+          Temperaturas exactas últimos 10 días
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">17 Marzo</div>
             <div style="display: flex; align-items: center; gap: 4px;">
               <i class="fas fa-thermometer-half" style="font-size: 11px; opacity: 0.7;"></i>
-              <span style="font-size: 11px; color: white;">21°C</span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 4px;">
-              <i class="fas fa-tint" style="font-size: 11px; opacity: 0.7;"></i>
-              <span style="font-size: 11px; color: white;">60%</span>
+              <span style="font-size: 11px; color: white;">21.34°C</span>
             </div>
           </div>
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
-          <div style="font-size: 11px; color: white; opacity: 0.7;">Martes</div>
-          <div style="display: flex; gap: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">16 Marzo</div>
             <div style="display: flex; align-items: center; gap: 4px;">
               <i class="fas fa-thermometer-half" style="font-size: 11px; opacity: 0.7;"></i>
-              <span style="font-size: 11px; color: white;">19°C</span>
+              <span style="font-size: 11px; color: white;">19.82°C</span>
             </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">15 Marzo</div>
             <div style="display: flex; align-items: center; gap: 4px;">
-              <i class="fas fa-tint" style="font-size: 11px; opacity: 0.7;"></i>
-              <span style="font-size: 11px; color: white;">55%</span>
+              <i class="fas fa-thermometer-half" style="font-size: 11px; opacity: 0.7;"></i>
+              <span style="font-size: 11px; color: white;">22.56°C</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">14 Marzo</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <i class="fas fa-thermometer-half" style="font-size: 11px; opacity: 0.7;"></i>
+              <span style="font-size: 11px; color: white;">20.73°C</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">13 Marzo</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <i class="fas fa-thermometer-half" style="font-size: 11px; opacity: 0.7;"></i>
+              <span style="font-size: 11px; color: white;">18.25°C</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">12 Marzo</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <i class="fas fa-thermometer-half" style="font-size: 11px; opacity: 0.7;"></i>
+              <span style="font-size: 11px; color: white;">23.15°C</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">11 Marzo</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <i class="fas fa-thermometer-half" style="font-size: 11px; opacity: 0.7;"></i>
+              <span style="font-size: 11px; color: white;">21.92°C</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">10 Marzo</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <i class="fas fa-thermometer-half" style="font-size: 11px; opacity: 0.7;"></i>
+              <span style="font-size: 11px; color: white;">19.45°C</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">9 Marzo</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <i class="fas fa-thermometer-half" style="font-size: 11px; opacity: 0.7;"></i>
+              <span style="font-size: 11px; color: white;">20.67°C</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+            <div style="font-size: 11px; color: white; opacity: 0.7;">8 Marzo</div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <i class="fas fa-thermometer-half" style="font-size: 11px; opacity: 0.7;"></i>
+              <span style="font-size: 11px; color: white;">22.83°C</span>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Nueva sección de estadísticas -->
-    <div style="background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px; margin-bottom: 12px;">
-      <div style="font-size: 13px; color: white; opacity: 0.9; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-chart-line" style="opacity: 0.7;"></i>
-        Estadísticas de predicción
-      </div>
-      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-        <!-- Precisión general -->
-        <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px;">
-          <div style="font-size: 11px; color: white; opacity: 0.7; margin-bottom: 4px;">Precisión general</div>
-          <div style="display: flex; align-items: baseline; gap: 4px;">
-            <span style="font-size: 18px; color: #00ff9d; font-weight: 500;">87%</span>
-            <span style="font-size: 11px; color: #00ff9d; opacity: 0.7;">↑2%</span>
-          </div>
-        </div>
-        <!-- Racha actual -->
-        <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px;">
-          <div style="font-size: 11px; color: white; opacity: 0.7; margin-bottom: 4px;">Racha actual</div>
-          <div style="display: flex; align-items: baseline; gap: 4px;">
-            <span style="font-size: 18px; color: white; font-weight: 500;">5</span>
-            <span style="font-size: 11px; color: white; opacity: 0.7;">días</span>
-          </div>
-        </div>
-        <!-- Predicciones totales -->
-        <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px;">
-          <div style="font-size: 11px; color: white; opacity: 0.7; margin-bottom: 4px;">Predicciones totales</div>
-          <div style="display: flex; align-items: baseline; gap: 4px;">
-            <span style="font-size: 18px; color: white; font-weight: 500;">42</span>
-            <i class="fas fa-trophy" style="font-size: 11px; color: #FFD700; margin-left: 4px;"></i>
-          </div>
-        </div>
-        <!-- Mejor racha -->
-        <div style="background: rgba(255, 255, 255, 0.03); border-radius: 8px; padding: 12px;">
-          <div style="font-size: 11px; color: white; opacity: 0.7; margin-bottom: 4px;">Mejor racha</div>
-          <div style="display: flex; align-items: baseline; gap: 4px;">
-            <span style="font-size: 18px; color: white; font-weight: 500;">8</span>
-            <span style="font-size: 11px; color: white; opacity: 0.7;">días</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Media query para pantallas más grandes -->
-    <style>
-      @media (min-width: 768px) {
-        .footer-content {
-          flex-direction: row !important;
-          gap: 20px;
-        }
-        .weather-section {
-          flex: 1;
-        }
-      }
-    </style>
   </div>
 </footer>
 
@@ -1389,9 +1578,31 @@
 
     const footer = document.getElementById('draggableFooter');
     const handle = document.getElementById('dragHandle');
+    const compactWeather = document.querySelector('.compact-weather');
+    const tomorrowWeather = document.querySelector('.tomorrow-weather');
     let startY;
     let startHeight;
     let isDragging = false;
+    let isExpanded = false;
+
+    handle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      isExpanded = !isExpanded;
+      
+      if (isExpanded) {
+        footer.style.height = '90vh';
+        compactWeather.style.opacity = '0';
+        tomorrowWeather.style.opacity = '0';
+        compactWeather.style.pointerEvents = 'none';
+        tomorrowWeather.style.pointerEvents = 'none';
+      } else {
+        footer.style.height = '50vh';
+        compactWeather.style.opacity = '1';
+        tomorrowWeather.style.opacity = '1';
+        compactWeather.style.pointerEvents = 'auto';
+        tomorrowWeather.style.pointerEvents = 'auto';
+      }
+    });
 
     handle.addEventListener('touchstart', initDrag, false);
     handle.addEventListener('mousedown', initDrag, false);
@@ -1401,12 +1612,16 @@
     document.addEventListener('touchend', stopDrag, false);
 
     function initDrag(e) {
+      if (e.target === handle && e.type === 'mousedown') {
+        // Si es un clic del ratón en el handle, no iniciamos el arrastre
+        return;
+      }
       isDragging = true;
       startY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
       startHeight = parseInt(document.defaultView.getComputedStyle(footer).height, 10);
 
       if (e.type === 'touchstart') {
-        e.preventDefault(); // Prevenir scroll mientras se arrastra
+        e.preventDefault();
       }
     }
 
@@ -1416,13 +1631,30 @@
       e.preventDefault();
       const currentY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
       const deltaY = startY - currentY;
-      const newHeight = Math.min(Math.max(startHeight + deltaY, window.innerHeight * 0.3), window.innerHeight * 0.5);
+      const newHeight = Math.min(Math.max(startHeight + deltaY, window.innerHeight * 0.04), window.innerHeight * 0.9);
       
       footer.style.height = `${newHeight}px`;
+
+      // Ajustar la opacidad de las tarjetas basado en la altura del footer
+      const heightPercentage = newHeight / window.innerHeight;
+      if (heightPercentage > 0.3) {
+        compactWeather.style.opacity = '0';
+        tomorrowWeather.style.opacity = '0';
+        compactWeather.style.pointerEvents = 'none';
+        tomorrowWeather.style.pointerEvents = 'none';
+      } else {
+        compactWeather.style.opacity = '1';
+        tomorrowWeather.style.opacity = '1';
+        compactWeather.style.pointerEvents = 'auto';
+        tomorrowWeather.style.pointerEvents = 'auto';
+      }
     }
 
     function stopDrag() {
       isDragging = false;
     }
+
+    // Establecer altura inicial
+    footer.style.height = '50vh';
   });
 </script>

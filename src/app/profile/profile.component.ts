@@ -21,8 +21,8 @@ export class ProfileComponent {
       this.router.navigate(['/scanner']);
     }
 
-    event(): void {
-      this.router.navigate(['/myevents']);
+    dashboard(): void {
+      this.router.navigate(['/dashboard']);
     }
   
     ngOnInit(): void {
@@ -30,6 +30,10 @@ export class ProfileComponent {
     }
   
     goToSettings() {
+      this.router.navigate(['/profile-settings']);
+    }
+
+    profileSettings() {
       this.router.navigate(['/profile-settings']);
     }
 
