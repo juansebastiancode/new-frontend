@@ -1,8 +1,32 @@
-<html style="height: 100%; background-color: #121212; overflow: hidden; scrollbar-width: none; -ms-overflow-style: none;">
+<html style="height: 100%; background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%); overflow: hidden; scrollbar-width: none; -ms-overflow-style: none;">
   <head>
-    <!-- Font Awesome CDN -->
-    <script src="https://kit.fontawesome.com/your-kit-id.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      }
+
+      /* Estilos del placeholder para todos los navegadores */
+      ::placeholder {
+        color: rgba(255, 255, 255, 0.8) !important;
+      }
+      
+      ::-webkit-input-placeholder {
+        color: rgba(255, 255, 255, 0.8) !important;
+      }
+      
+      ::-moz-placeholder {
+        color: rgba(255, 255, 255, 0.8) !important;
+      }
+      
+      :-ms-input-placeholder {
+        color: rgba(255, 255, 255, 0.8) !important;
+      }
+
       /* Hide scrollbar for Chrome, Safari and Opera */
       ::-webkit-scrollbar {
         display: none;
@@ -14,7 +38,7 @@
         left: 0;
         right: 0;
         height: 100px;
-        background: linear-gradient(to bottom, #121212 0%, rgba(18, 18, 18, 0.9) 50%, rgba(18, 18, 18, 0) 100%);
+        background: linear-gradient(to bottom, #f5f7fa 0%, rgba(245, 247, 250, 0.9) 50%, rgba(245, 247, 250, 0) 100%);
         z-index: 999;
         pointer-events: none;
         opacity: 0;
@@ -24,108 +48,258 @@
       .scroll-overlay.visible {
         opacity: 1;
       }
+
+      /* Animaciones mejoradas */
+      @keyframes rain {
+        0% {
+          background-position: 0% 0%;
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 0.6;
+        }
+        100% {
+          background-position: 20% 100%;
+          opacity: 0.3;
+        }
+      }
+
+      @keyframes clouds {
+        0% {
+          background-position: 0% 50%;
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 0.5;
+          background-position: 50% 50%;
+        }
+        100% {
+          background-position: 100% 50%;
+          opacity: 0.3;
+        }
+      }
+
+      @keyframes sunny {
+        0% {
+          opacity: 0.2;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.4;
+          transform: scale(1.1);
+        }
+        100% {
+          opacity: 0.2;
+          transform: scale(1);
+        }
+      }
+
+      .weather-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        background-size: 200% 200%;
+        pointer-events: none;
+        mix-blend-mode: soft-light;
+      }
+
+      .rain-bg {
+        background: repeating-linear-gradient(
+          -45deg,
+          rgba(255, 255, 255, 0.1),
+          rgba(255, 255, 255, 0.1) 1px,
+          transparent 1px,
+          transparent 5px
+        );
+        background-size: 10px 10px;
+        animation: rain 1s linear infinite;
+      }
+
+      .clouds-bg {
+        background: 
+          radial-gradient(circle at 50% 50%, 
+            rgba(255, 255, 255, 0.2) 0%,
+            transparent 40%),
+          radial-gradient(circle at 30% 40%, 
+            rgba(255, 255, 255, 0.2) 0%,
+            transparent 30%);
+        animation: clouds 15s ease-in-out infinite;
+      }
+
+      .sunny-bg {
+        background: radial-gradient(
+          circle at 50% 50%,
+          rgba(255, 236, 59, 0.3) 0%,
+          rgba(255, 167, 38, 0.2) 30%,
+          transparent 70%
+        );
+        animation: sunny 8s ease-in-out infinite;
+      }
+
+      .city-card {
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .city-card:hover {
+        transform: translateY(-2px);
+        background: rgba(0, 0, 0, 0.5);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      }
     </style>
   </head>
-  <body style="height: 100vh; margin: 0; font-family: Arial, sans-serif; background-color: #121212; color: white; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; overflow: hidden;">
+  <body style="height: 100vh; margin: 0; background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%); color: #2c3e50; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; min-height: 100vh; overflow: hidden;">
     <!-- Overlay que aparece al hacer scroll -->
     <div id="scrollOverlay" class="scroll-overlay"></div>
 
     <!-- Contenido -->
-    <div style="padding-top: 8%; width: 90%; max-width: 600px; flex-grow: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; overflow-x: hidden;">
+    <div style="padding-top: 4%; width: 90%; max-width: 600px; flex-grow: 1; display: flex; flex-direction: column; align-items: center; overflow-y: auto; overflow-x: hidden;">
+      
+      <!-- Botones de navegación -->
+      <div style="width: 100%; display: flex; justify-content: flex-end; gap: 25px; margin-bottom: 25px; padding-right: 5px;">
+        <i class="fas fa-chart-line" style="color: #8e8e93; font-size: 20px; cursor: pointer; transition: color 0.2s ease;" onmouseover="this.style.color='#00ff9d'" onmouseout="this.style.color='#8e8e93'"></i>
+        <i class="fas fa-gear" style="color: #8e8e93; font-size: 20px; cursor: pointer; transition: color 0.2s ease;" onmouseover="this.style.color='#00ff9d'" onmouseout="this.style.color='#8e8e93'"></i>
+      </div>
 
-      <!-- Tarjeta de usuario -->
-      <div style="width: 90%; background: rgb(23, 23, 23); border-radius: 16px; padding: 20px;  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); border: none; display: flex; flex-direction: column; gap: 15px; position: relative; z-index: 1001;">
+      <!-- Barra de búsqueda fija -->
+      <div style="position: sticky; top: 15px; width: 100%; z-index: 1000; padding: 0 0 15px; background: linear-gradient(to bottom, rgba(245, 247, 250, 1) 60%, rgba(245, 247, 250, 0));">
+        <div style="position: relative; width: 100%;">
+          <input type="text" placeholder="Añadir ciudad" style="width: 100%; padding: 15px 45px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; font-size: 14px; backdrop-filter: blur(10px); transition: all 0.3s ease; outline: none; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);">
+          <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.6); font-size: 16px;"></i>
+        </div>
+      </div>
 
-        <!-- Icono de ajustes -->
-        <div (click)="goToSettings()" style="position: absolute; top: 15px; right: 15px; cursor: pointer;">
-          <i class="fa-solid fa-gear" style="color: white; font-size: 18px;"></i>
-        </div>
-      
-        <!-- Sección principal: avatar + nombre -->
-        <div style="display: flex; align-items: center; gap: 15px;">
-          <!-- Avatar -->
-          <div style="width: 50px; height: 50px; background-color: #a18cd1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: white; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);">
-            U
-          </div>
-      
-          <!-- Info -->
-          <div>
-            <h2 style="margin: 0; font-size: 18px; color: white;">Marta García</h2>
-            <p style="color: gray; margin: 0;">tu_instagram</p>
-          </div>
-        </div>
-      
-        <!-- Stats -->
-        <div style="display: flex; justify-content: space-around; width: 100%; margin-top: 10px;">
-          <div style="text-align: center;">
-            <p style="margin: 5px 0 0; font-size: 14px; color: white;">12</p>
-            <span style="font-size: 12px; color: gray;">Eventos</span>
-          </div>
-          <div style="text-align: center;">
-            <p style="margin: 5px 0 0; font-size: 14px; color: white;">Premium</p>
-            <span style="font-size: 12px; color: gray;">Status</span>
-          </div>
-          <a href="https://instagram.com/oabramovich" target="_blank" style="text-decoration: none;">
-            <div style="text-align: center;">
-              <i class="fa-brands fa-instagram" style="color: #e1306c; font-size: 18px;"></i>
-              <p style="margin: 5px 0 0; font-size: 14px;"></p>
-              <span style="font-size: 12px; color: gray;">Instagram</span>
+      <!-- Espaciador para compensar la barra fija -->
+      <div style="height: 140px;"></div>
+
+      <!-- Lista de ciudades -->
+      <div style="width: 100%; max-width: 600px; margin: 20px auto 150px; display: flex; flex-direction: column; gap: 15px; position: relative;">
+        <!-- Madrid - Soleado -->
+        <div class="city-card" style="border-radius: 12px; overflow: hidden; cursor: pointer; position: relative;">
+          <div class="weather-background sunny-bg"></div>
+          <div style="padding: 20px; position: relative; z-index: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h3 style="margin: 0; font-size: 18px; color: white;">Madrid</h3>
+                <p style="margin: 4px 0 0; font-size: 13px; color: rgba(255, 255, 255, 0.6);">España</p>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 24px; color: white;">22°C</div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                  <i class="fas fa-tint" style="color: rgba(255, 255, 255, 0.6); font-size: 12px;"></i>
+                  <span style="color: rgba(255, 255, 255, 0.6); font-size: 13px;">45%</span>
+                </div>
+              </div>
             </div>
-          </a>
+            <div style="display: flex; align-items: center; gap: 4px; margin-top: 15px;">
+              <i class="fas fa-circle" style="color: #00ff9d; font-size: 8px;"></i>
+              <span style="color: #00ff9d; font-size: 11px;">En directo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barcelona - Parcialmente nublado -->
+        <div class="city-card" style="border-radius: 12px; overflow: hidden; cursor: pointer; position: relative;">
+          <div class="weather-background clouds-bg"></div>
+          <div style="padding: 20px; position: relative; z-index: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h3 style="margin: 0; font-size: 18px; color: white;">Barcelona</h3>
+                <p style="margin: 4px 0 0; font-size: 13px; color: rgba(255, 255, 255, 0.6);">España</p>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 24px; color: white;">24°C</div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                  <i class="fas fa-tint" style="color: rgba(255, 255, 255, 0.6); font-size: 12px;"></i>
+                  <span style="color: rgba(255, 255, 255, 0.6); font-size: 13px;">60%</span>
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px; margin-top: 15px;">
+              <i class="fas fa-circle" style="color: #00ff9d; font-size: 8px;"></i>
+              <span style="color: #00ff9d; font-size: 11px;">En directo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Valencia - Soleado -->
+        <div class="city-card" style="border-radius: 12px; overflow: hidden; cursor: pointer; position: relative;">
+          <div class="weather-background sunny-bg"></div>
+          <div style="padding: 20px; position: relative; z-index: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h3 style="margin: 0; font-size: 18px; color: white;">Valencia</h3>
+                <p style="margin: 4px 0 0; font-size: 13px; color: rgba(255, 255, 255, 0.6);">España</p>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 24px; color: white;">25°C</div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                  <i class="fas fa-tint" style="color: rgba(255, 255, 255, 0.6); font-size: 12px;"></i>
+                  <span style="color: rgba(255, 255, 255, 0.6); font-size: 13px;">55%</span>
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px; margin-top: 15px;">
+              <i class="fas fa-circle" style="color: #00ff9d; font-size: 8px;"></i>
+              <span style="color: #00ff9d; font-size: 11px;">En directo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sevilla - Soleado intenso -->
+        <div class="city-card" style="border-radius: 12px; overflow: hidden; cursor: pointer; position: relative;">
+          <div class="weather-background sunny-bg" style="opacity: 0.5;"></div>
+          <div style="padding: 20px; position: relative; z-index: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h3 style="margin: 0; font-size: 18px; color: white;">Sevilla</h3>
+                <p style="margin: 4px 0 0; font-size: 13px; color: rgba(255, 255, 255, 0.6);">España</p>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 24px; color: white;">28°C</div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                  <i class="fas fa-tint" style="color: rgba(255, 255, 255, 0.6); font-size: 12px;"></i>
+                  <span style="color: rgba(255, 255, 255, 0.6); font-size: 13px;">40%</span>
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px; margin-top: 15px;">
+              <i class="fas fa-circle" style="color: #00ff9d; font-size: 8px;"></i>
+              <span style="color: #00ff9d; font-size: 11px;">En directo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bilbao - Lluvioso -->
+        <div class="city-card" style="border-radius: 12px; overflow: hidden; cursor: pointer; position: relative;">
+          <div class="weather-background rain-bg"></div>
+          <div style="padding: 20px; position: relative; z-index: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h3 style="margin: 0; font-size: 18px; color: white;">Bilbao</h3>
+                <p style="margin: 4px 0 0; font-size: 13px; color: rgba(255, 255, 255, 0.6);">España</p>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 24px; color: white;">19°C</div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                  <i class="fas fa-tint" style="color: rgba(255, 255, 255, 0.6); font-size: 12px;"></i>
+                  <span style="color: rgba(255, 255, 255, 0.6); font-size: 13px;">75%</span>
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px; margin-top: 15px;">
+              <i class="fas fa-circle" style="color: #00ff9d; font-size: 8px;"></i>
+              <span style="color: #00ff9d; font-size: 11px;">En directo</span>
+            </div>
+          </div>
         </div>
       </div>
-      
-      <!-- Botón Nuevo Evento -->
-      <div (click)="qr()" style="position: sticky; top: 0; width: 85%; margin: 16px 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; cursor: pointer; background: linear-gradient(45deg, #8A2BE2, #4169E1); padding: 8px 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(138, 43, 226, 0.2), 0 0 15px rgba(138, 43, 226, 0.1), 0 0 30px rgba(65, 105, 225, 0.05); z-index: 1000; transition: all 0.3s ease;">
-        <i class="fa-solid fa-plus" style="margin-right: 6px; font-size: 12px;"></i>
-        Nuevo Evento
-      </div>
-
-      <!-- Tarjetas de eventos pasados -->
-      <div style="width: 100%; max-width: 600px; margin: 30px auto 150px; display: flex; flex-direction: column; gap: 20px; position: relative;">
-        <!-- Fondo para ocultar contenido al hacer scroll -->
-        <div style="position: fixed; top: 0; left: 0; right: 0; height: 100px; background: linear-gradient(to bottom, #121212 0%, rgba(18, 18, 18, 0.9) 50%, rgba(18, 18, 18, 0) 100%); z-index: 999; pointer-events: none;"></div>
-
-        <!-- Evento 1 -->
-        <div (click)="event()" style="cursor: pointer; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); position: relative;">
-          <img src="https://plus.unsplash.com/premium_photo-1683121131492-9ae8cdfea4f7?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Noche Retro" style="width: 100%; height: 180px; object-fit: cover;">
-          <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0,0,0,0.4), transparent); padding: 20px 15px;">
-            <span style="font-size: 18px; font-weight: bold; color: white;">Noche Retro - Sala Moon</span>
-          </div>
-        </div>
-      
-        <!-- Evento 2 -->
-        <div style="cursor: pointer; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); position: relative;">
-          <img src="https://pbs.twimg.com/profile_images/674974355735126018/HzKL12dc_400x400.jpg" alt="DJ Max" style="width: 100%; height: 180px; object-fit: cover;">
-          <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0,0,0,0.4), transparent); padding: 20px 15px;">
-            <span style="font-size: 18px; font-weight: bold; color: white;">DJ Max Birthday Set</span>
-          </div>
-        </div>
-      
-        <!-- Evento 3 -->
-        <div style="cursor: pointer; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); position: relative;">
-          <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" alt="Fiesta Electrónica" style="width: 100%; height: 180px; object-fit: cover;">
-          <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0,0,0,0.4), transparent); padding: 20px 15px;">
-            <span style="font-size: 18px; font-weight: bold; color: white;">Fiesta Electrónica - Terraza Azul</span>
-          </div>
-        </div>
-
-        <div style="cursor: pointer; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); position: relative;">
-          <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" alt="Fiesta Electrónica" style="width: 100%; height: 180px; object-fit: cover;">
-          <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0,0,0,0.4), transparent); padding: 20px 15px;">
-            <span style="font-size: 18px; font-weight: bold; color: white;">Fiesta Electrónica - Terraza Azul</span>
-          </div>
-        </div>
-
-         <div style="cursor: pointer; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); position: relative;">
-          <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80" alt="Fiesta Electrónica" style="width: 100%; height: 180px; object-fit: cover;">
-          <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0,0,0,0.4), transparent); padding: 20px 15px;">
-            <span style="font-size: 18px; font-weight: bold; color: white;">Fiesta Electrónica - Terraza Azul</span>
-          </div>
-        </div>
-      
-      </div>
-      
       
     </div>
     <script>
