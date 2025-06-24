@@ -14,6 +14,7 @@ import { ScannerComponent } from './scanner/scanner.component';
 import { MyeventsComponent } from './myevents/myevents.component';
 import { ProfileSettingsComponent } from './profile-settings/profile-settings.component';
 import { AuthGuard } from './guards/auth.guard';
+import { AsistenteComponent } from './asistente/asistente.component';
 
 export const routes: Routes = [
   { path: '', component: HomepageComponent }, 
@@ -30,4 +31,5 @@ export const routes: Routes = [
   { path: 'scanner', component: ScannerComponent, canActivate: [AuthGuard] },
   { path: 'myevents', component: MyeventsComponent, canActivate: [AuthGuard] },
   { path: 'profile-settings', component: ProfileSettingsComponent, canActivate: [AuthGuard] },
+  { path: 'asistente', component: AsistenteComponent },
 ];

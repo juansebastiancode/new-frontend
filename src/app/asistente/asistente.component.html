@@ -1,0 +1,11 @@
+<div class="asistente-container">
+  <div class="bolita-animada" [class.escuchando]="escuchando" (click)="escuchar()" style="cursor: pointer;"></div>
+
+  <div *ngIf="!soporteVoz" style="color: #c00; margin-top: 20px; font-weight: bold;">
+    Tu navegador no soporta reconocimiento de voz.
+  </div>
+
+  <div *ngIf="ultimoTextoReconocido" style="color: #333; margin-top: 20px; font-size: 1.1em;">
+    {{ ultimoTextoReconocido }}
+  </div>
+</div>
