@@ -1,11 +1,14 @@
 <div class="dashboard-container">
   <!-- Usar el componente menubar existente -->
-  <app-menubar></app-menubar>
+  <app-menubar (profileClick)="toggleProfile()"></app-menubar>
   
   <!-- Contenido principal -->
   <div class="main-content">
     <!-- Aquí va el contenido del dashboard -->
   </div>
+
+  <!-- Componente de perfil como overlay -->
+  <app-profile *ngIf="showProfile" (closeProfile)="closeProfile()"></app-profile>
 </div>
 
 <style>

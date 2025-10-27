@@ -1,9 +1,22 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-<div class="sidebar">
+<!-- Overlay para cerrar menú en móvil -->
+<div class="mobile-overlay" (click)="toggleMobileMenu()" *ngIf="showMobileMenu && isMobile"></div>
+
+<!-- Botón hamburguesa para móvil -->
+<div class="mobile-menu-toggle" (click)="toggleMobileMenu()" *ngIf="!showMobileMenu && isMobile">
+  <i class="fas fa-bars"></i>
+</div>
+
+<div class="sidebar" [class.mobile-hidden]="!showMobileMenu">
+  <!-- Botón de cerrar para móvil -->
+  <div class="mobile-close-btn" (click)="toggleMobileMenu()" *ngIf="showMobileMenu && isMobile">
+    <i class="fas fa-times"></i>
+  </div>
+
   <!-- Título de la app -->
   <div class="app-title">
-    <h1>Plan B</h1>
+    <h1>Plan B2B</h1>
   </div>
 
   <!-- Navegación -->
@@ -56,7 +69,7 @@
     </div>
     
     <!-- Dropdown Menu -->
-    <div class="user-dropdown" *ngIf="showUserDropdown">
+    <div class="user-dropdown" *ngIf="showUserDropdown" (click)="$event.stopPropagation()">
       <!-- Email de autenticación (no clicable) -->
       <div class="dropdown-email">
         <div class="email-icon">
@@ -86,6 +99,53 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
 
+  .mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+  }
+
+  .mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1001;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .mobile-menu-toggle i {
+    font-size: 18px;
+    color: #333;
+  }
+
+  .mobile-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 1002;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    cursor: pointer;
+  }
+
+  .mobile-close-btn i {
+    font-size: 18px;
+    color: #333;
+  }
+
   .sidebar {
     position: fixed;
     left: 0;
@@ -96,18 +156,25 @@
     display: flex;
     flex-direction: column;
     z-index: 1000;
+    transition: transform 0.3s ease;
+    transform: translateX(0);
+  }
+
+  .sidebar.mobile-hidden {
+    transform: translateX(-100%);
   }
 
   .app-title {
-    padding: 30px 20px 20px;
-    border-bottom: 1px solid #e0e0e0;
+    padding: 15px 20px 10px 15px;
+    border-bottom: none;
   }
 
   .app-title h1 {
     color: #333;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: 600;
     letter-spacing: 1px;
+    margin: 0;
   }
 
   .bottom-section {
@@ -297,15 +364,17 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    padding: 8px 15px;
+    padding: 6px 5px 6px 5px;
     cursor: pointer;
     transition: all 0.3s ease;
     border-left: 3px solid transparent;
+    margin: 0 10px;
+    border-radius: 6px;
   }
 
   .nav-item:hover {
     background: rgba(0, 0, 0, 0.05);
-    border-left-color: #667eea;
+    border-left-color: transparent;
   }
 
   .nav-icon {
@@ -317,14 +386,14 @@
   }
 
   .nav-icon i {
-    font-size: 16px;
+    font-size: 14px;
     color: #333;
     font-weight: 300;
   }
 
   .nav-label {
     color: #333;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 400;
   }
 
@@ -340,7 +409,7 @@
   /* Responsive */
   @media (max-width: 768px) {
     .sidebar {
-      width: 200px;
+      width: 280px;
     }
 
     .app-title h1 {
@@ -367,6 +436,26 @@
 
     .nav-label {
       font-size: 14px;
+    }
+
+    .mobile-menu-toggle {
+      display: block;
+    }
+
+    .mobile-overlay {
+      display: block;
+    }
+
+    .sidebar {
+      transform: translateX(-100%);
+    }
+
+    .sidebar:not(.mobile-hidden) {
+      transform: translateX(0);
+    }
+
+    .main-content {
+      margin-left: 0;
     }
   }
 </style>

@@ -1,48 +1,58 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-profile',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent {
-
+  @Output() closeProfile = new EventEmitter<void>();
   
-    constructor(private router: Router) {}
-  
-    navigate(page: string): void {
-      const path = `/${page}`;
-      this.router.navigate([path]);
-    }
-  
-    qr(): void {
-      this.router.navigate(['/scanner']);
-    }
+  user: any = null;
+  imageError: boolean = false;
+  private clickListener: (event: Event) => void = () => {};
 
-    dashboard(): void {
-      this.router.navigate(['/dashboard']);
-    }
-  
-    ngOnInit(): void {
-     
-    }
-  
-    goToSettings() {
-      this.router.navigate(['/profile-settings']);
-    }
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {
+    this.authService.user$.subscribe(user => {
+      this.user = user;
+    });
+  }
 
-    profileSettings(): void {
-      this.router.navigate(['/profile-settings']);
-    }
+  ngOnInit() {
+    // Agregar el listener después de que el componente esté completamente inicializado
+    setTimeout(() => {
+      this.clickListener = (event: Event) => {
+        const target = event.target as HTMLElement;
+        if (!target.closest('.profile-card')) {
+          this.closeProfile.emit();
+        }
+      };
+      document.addEventListener('click', this.clickListener);
+    }, 200);
+  }
 
-    sendLocation(): void {
-      this.router.navigate(['/sendlocation']);
-    }
+  ngOnDestroy() {
+    // Remover el listener cuando se destruye el componente
+    document.removeEventListener('click', this.clickListener);
+  }
 
-    goToNewEvent(): void {
-      this.router.navigate(['/new-event']);
-    }
+  onImageError(event: any) {
+    this.imageError = true;
+  }
 
+  getUserName(): string {
+    return this.user?.displayName || this.user?.email || 'Usuario';
+  }
+
+  getUserInitial(): string {
+    const name = this.getUserName();
+    return name.charAt(0).toUpperCase();
+  }
 }
