@@ -1,11 +1,12 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyBHt9hLUrDh3xEanD4a0Uy_OCVQ0LEI1wA",
-  authDomain: "seplay-99d7b.firebaseapp.com",
-  projectId: "seplay-99d7b",
-  storageBucket: "seplay-99d7b.firebasestorage.app",
-  messagingSenderId: "515634443835",
-  appId: "1:515634443835:web:5e1adceb6eecf8d4d48e1e"
+    apiKey: "AIzaSyB3Yu5cGwhE32PYqZrz7H3LVTejD7IpxEA",
+    authDomain: "proyecto-firebase-a9391.firebaseapp.com",
+    projectId: "proyecto-firebase-a9391",
+    storageBucket: "proyecto-firebase-a9391.firebasestorage.app",
+    messagingSenderId: "518837910115",
+    appId: "1:518837910115:web:4d9790546a22c7e1561656",
+    measurementId: "G-1409S54CRW"
   }
 }; 

@@ -17,7 +17,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { AsistenteComponent } from './asistente/asistente.component';
 
 export const routes: Routes = [
-  { path: '', component: HomepageComponent }, 
+  { path: '', component: LoginComponent }, 
   { path: 'homepage', component: HomepageComponent }, 
   { path: 'signup', component: SignupComponent }, 
   { path: 'login', component: LoginComponent }, 

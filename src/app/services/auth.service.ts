@@ -13,6 +13,7 @@ import {
 } from '@angular/fire/auth';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,8 @@ export class AuthService {
 
   constructor(
     private auth: Auth,
-    private router: Router
+    private router: Router,
+    private userService: UserService
   ) {
     // Configurar persistencia local
     setPersistence(this.auth, browserLocalPersistence);
@@ -44,6 +46,9 @@ export class AuthService {
         user.getIdToken().then(token => {
           localStorage.setItem('token', token);
         });
+        
+        // Registrar usuario en MongoDB
+        this.registerUserInMongoDB(user);
       } else {
         // Limpiar localStorage al cerrar sesión
         localStorage.removeItem('user');
@@ -56,7 +61,7 @@ export class AuthService {
     try {
       const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
       const user = userCredential.user;
-      this.router.navigate(['/profile']);
+      this.router.navigate(['/dashboard']);
       return user;
     } catch (error) {
       throw error;
@@ -67,7 +72,7 @@ export class AuthService {
     try {
       const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
       const user = userCredential.user;
-      this.router.navigate(['/profile']);
+      this.router.navigate(['/dashboard']);
       return user;
     } catch (error) {
       throw error;
@@ -97,10 +102,22 @@ export class AuthService {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(this.auth, provider);
       const user = userCredential.user;
-      this.router.navigate(['/profile']);
+      this.router.navigate(['/dashboard']);
       return user;
     } catch (error) {
       throw error;
     }
+  }
+
+  // Método privado para registrar usuario en MongoDB
+  private registerUserInMongoDB(user: User) {
+    this.userService.registerUser(user).subscribe({
+      next: (response) => {
+        console.log('✅ Usuario registrado en MongoDB:', response);
+      },
+      error: (error) => {
+        console.error('❌ Error al registrar usuario en MongoDB:', error);
+      }
+    });
   }
 } 
