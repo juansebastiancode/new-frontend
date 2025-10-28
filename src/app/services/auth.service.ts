@@ -8,9 +8,8 @@ import {
   User,
   GoogleAuthProvider,
   signInWithPopup,
-  setPersistence,
-  browserLocalPersistence
 } from '@angular/fire/auth';
+import { setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { UserService } from './user.service';
