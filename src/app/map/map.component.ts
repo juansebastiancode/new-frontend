@@ -136,18 +136,30 @@ export class MapComponent implements AfterViewInit {
 
   private renderAnnotation(a: MapAnnotationDto) {
     if (!this.map) return;
-    const marker = L.circleMarker([a.lat, a.lng], {
+    const outer = L.circleMarker([a.lat, a.lng], {
       radius: 16,
       color: '#111',
       weight: 2,
       opacity: 1,
       fillColor: '#111',
       fillOpacity: 1
-    }).addTo(this.map);
-    this.markersById.set(String(a._id || `${a.lat},${a.lng}`), marker);
+    });
+
+    const inner = L.circleMarker([a.lat, a.lng], {
+      radius: 10,
+      color: '#fff',
+      weight: 2,
+      opacity: 1,
+      fillColor: '#fff',
+      fillOpacity: 1
+    });
+
+    const group = L.featureGroup([outer, inner]).addTo(this.map);
+    this.markersById.set(String(a._id || `${a.lat},${a.lng}`), group);
+
     const safeText = (a.text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const idAttr = a._id ? `data-id="${a._id}"` : '';
-    marker.bindPopup(`<div class=\"label-card\">` +
+    const idAttr = a._id ? `data-id=\"${a._id}\"` : '';
+    group.bindPopup(`<div class=\"label-card\">` +
       `<div class=\"label-header\">` +
         `<div class=\"label-title\">Etiqueta</div>` +
       `</div>` +
@@ -156,7 +168,8 @@ export class MapComponent implements AfterViewInit {
         `<button class=\"btn delete\" ${idAttr}>Eliminar</button>` +
       `</div>` +
     `</div>`);
-    marker.on('popupopen', (e: any) => {
+
+    group.on('popupopen', (e: any) => {
       const el = e.popup.getElement() as HTMLElement;
       const btn = el.querySelector('button.delete-btn, .btn.delete') as HTMLButtonElement | null;
       if (!btn) return;
@@ -164,10 +177,10 @@ export class MapComponent implements AfterViewInit {
         const id = btn.getAttribute('data-id');
         const projId = (this.projectCtx.getCurrent() as any)?._id;
         if (!projId) { this.errorMsg = 'Abre un proyecto para eliminar'; return; }
-        if (!id) { marker.remove(); return; }
+        if (!id) { group.remove(); return; }
         this.api.delete(projId, id).subscribe({
           next: () => {
-            marker.remove();
+            group.remove();
             this.markersById.delete(id);
           },
           error: () => { this.errorMsg = 'No se pudo eliminar la etiqueta'; }

@@ -17,12 +17,17 @@ import { ProfileComponent } from '../profile/profile.component';
 })
 export class DashboardComponent {
   showProfile: boolean = false;
+  activeTab: 'projects' | 'invitations' = 'projects';
   searchQuery: string = '';
   searchHint: string = '';
   showCreateModal: boolean = false;
   projectName: string = '';
   projectSector: string = '';
   projects: ProjectDto[] = [];
+  invitations: Array<{ email: string; role: string; sentAt: string }> = [
+    { email: 'ana@empresa.com', role: 'Colaborador', sentAt: '2024-01-15' },
+    { email: 'pedro@empresa.com', role: 'Viewer', sentAt: '2024-01-12' }
+  ];
   mongoUserId: string = '';
   loadingProjects: boolean = false;
   loadError: string = '';
@@ -78,6 +83,11 @@ export class DashboardComponent {
   onSearchChange() {
     // Actualización en tiempo real se maneja vía getter filteredProjects
     this.searchHint = '';
+  }
+
+  selectTab(tab: 'projects' | 'invitations') {
+    this.activeTab = tab;
+    this.searchQuery = '';
   }
 
   closeModal() {
@@ -159,5 +169,11 @@ export class DashboardComponent {
       (p.name || '').toLowerCase().includes(q) ||
       (p.sector || '').toLowerCase().includes(q)
     );
+  }
+
+  get filteredInvitations() {
+    const q = (this.searchQuery || '').trim().toLowerCase();
+    if (!q) return this.invitations;
+    return this.invitations.filter(i => i.email.toLowerCase().includes(q) || i.role.toLowerCase().includes(q));
   }
 }

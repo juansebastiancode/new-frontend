@@ -28,7 +28,11 @@ export class SettingsComponent {
     { key: 'inventory', label: 'Inventario' },
     { key: 'suppliers', label: 'Proveedores' },
     { key: 'customers', label: 'Clientes' },
+    { key: 'marketing', label: 'Marketing' },
+    { key: 'team', label: 'Equipo' },
     { key: 'invoices', label: 'Facturas' },
+    { key: 'accounts', label: 'Cuentas' },
+    { key: 'meetings', label: 'Reuniones' },
     { key: 'statistics', label: 'Estadísticas' }
   ];
 

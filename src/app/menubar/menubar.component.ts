@@ -23,6 +23,7 @@ export class MenubarComponent implements OnInit, OnDestroy {
   isMobile: boolean = false;
   appTitle: string = 'Plan B2B';
   enabledTabs: Set<string> | null = null;
+  tabSearchQuery: string = '';
 
   constructor(
     private router: Router,
@@ -50,13 +51,13 @@ export class MenubarComponent implements OnInit, OnDestroy {
       }
     });
 
+    // Cargar título y tabs habilitados del contexto de proyecto (con fallback)
     this.projectCtx.currentProject$.subscribe(proj => {
       this.appTitle = proj?.name || 'Plan B2B';
       const tabs = (proj as any)?.enabledTabs as string[] | undefined;
       if (tabs && tabs.length) {
         this.enabledTabs = new Set(tabs);
       } else {
-        // fallback desde localStorage cuando no hay proyecto activo o el proyecto no define tabs
         try {
           const raw = localStorage.getItem('enabledTabsDefault');
           const arr = raw ? (JSON.parse(raw) as string[]) : undefined;
@@ -102,11 +103,10 @@ export class MenubarComponent implements OnInit, OnDestroy {
     this.imageError = true;
   }
 
-  // Navegación
   goToEvents() {
     const proj = this.projectCtx.getCurrent();
-    if (proj?._id) this.router.navigate(['/p', proj._id, 'events']);
-    else this.router.navigate(['/events']);
+    if (proj?._id) this.router.navigate(['/p', proj._id, 'asistente']);
+    else this.router.navigate(['/asistente']);
   }
 
   goToProfile() {
@@ -117,6 +117,18 @@ export class MenubarComponent implements OnInit, OnDestroy {
   goToDashboard() {
     this.showUserDropdown = false;
     this.router.navigate(['/dashboard']);
+  }
+
+  goToAccounts() {
+    const proj = this.projectCtx.getCurrent();
+    if (proj?._id) this.router.navigate(['/p', proj._id, 'accounts']);
+    else this.router.navigate(['/accounts']);
+  }
+
+  goToMeetings() {
+    const proj = this.projectCtx.getCurrent();
+    if (proj?._id) this.router.navigate(['/p', proj._id, 'meetings']);
+    else this.router.navigate(['/meetings']);
   }
 
   goToStats() {
@@ -132,9 +144,7 @@ export class MenubarComponent implements OnInit, OnDestroy {
   }
 
   goToSettings() {
-    const proj = this.projectCtx.getCurrent();
-    if (proj?._id) this.router.navigate(['/p', proj._id, 'settings']);
-    else this.router.navigate(['/settings']);
+    this.router.navigate(['/profile-settings']);
   }
 
   goToInventory() {
@@ -153,6 +163,18 @@ export class MenubarComponent implements OnInit, OnDestroy {
     const proj = this.projectCtx.getCurrent();
     if (proj?._id) this.router.navigate(['/p', proj._id, 'customers']);
     else this.router.navigate(['/customers']);
+  }
+
+  goToMarketing() {
+    const proj = this.projectCtx.getCurrent();
+    if (proj?._id) this.router.navigate(['/p', proj._id, 'marketing']);
+    else this.router.navigate(['/marketing']);
+  }
+
+  goToTeam() {
+    const proj = this.projectCtx.getCurrent();
+    if (proj?._id) this.router.navigate(['/p', proj._id, 'team']);
+    else this.router.navigate(['/team']);
   }
 
   goToInvoices() {
@@ -190,10 +212,21 @@ export class MenubarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard']);
   }
 
+  // Filtrado de tabs
+  onSearchInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.tabSearchQuery = target.value;
+  }
+
+  matchesTabSearch(tabKey: string, label: string): boolean {
+    const q = this.tabSearchQuery.trim().toLowerCase();
+    if (!q) return true;
+    return tabKey.toLowerCase().includes(q) || label.toLowerCase().includes(q);
+  }
+
+  // Visibilidad y estado activo
   isEnabled(tabKey: string): boolean {
-    // Ajustes siempre visible
     if (tabKey === 'settings') return true;
-    // Si no hay configuración, mostrar todo
     if (!this.enabledTabs) return true;
     return this.enabledTabs.has(tabKey);
   }
@@ -214,7 +247,11 @@ export class MenubarComponent implements OnInit, OnDestroy {
       case 'inventory': return 'inventory';
       case 'suppliers': return 'suppliers';
       case 'customers': return 'customers';
+      case 'marketing': return 'marketing';
+      case 'team': return 'team';
       case 'invoices': return 'invoices';
+      case 'accounts': return 'accounts';
+      case 'meetings': return 'meetings';
       case 'statistics': return 'statistics';
       default: return tabKey;
     }

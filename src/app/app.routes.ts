@@ -16,6 +16,10 @@ import { EventsComponent } from './events/events.component';
 import { RoadmapComponent } from './roadmap/roadmap.component';
 import { TasksComponent } from './tasks/tasks.component';
 import { MapComponent } from './map/map.component';
+import { MarketingComponent } from './marketing/marketing.component';
+import { TeamComponent } from './team/team.component';
+import { AccountsComponent } from './accounts/accounts.component';
+import { MeetingsComponent } from './meetings/meetings.component';
 
 export const routes: Routes = [
   { path: '', component: LoginComponent }, 
@@ -27,6 +31,8 @@ export const routes: Routes = [
   { path: 'inventory', component: InventoryComponent, canActivate: [AuthGuard] },
   { path: 'suppliers', component: SuppliersComponent, canActivate: [AuthGuard] },
   { path: 'customers', component: CustomersComponent, canActivate: [AuthGuard] },
+  { path: 'marketing', component: MarketingComponent, canActivate: [AuthGuard] },
+  { path: 'team', component: TeamComponent, canActivate: [AuthGuard] },
   { path: 'invoices', component: InvoicesComponent, canActivate: [AuthGuard] },
   { path: 'statistics', component: StatisticsComponent, canActivate: [AuthGuard] },
   { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
@@ -34,10 +40,14 @@ export const routes: Routes = [
   { path: 'roadmap', component: RoadmapComponent, canActivate: [AuthGuard] },
   { path: 'tasks', component: TasksComponent, canActivate: [AuthGuard] },
   { path: 'map', component: MapComponent, canActivate: [AuthGuard] },
+  { path: 'accounts', component: AccountsComponent, canActivate: [AuthGuard] },
+  { path: 'meetings', component: MeetingsComponent, canActivate: [AuthGuard] },
   // Contexto de proyecto
   { path: 'p/:projectId/inventory', component: InventoryComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/suppliers', component: SuppliersComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/customers', component: CustomersComponent, canActivate: [AuthGuard, ProjectGuard] },
+  { path: 'p/:projectId/marketing', component: MarketingComponent, canActivate: [AuthGuard, ProjectGuard] },
+  { path: 'p/:projectId/team', component: TeamComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/invoices', component: InvoicesComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/statistics', component: StatisticsComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/settings', component: SettingsComponent, canActivate: [AuthGuard, ProjectGuard] },
@@ -45,4 +55,6 @@ export const routes: Routes = [
   { path: 'p/:projectId/roadmap', component: RoadmapComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/tasks', component: TasksComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/map', component: MapComponent, canActivate: [AuthGuard, ProjectGuard] },
+  { path: 'p/:projectId/accounts', component: AccountsComponent, canActivate: [AuthGuard, ProjectGuard] },
+  { path: 'p/:projectId/meetings', component: MeetingsComponent, canActivate: [AuthGuard, ProjectGuard] },
 ];
