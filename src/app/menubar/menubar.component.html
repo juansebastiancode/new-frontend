@@ -28,12 +28,7 @@
       <span class="nav-label">Eventos</span>
     </div>
 
-    <div class="nav-item" (click)="goToStats()">
-      <div class="nav-icon">
-        <i class="far fa-chart-bar"></i>
-      </div>
-      <span class="nav-label">Estadísticas</span>
-    </div>
+    
 
     <div class="nav-item" (click)="goToWallet()">
       <div class="nav-icon">
@@ -42,12 +37,42 @@
       <span class="nav-label">Dinero</span>
     </div>
 
-    <div class="nav-item" (click)="goToSettings()">
+    <div class="nav-item" (click)="goToInventory()">
       <div class="nav-icon">
-        <i class="fas fa-circle"></i>
+        <i class="far fa-clipboard"></i>
       </div>
-      <span class="nav-label">Ajustes</span>
+      <span class="nav-label">Inventario</span>
     </div>
+
+    <div class="nav-item" (click)="goToSuppliers()">
+      <div class="nav-icon">
+        <i class="far fa-address-book"></i>
+      </div>
+      <span class="nav-label">Proveedores</span>
+    </div>
+
+    <div class="nav-item" (click)="goToCustomers()">
+      <div class="nav-icon">
+        <i class="far fa-user"></i>
+      </div>
+      <span class="nav-label">Clientes</span>
+    </div>
+
+    <div class="nav-item" (click)="goToInvoices()">
+      <div class="nav-icon">
+        <i class="far fa-file-lines"></i>
+      </div>
+      <span class="nav-label">Facturas</span>
+    </div>
+
+    <div class="nav-item" (click)="goToStats()">
+      <div class="nav-icon">
+        <i class="far fa-chart-bar"></i>
+      </div>
+      <span class="nav-label">Estadísticas</span>
+    </div>
+
+    
   </div>
 
   <!-- Usuario y Dropdown -->
@@ -388,7 +413,6 @@
   .nav-icon i {
     font-size: 14px;
     color: #333;
-    font-weight: 300;
   }
 
   .nav-label {

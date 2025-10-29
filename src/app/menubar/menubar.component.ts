@@ -91,8 +91,7 @@ export class MenubarComponent implements OnInit, OnDestroy {
   }
 
   goToStats() {
-    // Por ahora no hay página de estadísticas
-    console.log('Ir a estadísticas');
+    this.router.navigate(['/statistics']);
   }
 
   goToWallet() {
@@ -102,6 +101,22 @@ export class MenubarComponent implements OnInit, OnDestroy {
 
   goToSettings() {
     this.router.navigate(['/profile-settings']);
+  }
+
+  goToInventory() {
+    this.router.navigate(['/inventory']);
+  }
+
+  goToSuppliers() {
+    this.router.navigate(['/suppliers']);
+  }
+
+  goToCustomers() {
+    this.router.navigate(['/customers']);
+  }
+
+  goToInvoices() {
+    this.router.navigate(['/invoices']);
   }
 
   logout() {
