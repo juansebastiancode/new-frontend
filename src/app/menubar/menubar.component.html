@@ -16,63 +16,80 @@
 
   <!-- Título de la app -->
   <div class="app-title">
-    <h1>Plan B2B</h1>
+    <h1>{{ appTitle }}</h1>
   </div>
 
   <!-- Navegación -->
   <div class="navigation">
-    <div class="nav-item" (click)="goToEvents()">
+    <div class="nav-item" [class.active]="isActive('settings')" *ngIf="isEnabled('settings')" (click)="goToSettings()">
+      <div class="nav-icon">
+        <i class="far fa-rectangle-list"></i>
+      </div>
+      <span class="nav-label">Ajustes</span>
+    </div>
+
+    <div class="nav-item" [class.active]="isActive('roadmap')" *ngIf="isEnabled('roadmap')" (click)="goToRoadmap()">
+      <div class="nav-icon">
+        <i class="far fa-flag"></i>
+      </div>
+      <span class="nav-label">Roadmap</span>
+    </div>
+
+    <div class="nav-item" [class.active]="isActive('tasks')" *ngIf="isEnabled('tasks')" (click)="goToTasks()">
+      <div class="nav-icon">
+        <i class="far fa-square-check"></i>
+      </div>
+      <span class="nav-label">Tareas</span>
+    </div>
+
+    <div class="nav-item" [class.active]="isActive('map')" *ngIf="isEnabled('map')" (click)="goToMap()">
+      <div class="nav-icon">
+        <i class="far fa-map"></i>
+      </div>
+      <span class="nav-label">Mapa</span>
+    </div>
+
+    <div class="nav-item" [class.active]="isActive('events')" *ngIf="isEnabled('events')" (click)="goToEvents()">
       <div class="nav-icon">
         <i class="far fa-calendar"></i>
       </div>
       <span class="nav-label">Eventos</span>
     </div>
 
-    
-
-    <div class="nav-item" (click)="goToWallet()">
-      <div class="nav-icon">
-        <i class="far fa-dollar-sign"></i>
-      </div>
-      <span class="nav-label">Dinero</span>
-    </div>
-
-    <div class="nav-item" (click)="goToInventory()">
+    <div class="nav-item" [class.active]="isActive('inventory')" *ngIf="isEnabled('inventory')" (click)="goToInventory()">
       <div class="nav-icon">
         <i class="far fa-clipboard"></i>
       </div>
       <span class="nav-label">Inventario</span>
     </div>
 
-    <div class="nav-item" (click)="goToSuppliers()">
+    <div class="nav-item" [class.active]="isActive('suppliers')" *ngIf="isEnabled('suppliers')" (click)="goToSuppliers()">
       <div class="nav-icon">
         <i class="far fa-address-book"></i>
       </div>
       <span class="nav-label">Proveedores</span>
     </div>
 
-    <div class="nav-item" (click)="goToCustomers()">
+    <div class="nav-item" [class.active]="isActive('customers')" *ngIf="isEnabled('customers')" (click)="goToCustomers()">
       <div class="nav-icon">
         <i class="far fa-user"></i>
       </div>
       <span class="nav-label">Clientes</span>
     </div>
 
-    <div class="nav-item" (click)="goToInvoices()">
+    <div class="nav-item" [class.active]="isActive('invoices')" *ngIf="isEnabled('invoices')" (click)="goToInvoices()">
       <div class="nav-icon">
         <i class="far fa-file-lines"></i>
       </div>
       <span class="nav-label">Facturas</span>
     </div>
 
-    <div class="nav-item" (click)="goToStats()">
+    <div class="nav-item" [class.active]="isActive('statistics')" *ngIf="isEnabled('statistics')" (click)="goToStats()">
       <div class="nav-icon">
         <i class="far fa-chart-bar"></i>
       </div>
       <span class="nav-label">Estadísticas</span>
     </div>
-
-    
   </div>
 
   <!-- Usuario y Dropdown -->
@@ -107,6 +124,10 @@
       <div class="dropdown-item" (click)="goToProfile()">
         <i class="fas fa-user"></i>
         <span>Mi Perfil</span>
+      </div>
+      <div class="dropdown-item" (click)="exitProject()">
+        <i class="fas fa-arrow-left"></i>
+        <span>Salir del proyecto</span>
       </div>
       <div class="dropdown-item" (click)="logout()">
         <i class="fas fa-sign-out-alt"></i>
@@ -177,7 +198,7 @@
     top: 0;
     width: 250px;
     height: 100vh;
-    background: #f0f0f0;
+    background: #f7f7f7;
     display: flex;
     flex-direction: column;
     z-index: 1000;
@@ -196,8 +217,8 @@
 
   .app-title h1 {
     color: #333;
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 700;
     letter-spacing: 1px;
     margin: 0;
   }
@@ -397,8 +418,9 @@
     border-radius: 6px;
   }
 
-  .nav-item:hover {
-    background: rgba(0, 0, 0, 0.05);
+  .nav-item:hover,
+  .nav-item.active {
+    background: rgba(0, 0, 0, 0.045);
     border-left-color: transparent;
   }
 
@@ -413,6 +435,7 @@
   .nav-icon i {
     font-size: 14px;
     color: #333;
+    font-weight: 300;
   }
 
   .nav-label {
@@ -436,9 +459,7 @@
       width: 280px;
     }
 
-    .app-title h1 {
-      font-size: 20px;
-    }
+    .app-title h1 { font-size: 16px; }
 
     .avatar-circle {
       width: 60px;

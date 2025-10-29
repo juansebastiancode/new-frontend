@@ -1,0 +1,70 @@
+<div class="invoices-page">
+  <app-menubar (profileClick)="toggleProfile()"></app-menubar>
+  <div class="main-content">
+    <div class="invoices-container">
+      <h2>Settings</h2>
+      <div class="card">
+        <form (ngSubmit)="save()" #formRef="ngForm">
+          <div class="form-row">
+            <input class="title-input" type="text" [(ngModel)]="projectForm.name" name="name" placeholder="Título del proyecto" required />
+          </div>
+          <div class="form-row">
+            <textarea [(ngModel)]="projectForm.description" name="description" rows="4" placeholder="Descripción"></textarea>
+          </div>
+          <div class="form-row">
+            <select [(ngModel)]="projectForm.type" name="type">
+              <option value="">Tipo de proyecto</option>
+              <option value="restauracion">Restauración</option>
+              <option value="evento">Evento</option>
+              <option value="software">Software</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <input type="text" [(ngModel)]="projectForm.sector" name="sector" placeholder="Sector (Ej. B2B, Retail...)" />
+          </div>
+          <div class="actions">
+            <button class="primary" type="submit" [disabled]="saving || !projectForm.name">{{ saving ? 'Guardando...' : 'Guardar cambios' }}</button>
+            <span class="error" *ngIf="loadError">{{ loadError }}</span>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px 0; font-size:16px;">Tabs visibles en el menú</h3>
+        <div class="tabs-grid">
+          <label class="check" *ngFor="let t of availableTabs">
+            <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
+            <span>{{ t.label }}</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <app-profile *ngIf="showProfile" (closeProfile)="closeProfile()"></app-profile>
+  </div>
+</div>
+
+<style>
+  .invoices-page { width: 100%; height: 100vh; background: white; position: relative; }
+  .main-content { margin-left: 250px; height: 100vh; background: white; }
+  .invoices-container { padding: 24px; }
+  .card { border: 1px solid #ddd; border-radius: 10px; padding: 16px; background: #fff; max-width: 720px; margin-top: 20px; }
+  .tabs-grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, auto); gap: 8px 16px; margin-top: 8px; align-items: start; }
+  .check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #333; }
+  .check input { accent-color: #111; width: 18px; height: 18px; }
+  .form-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  label { display: none; }
+  input, textarea, select { border: none; border-radius: 0; padding: 8px 0; outline: none; font-size: 16px; background: transparent; color: #111; }
+  .title-input { font-size: 28px; font-weight: 700; padding: 6px 0; }
+  input::placeholder, textarea::placeholder { color: #999; }
+  textarea { resize: vertical; }
+  .actions { display: flex; gap: 10px; align-items: center; justify-content: flex-end; }
+  .primary { background: #111; color: #fff; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; }
+  .primary[disabled] { opacity: 0.6; cursor: not-allowed; }
+  .error { color: #c00; font-size: 13px; }
+  h2 { margin: 0 0 8px 0; font-weight: 600; }
+  p { color: #555; }
+  @media (max-width: 768px) { .main-content { margin-left: 200px; } }
+</style>
+
+

@@ -5,6 +5,7 @@ import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { UserService } from '../services/user.service';
 import { ProjectService, ProjectDto } from '../services/project.service';
+import { ProjectContextService } from '../services/project-context.service';
 import { ProfileComponent } from '../profile/profile.component';
 
 @Component({
@@ -31,13 +32,15 @@ export class DashboardComponent {
   imageError: boolean = false;
   showUserDropdown: boolean = false;
 
-  constructor(public auth: AuthService, private projectService: ProjectService, private userService: UserService, private router: Router) {
+  constructor(public auth: AuthService, private projectService: ProjectService, private userService: UserService, private router: Router, private projectCtx: ProjectContextService) {
     const user = this.auth.getCurrentUser();
     if (user) {
       this.userName = user.displayName || user.email?.split('@')[0] || 'Usuario';
       this.userInitial = this.userName.charAt(0).toUpperCase();
     }
     if (user?.email) {
+      // Activar loading inmediatamente para evitar parpadeos en UI
+      this.loadingProjects = true;
       this.userService.getUserByEmail(user.email).subscribe({
         next: (resp: any) => {
           this.mongoUserId = resp?.user?._id || '';
@@ -46,6 +49,7 @@ export class DashboardComponent {
           const populated = resp?.user?.proyectos;
           if (Array.isArray(populated)) {
             this.projects = populated;
+            this.loadingProjects = false;
           } else if (this.mongoUserId) {
             this.loadProjects(this.mongoUserId);
           }
@@ -72,7 +76,8 @@ export class DashboardComponent {
   }
 
   onSearchChange() {
-    this.searchHint = this.searchQuery ? `Buscando: ${this.searchQuery}` : '';
+    // Actualización en tiempo real se maneja vía getter filteredProjects
+    this.searchHint = '';
   }
 
   closeModal() {
@@ -138,5 +143,21 @@ export class DashboardComponent {
     if (!withinHeader && !withinDropdown) {
       this.showUserDropdown = false;
     }
+  }
+
+  openProject(p: ProjectDto) {
+    if (!p || !(p as any)._id) return;
+    this.projectCtx.setProject(p);
+    this.router.navigate(['/p', (p as any)._id, 'inventory']);
+  }
+
+  get filteredProjects(): ProjectDto[] {
+    if (!this.projects || !this.projects.length) return [];
+    const q = (this.searchQuery || '').trim().toLowerCase();
+    if (!q) return this.projects;
+    return this.projects.filter(p =>
+      (p.name || '').toLowerCase().includes(q) ||
+      (p.sector || '').toLowerCase().includes(q)
+    );
   }
 }

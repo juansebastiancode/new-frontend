@@ -7,6 +7,9 @@ export interface ProjectDto {
   userId: string;
   name: string;
   sector: string;
+  description?: string;
+  type?: string;
+  enabledTabs?: string[];
   createdAt?: string;
 }
 
@@ -22,6 +25,14 @@ export class ProjectService {
 
   getProjectsByUser(userId: string): Observable<ProjectDto[]> {
     return this.http.get<ProjectDto[]>(`${this.apiUrl}/projects/user/${userId}`);
+  }
+
+  getProjectById(projectId: string): Observable<ProjectDto> {
+    return this.http.get<ProjectDto>(`${this.apiUrl}/projects/${projectId}`);
+  }
+
+  updateProject(projectId: string, update: Partial<ProjectDto>): Observable<ProjectDto> {
+    return this.http.put<ProjectDto>(`${this.apiUrl}/projects/${projectId}`, update);
   }
 }
 
