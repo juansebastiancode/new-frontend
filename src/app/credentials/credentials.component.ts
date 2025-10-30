@@ -5,80 +5,80 @@ import { MenubarComponent } from '../menubar/menubar.component';
 import { ProfileComponent } from '../profile/profile.component';
 
 @Component({
-  selector: 'app-accounts',
+  selector: 'app-credentials',
   standalone: true,
   imports: [CommonModule, MenubarComponent, ProfileComponent, FormsModule],
   template: `
-    <div class="accounts-page">
+    <div class="credentials-page">
       <app-menubar (profileClick)="toggleProfile()"></app-menubar>
       <div class="main-content">
-        <div class="accounts-container">
-          <h2>Cuentas</h2>
-          <p>Gestiona tus cuentas y credenciales de diferentes servicios.</p>
+        <div class="credentials-container">
+          <h2>Credenciales</h2>
+          <p>Gestiona tus credenciales de diferentes servicios.</p>
           
           <div class="actions-bar">
             <div class="search-wrap">
-              <input type="text" placeholder="Buscar cuentas..." [(ngModel)]="searchQuery" class="search-input">
+              <input type="text" placeholder="Buscar credenciales..." [(ngModel)]="searchQuery" class="search-input">
               <i class="fas fa-search search-icon"></i>
             </div>
-            <button class="add-button" (click)="addAccount()">
+            <button class="add-button" (click)="addCredential()">
               <i class="fas fa-plus"></i>
-              Nueva cuenta
+              Nueva credencial
             </button>
           </div>
 
-          <div class="accounts-grid">
-            <div class="account-card" *ngFor="let account of filteredAccounts">
-              <div class="account-header">
-                <div class="account-icon">
-                  <i [class]="getTechnologyIcon(account.technology)"></i>
+          <div class="credentials-grid">
+            <div class="credential-card" *ngFor="let credential of filteredCredentials">
+              <div class="credential-header">
+                <div class="credential-icon">
+                  <i [class]="getTechnologyIcon(credential.technology)"></i>
                 </div>
-                <div class="account-info">
-                  <h3>{{ account.name }}</h3>
-                  <p class="account-email">{{ account.email }}</p>
+                <div class="credential-info">
+                  <h3>{{ credential.name }}</h3>
+                  <p class="credential-email">{{ credential.email }}</p>
                 </div>
-                <div class="account-actions">
-                  <button class="action-btn edit-btn" (click)="editAccount(account)">
+                <div class="credential-actions">
+                  <button class="action-btn edit-btn" (click)="editCredential(credential)">
                     <i class="fas fa-edit"></i>
                   </button>
-                  <button class="action-btn delete-btn" (click)="deleteAccount(account)">
+                  <button class="action-btn delete-btn" (click)="deleteCredential(credential)">
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>
               </div>
-              <div class="account-details">
+              <div class="credential-details">
                 <div class="detail-item">
                   <span class="detail-label">Tecnología:</span>
-                  <span class="detail-value">{{ account.technology }}</span>
+                  <span class="detail-value">{{ credential.technology }}</span>
                 </div>
                 <div class="detail-item">
                   <span class="detail-label">URL:</span>
-                  <span class="detail-value">{{ account.url || 'No especificada' }}</span>
+                  <span class="detail-value">{{ credential.url || 'No especificada' }}</span>
                 </div>
                 <div class="detail-item">
                   <span class="detail-label">Notas:</span>
-                  <span class="detail-value">{{ account.notes || 'Sin notas' }}</span>
+                  <span class="detail-value">{{ credential.notes || 'Sin notas' }}</span>
                 </div>
               </div>
               <div class="password-section">
-                <button class="show-password-btn" (click)="togglePassword(account)">
-                  <i class="fas" [class.fa-eye]="!account.showPassword" [class.fa-eye-slash]="account.showPassword"></i>
-                  {{ account.showPassword ? 'Ocultar' : 'Mostrar' }} contraseña
+                <button class="show-password-btn" (click)="togglePassword(credential)">
+                  <i class="fas" [class.fa-eye]="!credential.showPassword" [class.fa-eye-slash]="credential.showPassword"></i>
+                  {{ credential.showPassword ? 'Ocultar' : 'Mostrar' }} contraseña
                 </button>
-                <div class="password-display" *ngIf="account.showPassword">
-                  {{ account.password }}
+                <div class="password-display" *ngIf="credential.showPassword">
+                  {{ credential.password }}
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="empty-state" *ngIf="filteredAccounts.length === 0">
+          <div class="empty-state" *ngIf="filteredCredentials.length === 0">
             <i class="fas fa-key empty-icon"></i>
-            <h3>No hay cuentas registradas</h3>
-            <p>Comienza agregando tu primera cuenta para gestionar tus credenciales.</p>
-            <button class="add-first-btn" (click)="addAccount()">
+            <h3>No hay credenciales registradas</h3>
+            <p>Comienza agregando tu primera credencial.</p>
+            <button class="add-first-btn" (click)="addCredential()">
               <i class="fas fa-plus"></i>
-              Agregar primera cuenta
+              Agregar primera credencial
             </button>
           </div>
         </div>
@@ -87,9 +87,9 @@ import { ProfileComponent } from '../profile/profile.component';
     </div>
   `,
   styles: [`
-    .accounts-page { width: 100%; height: 100vh; background: white; position: relative; }
+    .credentials-page { width: 100%; height: 100vh; background: white; position: relative; }
     .main-content { margin-left: 250px; height: 100vh; background: white; overflow: auto; }
-    .accounts-container { padding: 24px; }
+    .credentials-container { padding: 24px; }
     h2 { margin: 0 0 8px 0; font-weight: 600; font-size: 24px; }
     p { color: #555; margin-bottom: 24px; }
     
@@ -141,29 +141,29 @@ import { ProfileComponent } from '../profile/profile.component';
       opacity: 0.9;
     }
 
-    .accounts-grid {
+    .credentials-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
       gap: 20px;
       margin-bottom: 24px;
     }
-    .account-card {
+    .credential-card {
       background: white;
       border: 1px solid #e5e7eb;
       border-radius: 12px;
       padding: 20px;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .account-card:hover {
+    .credential-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(0,0,0,0.08);
     }
-    .account-header {
+    .credential-header {
       display: flex;
       align-items: flex-start;
       margin-bottom: 16px;
     }
-    .account-icon {
+    .credential-icon {
       width: 48px;
       height: 48px;
       border-radius: 8px;
@@ -174,25 +174,25 @@ import { ProfileComponent } from '../profile/profile.component';
       margin-right: 12px;
       flex-shrink: 0;
     }
-    .account-icon i {
+    .credential-icon i {
       font-size: 20px;
       color: #6b7280;
     }
-    .account-info {
+    .credential-info {
       flex-grow: 1;
     }
-    .account-info h3 {
+    .credential-info h3 {
       margin: 0 0 4px 0;
       font-size: 16px;
       font-weight: 600;
       color: #111;
     }
-    .account-email {
+    .credential-email {
       margin: 0;
       color: #6b7280;
       font-size: 14px;
     }
-    .account-actions {
+    .credential-actions {
       display: flex;
       gap: 8px;
     }
@@ -222,7 +222,7 @@ import { ProfileComponent } from '../profile/profile.component';
       background: #fee2e2;
     }
 
-    .account-details {
+    .credential-details {
       margin-bottom: 16px;
     }
     .detail-item {
@@ -311,15 +311,15 @@ import { ProfileComponent } from '../profile/profile.component';
       .main-content { margin-left: 0; }
       .actions-bar { flex-direction: column; align-items: stretch; }
       .search-wrap { max-width: none; }
-      .accounts-grid { grid-template-columns: 1fr; }
+      .credentials-grid { grid-template-columns: 1fr; }
     }
   `]
 })
-export class AccountsComponent {
+export class CredentialsComponent {
   showProfile: boolean = false;
   searchQuery: string = '';
   
-  accounts = [
+  credentials = [
     {
       id: 1,
       name: 'GitHub',
@@ -352,12 +352,12 @@ export class AccountsComponent {
     }
   ];
 
-  get filteredAccounts() {
-    if (!this.searchQuery) return this.accounts;
-    return this.accounts.filter(account => 
-      account.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      account.email.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      account.technology.toLowerCase().includes(this.searchQuery.toLowerCase())
+  get filteredCredentials() {
+    if (!this.searchQuery) return this.credentials;
+    return this.credentials.filter(credential => 
+      credential.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+      credential.email.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+      credential.technology.toLowerCase().includes(this.searchQuery.toLowerCase())
     );
   }
 
@@ -385,21 +385,21 @@ export class AccountsComponent {
     this.showProfile = false;
   }
 
-  addAccount() {
-    alert('Agregar nueva cuenta');
+  addCredential() {
+    alert('Agregar nueva credencial');
   }
 
-  editAccount(account: any) {
-    alert(`Editar cuenta: ${account.name}`);
+  editCredential(credential: any) {
+    alert(`Editar credencial: ${credential.name}`);
   }
 
-  deleteAccount(account: any) {
-    if (confirm(`¿Estás seguro de que quieres eliminar la cuenta ${account.name}?`)) {
-      alert(`Eliminar cuenta: ${account.name}`);
+  deleteCredential(credential: any) {
+    if (confirm(`¿Eliminar credencial ${credential.name}?`)) {
+      alert(`Eliminar credencial: ${credential.name}`);
     }
   }
 
-  togglePassword(account: any) {
-    account.showPassword = !account.showPassword;
+  togglePassword(credential: any) {
+    credential.showPassword = !credential.showPassword;
   }
 }

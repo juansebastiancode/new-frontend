@@ -98,11 +98,11 @@
       <span class="nav-label">Facturas</span>
     </div>
 
-    <div class="nav-item" [class.active]="isActive('accounts')" *ngIf="isEnabled('accounts')" (click)="goToAccounts()">
+    <div class="nav-item" [class.active]="isActive('credentials')" *ngIf="isEnabled('credentials')" (click)="goToCredentials()">
       <div class="nav-icon">
         <i class="far fa-id-card"></i>
       </div>
-      <span class="nav-label">Cuentas</span>
+      <span class="nav-label">Credenciales</span>
     </div>
 
     <div class="nav-item" [class.active]="isActive('meetings')" *ngIf="isEnabled('meetings')" (click)="goToMeetings()">
@@ -117,6 +117,27 @@
         <i class="far fa-chart-bar"></i>
       </div>
       <span class="nav-label">Estadísticas</span>
+    </div>
+
+    <div class="nav-item" [class.active]="isActive('documents')" *ngIf="isEnabled('documents')" (click)="goToDocuments()">
+      <div class="nav-icon">
+        <i class="far fa-file"></i>
+      </div>
+      <span class="nav-label">Documentos</span>
+    </div>
+
+    <div class="nav-item" [class.active]="isActive('technology')" *ngIf="isEnabled('technology')" (click)="goToTechnology()">
+      <div class="nav-icon">
+        <i class="far fa-wifi"></i>
+      </div>
+      <span class="nav-label">Tecnología</span>
+    </div>
+
+    <div class="nav-item" [class.active]="isActive('rnd')" *ngIf="isEnabled('rnd')" (click)="goToRnd()">
+      <div class="nav-icon">
+        <i class="far fa-lightbulb"></i>
+      </div>
+      <span class="nav-label">I+D</span>
     </div>
   </div>
 

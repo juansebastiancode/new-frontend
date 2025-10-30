@@ -34,6 +34,10 @@ export class ProjectService {
   updateProject(projectId: string, update: Partial<ProjectDto>): Observable<ProjectDto> {
     return this.http.put<ProjectDto>(`${this.apiUrl}/projects/${projectId}`, update);
   }
+
+  deleteProject(projectId: string) {
+    return this.http.delete(`${this.apiUrl}/projects/${projectId}`);
+  }
 }
 
 

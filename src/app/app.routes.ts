@@ -18,8 +18,11 @@ import { TasksComponent } from './tasks/tasks.component';
 import { MapComponent } from './map/map.component';
 import { MarketingComponent } from './marketing/marketing.component';
 import { TeamComponent } from './team/team.component';
-import { AccountsComponent } from './accounts/accounts.component';
+import { CredentialsComponent } from './credentials/credentials.component';
 import { MeetingsComponent } from './meetings/meetings.component';
+import { DocumentsComponent } from './documents/documents.component';
+import { TechnologyComponent } from './technology/technology.component';
+import { RndComponent } from './rnd/rnd.component';
 
 export const routes: Routes = [
   { path: '', component: LoginComponent }, 
@@ -40,8 +43,11 @@ export const routes: Routes = [
   { path: 'roadmap', component: RoadmapComponent, canActivate: [AuthGuard] },
   { path: 'tasks', component: TasksComponent, canActivate: [AuthGuard] },
   { path: 'map', component: MapComponent, canActivate: [AuthGuard] },
-  { path: 'accounts', component: AccountsComponent, canActivate: [AuthGuard] },
+  { path: 'credentials', component: CredentialsComponent, canActivate: [AuthGuard] },
   { path: 'meetings', component: MeetingsComponent, canActivate: [AuthGuard] },
+  { path: 'documents', component: DocumentsComponent, canActivate: [AuthGuard] },
+  { path: 'technology', component: TechnologyComponent, canActivate: [AuthGuard] },
+  { path: 'rnd', component: RndComponent, canActivate: [AuthGuard] },
   // Contexto de proyecto
   { path: 'p/:projectId/inventory', component: InventoryComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/suppliers', component: SuppliersComponent, canActivate: [AuthGuard, ProjectGuard] },
@@ -55,6 +61,9 @@ export const routes: Routes = [
   { path: 'p/:projectId/roadmap', component: RoadmapComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/tasks', component: TasksComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/map', component: MapComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/accounts', component: AccountsComponent, canActivate: [AuthGuard, ProjectGuard] },
+  { path: 'p/:projectId/credentials', component: CredentialsComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/meetings', component: MeetingsComponent, canActivate: [AuthGuard, ProjectGuard] },
+  { path: 'p/:projectId/documents', component: DocumentsComponent, canActivate: [AuthGuard, ProjectGuard] },
+  { path: 'p/:projectId/technology', component: TechnologyComponent, canActivate: [AuthGuard, ProjectGuard] },
+  { path: 'p/:projectId/rnd', component: RndComponent, canActivate: [AuthGuard, ProjectGuard] },
 ];

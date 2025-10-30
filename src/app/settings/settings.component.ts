@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MenubarComponent } from '../menubar/menubar.component';
 import { ProfileComponent } from '../profile/profile.component';
@@ -6,6 +6,8 @@ import { ActivatedRoute } from '@angular/router';
 import { ProjectContextService } from '../services/project-context.service';
 import { FormsModule } from '@angular/forms';
 import { ProjectService, ProjectDto } from '../services/project.service';
+import { Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-settings',
@@ -14,27 +16,41 @@ import { ProjectService, ProjectDto } from '../services/project.service';
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss']
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnInit, OnDestroy {
+  
   projectId: string | null = null;
   showProfile: boolean = false;
   saving: boolean = false;
   loadError: string = '';
   projectForm: Partial<ProjectDto> = { name: '', sector: '', description: '', type: '', enabledTabs: [] };
+  private saveSubject = new Subject<void>();
+  projectCreatedAt: string | undefined;
   availableTabs: { key: string; label: string }[] = [
     { key: 'roadmap', label: 'Roadmap' },
-    { key: 'tasks', label: 'Tareas' },
+    { key: 'statistics', label: 'Estadísticas' },
     { key: 'map', label: 'Mapa' },
-    { key: 'events', label: 'Eventos' },
     { key: 'inventory', label: 'Inventario' },
     { key: 'suppliers', label: 'Proveedores' },
     { key: 'customers', label: 'Clientes' },
-    { key: 'marketing', label: 'Marketing' },
     { key: 'team', label: 'Equipo' },
-    { key: 'invoices', label: 'Facturas' },
-    { key: 'accounts', label: 'Cuentas' },
+    { key: 'tasks', label: 'Tareas' },
+    { key: 'events', label: 'Eventos' },
     { key: 'meetings', label: 'Reuniones' },
-    { key: 'statistics', label: 'Estadísticas' }
+    { key: 'credentials', label: 'Credenciales' },
+    { key: 'technology', label: 'Tecnología' },
+    { key: 'documents', label: 'Documentos' },
+    { key: 'invoices', label: 'Facturas' },
+    { key: 'marketing', label: 'Marketing' },
+    { key: 'rnd', label: 'I+D' }
   ];
+
+  estrategiaTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['roadmap', 'statistics'].includes(t.key));
+  operacionesTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['map', 'inventory', 'suppliers', 'customers'].includes(t.key));
+  organizacionTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['team', 'tasks', 'events', 'meetings'].includes(t.key));
+  recursosTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['credentials', 'technology', 'documents'].includes(t.key));
+  finanzasTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['invoices'].includes(t.key));
+  crecimientoTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['marketing', 'rnd'].includes(t.key));
+  showDeleteModal = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -54,10 +70,31 @@ export class SettingsComponent {
         type: (current as any).type || '',
         enabledTabs: (current as any).enabledTabs || []
       };
+      this.projectCreatedAt = (current as any).createdAt;
       if (!this.projectForm.enabledTabs || this.projectForm.enabledTabs.length === 0) {
         this.projectForm.enabledTabs = this.availableTabs.map(t => t.key);
       }
     }
+  }
+
+  ngOnInit() {
+    this.saveSubject.pipe(debounceTime(1000)).subscribe(() => {
+      this.save();
+    });
+  }
+
+  ngOnDestroy() {
+    this.saveSubject.complete();
+  }
+
+  onFormChange() {
+    this.saveSubject.next();
+  }
+
+  getFormattedDate(dateString: string | undefined): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
   toggleProfile() { this.showProfile = !this.showProfile; }
@@ -125,6 +162,31 @@ export class SettingsComponent {
         this.saving = false;
         this.loadError = 'No se pudo guardar los cambios';
         console.error(err);
+      }
+    });
+  }
+
+  async deleteProject() {
+    if (!this.projectId) return;
+    this.saving = true;
+    this.projectService.deleteProject(this.projectId).subscribe({
+      next: () => {
+        this.saving = false;
+        this.showDeleteModal = false;
+        this.projectCtx.clear();
+        window.location.href = '/dashboard';
+      },
+      error: (err) => {
+        this.saving = false;
+        this.showDeleteModal = false;
+        // Si es 404 (not found), redirigir: como si ya se eliminó
+        if (err.status === 404) {
+          this.projectCtx.clear();
+          window.location.href = '/dashboard';
+        } else {
+          this.loadError = 'No se pudo eliminar el proyecto';
+          console.error(err);
+        }
       }
     });
   }

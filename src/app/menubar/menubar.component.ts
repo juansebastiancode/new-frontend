@@ -94,8 +94,8 @@ export class MenubarComponent implements OnInit, OnDestroy {
 
   goToEvents() {
     const proj = this.projectCtx.getCurrent();
-    if (proj?._id) this.router.navigate(['/p', proj._id, 'asistente']);
-    else this.router.navigate(['/asistente']);
+    if (proj?._id) this.router.navigate(['/p', proj._id, 'events']);
+    else this.router.navigate(['/events']);
   }
 
   goToProfile() {
@@ -108,16 +108,34 @@ export class MenubarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/dashboard']);
   }
 
-  goToAccounts() {
+  goToCredentials() {
     const proj = this.projectCtx.getCurrent();
-    if (proj?._id) this.router.navigate(['/p', proj._id, 'accounts']);
-    else this.router.navigate(['/accounts']);
+    if (proj?._id) this.router.navigate(['/p', proj._id, 'credentials']);
+    else this.router.navigate(['/credentials']);
   }
 
   goToMeetings() {
     const proj = this.projectCtx.getCurrent();
     if (proj?._id) this.router.navigate(['/p', proj._id, 'meetings']);
     else this.router.navigate(['/meetings']);
+  }
+
+  goToDocuments() {
+    const proj = this.projectCtx.getCurrent();
+    if (proj?._id) this.router.navigate(['/p', proj._id, 'documents']);
+    else this.router.navigate(['/documents']);
+  }
+
+  goToTechnology() {
+    const proj = this.projectCtx.getCurrent();
+    if (proj?._id) this.router.navigate(['/p', proj._id, 'technology']);
+    else this.router.navigate(['/technology']);
+  }
+
+  goToRnd() {
+    const proj = this.projectCtx.getCurrent();
+    if (proj?._id) this.router.navigate(['/p', proj._id, 'rnd']);
+    else this.router.navigate(['/rnd']);
   }
 
   goToStats() {
@@ -229,9 +247,10 @@ export class MenubarComponent implements OnInit, OnDestroy {
       case 'marketing': return 'marketing';
       case 'team': return 'team';
       case 'invoices': return 'invoices';
-      case 'accounts': return 'accounts';
-      case 'meetings': return 'meetings';
-      case 'statistics': return 'statistics';
+      case 'credentials': return 'credentials';
+      case 'documents': return 'documents';
+      case 'technology': return 'technology';
+      case 'rnd': return 'rnd';
       default: return tabKey;
     }
   }

@@ -1,42 +1,82 @@
 <div class="invoices-page">
   <app-menubar (profileClick)="toggleProfile()"></app-menubar>
-  <div class="main-content">
+  <div class="main-content" style="overflow:auto; height:100vh;">
     <div class="invoices-container">
-      <h2>Settings</h2>
       <div class="card">
-        <form (ngSubmit)="save()" #formRef="ngForm">
-          <div class="form-row">
-            <input class="title-input" type="text" [(ngModel)]="projectForm.name" name="name" placeholder="Título del proyecto" required />
+        <div class="form-container">
+          <div class="form-row title-row">
+            <input class="title-input" type="text" [(ngModel)]="projectForm.name" name="name" placeholder="Título del proyecto" (ngModelChange)="onFormChange()" />
+            <div class="project-meta" *ngIf="projectCreatedAt">
+              <span>Creado el {{ getFormattedDate(projectCreatedAt) }}</span>
+            </div>
           </div>
           <div class="form-row">
-            <textarea [(ngModel)]="projectForm.description" name="description" rows="4" placeholder="Descripción"></textarea>
+            <textarea [(ngModel)]="projectForm.description" name="description" rows="4" placeholder="Descripción" (ngModelChange)="onFormChange()"></textarea>
           </div>
-          <div class="form-row">
-            <select [(ngModel)]="projectForm.type" name="type">
-              <option value="">Tipo de proyecto</option>
-              <option value="restauracion">Restauración</option>
-              <option value="evento">Evento</option>
-              <option value="software">Software</option>
-              <option value="otro">Otro</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <input type="text" [(ngModel)]="projectForm.sector" name="sector" placeholder="Sector (Ej. B2B, Retail...)" />
-          </div>
-          <div class="actions">
-            <button class="primary" type="submit" [disabled]="saving || !projectForm.name">{{ saving ? 'Guardando...' : 'Guardar cambios' }}</button>
+          <div class="status-messages">
             <span class="error" *ngIf="loadError">{{ loadError }}</span>
           </div>
-        </form>
+        </div>
       </div>
 
       <div class="card">
-        <h3 style="margin:0 0 8px 0; font-size:16px;">Tabs visibles en el menú</h3>
-        <div class="tabs-grid">
-          <label class="check" *ngFor="let t of availableTabs">
-            <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
-            <span>{{ t.label }}</span>
-          </label>
+        <h3 style="margin:-8px 0 24px 0; font-size:16px;">Secciones del proyecto</h3>
+        <div class="tabs-columns" style="display: flex; gap: 24px; flex-wrap: nowrap; overflow-x: auto;">
+          <div class="tab-section" style="min-width: 130px;">
+            <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Dirección</strong>
+            <label class="check" *ngFor="let t of estrategiaTabs">
+              <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
+              <span>{{ t.label }}</span>
+            </label>
+          </div>
+          <div class="tab-section" style="min-width: 130px;">
+            <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Operaciones</strong>
+            <label class="check" *ngFor="let t of operacionesTabs">
+              <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
+              <span>{{ t.label }}</span>
+            </label>
+          </div>
+          <div class="tab-section" style="min-width: 130px;">
+            <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Organización</strong>
+            <label class="check" *ngFor="let t of organizacionTabs">
+              <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
+              <span>{{ t.label }}</span>
+            </label>
+          </div>
+          <div class="tab-section" style="min-width: 130px;">
+            <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Recursos</strong>
+            <label class="check" *ngFor="let t of recursosTabs">
+              <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
+              <span>{{ t.label }}</span>
+            </label>
+          </div>
+          <div class="tab-section" style="min-width: 130px;">
+            <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Finanzas</strong>
+            <label class="check" *ngFor="let t of finanzasTabs">
+              <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
+              <span>{{ t.label }}</span>
+            </label>
+          </div>
+          <div class="tab-section" style="min-width: 130px;">
+            <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Crecimiento</strong>
+            <label class="check" *ngFor="let t of crecimientoTabs">
+              <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
+              <span>{{ t.label }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <button (click)="showDeleteModal = true" class="danger-outline">Eliminar proyecto</button>
+
+      <div *ngIf="showDeleteModal" class="modal-backdrop">
+        <div class="modal-content">
+          <h3>¿Eliminar este proyecto?</h3>
+          <p>Esta acción no se puede deshacer. Todos los datos del proyecto se borrarán.</p>
+          <div class="modal-actions">
+            <button class="modal-btn cancel-btn" (click)="showDeleteModal = false">Cancelar</button>
+            <button class="modal-btn danger-outline really" (click)="deleteProject()">Eliminar definitivamente</button>
+          </div>
         </div>
       </div>
     </div>
@@ -45,26 +85,105 @@
 </div>
 
 <style>
-  .invoices-page { width: 100%; height: 100vh; background: white; position: relative; }
+  .invoices-page { width: 100%; height: 100vh; background: white; position: relative; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; }
   .main-content { margin-left: 250px; height: 100vh; background: white; }
   .invoices-container { padding: 24px; }
-  .card { border: 1px solid #ddd; border-radius: 10px; padding: 16px; background: #fff; max-width: 720px; margin-top: 20px; }
+  .card { border: none; border-radius: 10px; padding: 16px; background: #fff; margin-top: 8px; }
   .tabs-grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, auto); gap: 8px 16px; margin-top: 8px; align-items: start; }
   .check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #333; }
   .check input { accent-color: #111; width: 18px; height: 18px; }
   .form-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .title-row { flex-direction: row; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .title-input { flex: 1; font-size: 36px; font-weight: 700; padding: 6px 0; border: none; border-radius: 0; outline: none; background: transparent; color: #111; }
+  .project-meta { font-style: italic; color: #777; font-size: 13px; margin-top: -24px; }
   label { display: none; }
   input, textarea, select { border: none; border-radius: 0; padding: 8px 0; outline: none; font-size: 16px; background: transparent; color: #111; }
-  .title-input { font-size: 28px; font-weight: 700; padding: 6px 0; }
   input::placeholder, textarea::placeholder { color: #999; }
-  textarea { resize: vertical; }
+  textarea { resize: none; }
   .actions { display: flex; gap: 10px; align-items: center; justify-content: flex-end; }
   .primary { background: #111; color: #fff; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; }
   .primary[disabled] { opacity: 0.6; cursor: not-allowed; }
+  .status-messages { min-height: 20px; }
   .error { color: #c00; font-size: 13px; }
+  .save-indicator { color: #666; font-size: 13px; }
   h2 { margin: 0 0 8px 0; font-weight: 600; }
   p { color: #555; }
+  .danger-outline {
+    background: #f9f9f9;
+    color: #d32f2f;
+    border: 1px solid #aaa;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 240px;
+    transition: background 0.15s;
+  }
+  .danger-outline:hover {
+    background: #ffecec;
+    border-color: #d32f2f;
+    color: #b71c1c;
+  }
   @media (max-width: 768px) { .main-content { margin-left: 200px; } }
+  .modal-backdrop {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(24, 18, 18, 0.20); z-index: 2000; display: flex;
+    align-items: center; justify-content: center;
+  }
+  .modal-content {
+    background: #fff; border-radius: 12px;
+    box-shadow: 0 2px 18px rgba(42,42,42,0.09);
+    padding: 18px 20px 20px 20px; min-width: 220px; max-width: 360px;
+    width: 90vw; text-align: center;
+    animation: modalpop 0.14s cubic-bezier(.39,.27,.45,1.38);
+    opacity: 1; transform: scale(1);
+  }
+  @keyframes modalpop {
+    0% {opacity:0;transform:scale(0.98);}
+    100%{opacity:1;transform:scale(1);}
+  }
+  .modal-content h3 { font-size: 18px; margin: 0 0 8px 0; font-weight: 600; color: #222; }
+  .modal-content p { color: #c62828; margin: 0 0 18px 0; font-size: 15px; font-weight: 400; }
+  .modal-actions { display: flex; gap: 12px; justify-content: center; margin-top: 2px; align-items: stretch; }
+  .modal-actions button.modal-btn {
+    box-sizing: border-box;
+    height: 36px;
+    min-width: 120px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    line-height: 1.12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    border-width: 1.5px;
+    vertical-align: middle;
+    margin: 0 !important;
+    box-shadow: none;
+    outline: none;
+    background: #fff;
+  }
+  .cancel-btn.modal-btn {
+    background: #f4f4f4;
+    color: #232323;
+    border: 1.5px solid #ddd !important;
+    transition: background 0.11s, border 0.13s;
+  }
+  .cancel-btn.modal-btn:hover {
+    background: #e2e2e2; border-color: #bbb !important;
+  }
+  .danger-outline.really.modal-btn {
+    background: #fff;
+    color: #d32f2f;
+    border: 1.5px solid #d32f2f !important;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background 0.11s, color 0.12s, border 0.13s;
+  }
+  .danger-outline.really.modal-btn:hover {
+    background: #fad2d2; color: #fff; border-color: #c62828 !important;
+  }
 </style>
 
 

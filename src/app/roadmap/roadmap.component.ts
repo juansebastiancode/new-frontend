@@ -158,7 +158,7 @@ import { ProfileComponent } from '../profile/profile.component';
     .vision-field { margin-bottom: 24px; }
     .vision-field h3 { margin: 0 0 12px 0; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
     .vision-field h3 i { color: #111; font-size: 14px; }
-    .vision-text { width: 70%; max-width: 600px; min-height: 130px; border: 1px solid #ddd; border-radius: 8px; padding: 12px; font-size: 14px; resize: vertical; outline: none; }
+    .vision-text { width: 70%; max-width: 600px; min-height: 130px; border: none; border-radius: 8px; padding: 12px; font-size: 14px; resize: none; outline: none; background: transparent; box-shadow: none; }
 
     .swot-grid { 
       display: grid; 
