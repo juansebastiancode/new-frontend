@@ -23,7 +23,6 @@ export class MenubarComponent implements OnInit, OnDestroy {
   isMobile: boolean = false;
   appTitle: string = 'Plan B2B';
   enabledTabs: Set<string> | null = null;
-  tabSearchQuery: string = '';
 
   constructor(
     private router: Router,
@@ -51,21 +50,11 @@ export class MenubarComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Cargar título y tabs habilitados del contexto de proyecto (con fallback)
+    // Cargar título y tabs habilitados desde el contexto de proyecto
     this.projectCtx.currentProject$.subscribe(proj => {
       this.appTitle = proj?.name || 'Plan B2B';
       const tabs = (proj as any)?.enabledTabs as string[] | undefined;
-      if (tabs && tabs.length) {
-        this.enabledTabs = new Set(tabs);
-      } else {
-        try {
-          const raw = localStorage.getItem('enabledTabsDefault');
-          const arr = raw ? (JSON.parse(raw) as string[]) : undefined;
-          this.enabledTabs = arr && arr.length ? new Set(arr) : null;
-        } catch {
-          this.enabledTabs = null;
-        }
-      }
+      this.enabledTabs = tabs && tabs.length ? new Set(tabs) : null;
     });
   }
 
@@ -144,7 +133,9 @@ export class MenubarComponent implements OnInit, OnDestroy {
   }
 
   goToSettings() {
-    this.router.navigate(['/profile-settings']);
+    const proj = this.projectCtx.getCurrent();
+    if (proj?._id) this.router.navigate(['/p', proj._id, 'settings']);
+    else this.router.navigate(['/settings']);
   }
 
   goToInventory() {
@@ -210,18 +201,6 @@ export class MenubarComponent implements OnInit, OnDestroy {
     this.showUserDropdown = false;
     this.projectCtx.clear();
     this.router.navigate(['/dashboard']);
-  }
-
-  // Filtrado de tabs
-  onSearchInput(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    this.tabSearchQuery = target.value;
-  }
-
-  matchesTabSearch(tabKey: string, label: string): boolean {
-    const q = this.tabSearchQuery.trim().toLowerCase();
-    if (!q) return true;
-    return tabKey.toLowerCase().includes(q) || label.toLowerCase().includes(q);
   }
 
   // Visibilidad y estado activo
