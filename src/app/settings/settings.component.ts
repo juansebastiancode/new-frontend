@@ -40,6 +40,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     { key: 'technology', label: 'Tecnología' },
     { key: 'documents', label: 'Documentos' },
     { key: 'invoices', label: 'Facturas' },
+    { key: 'financials', label: 'Movimientos' },
+    { key: 'budgets', label: 'Presupuestos' },
     { key: 'marketing', label: 'Marketing' },
     { key: 'rnd', label: 'I+D' }
   ];
@@ -48,7 +50,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   operacionesTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['map', 'inventory', 'suppliers', 'customers'].includes(t.key));
   organizacionTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['team', 'tasks', 'events', 'meetings'].includes(t.key));
   recursosTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['credentials', 'technology', 'documents'].includes(t.key));
-  finanzasTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['invoices'].includes(t.key));
+  finanzasTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['invoices', 'financials', 'budgets'].includes(t.key));
   crecimientoTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['marketing', 'rnd'].includes(t.key));
   showDeleteModal = false;
 
@@ -95,6 +97,30 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  getTabIcon(tabKey: string): string {
+    const iconMap: { [key: string]: string } = {
+      'roadmap': 'far fa-flag',
+      'statistics': 'far fa-chart-bar',
+      'map': 'far fa-map',
+      'inventory': 'far fa-clipboard',
+      'suppliers': 'far fa-address-book',
+      'customers': 'far fa-user',
+      'team': 'far fa-user-circle',
+      'tasks': 'far fa-square-check',
+      'events': 'far fa-calendar',
+      'meetings': 'far fa-calendar-check',
+      'credentials': 'far fa-id-card',
+      'technology': 'fas fa-star',
+      'documents': 'far fa-file',
+      'invoices': 'far fa-file-lines',
+      'financials': 'fas fa-dollar-sign',
+      'budgets': 'far fa-file-lines',
+      'marketing': 'fas fa-star',
+      'rnd': 'far fa-lightbulb'
+    };
+    return iconMap[tabKey] || '';
   }
 
   toggleProfile() { this.showProfile = !this.showProfile; }

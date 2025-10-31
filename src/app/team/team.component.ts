@@ -19,8 +19,6 @@ import { User } from '@angular/fire/auth';
 
           <div class="tabs">
             <button class="tab" [class.active]="selected === 'members'" (click)="select('members')">Miembros</button>
-            <button class="tab" [class.active]="selected === 'roles'" (click)="select('roles')">Roles</button>
-            <button class="tab" [class.active]="selected === 'permissions'" (click)="select('permissions')">Permisos</button>
             <button class="tab" [class.active]="selected === 'invitations'" (click)="select('invitations')">Invitaciones</button>
           </div>
 
@@ -47,55 +45,6 @@ import { User } from '@angular/fire/auth';
                   <button class="action-btn danger" (click)="removeMember(member)">
                     Eliminar
                   </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="section" *ngIf="selected === 'roles'">
-            <div class="actions">
-              <div class="search-wrap">
-                <input class="search" type="text" placeholder="Buscar roles..." [(ngModel)]="searchRoles" />
-              </div>
-              <button class="primary" (click)="addRole()">Crear rol</button>
-            </div>
-            <p class="muted">Define roles y responsabilidades en tu equipo.</p>
-            <div class="roles-grid">
-              <div class="role-card" *ngFor="let role of roles">
-                <div class="role-header">
-                  <h4>{{ role.name }}</h4>
-                  <span class="role-count">{{ role.memberCount }} miembros</span>
-                </div>
-                <p class="role-description">{{ role.description }}</p>
-                <div class="role-permissions">
-                  <span class="permission-tag" *ngFor="let permission of role.permissions">{{ permission }}</span>
-                </div>
-                <div class="role-actions">
-                  <button class="action-btn" (click)="editRole(role)">Editar</button>
-                  <button class="action-btn danger" (click)="deleteRole(role)">Eliminar</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="section" *ngIf="selected === 'permissions'">
-            <div class="actions">
-              <div class="search-wrap">
-                <input class="search" type="text" placeholder="Buscar permisos..." [(ngModel)]="searchPermissions" />
-              </div>
-              <button class="primary" (click)="addPermission()">Nuevo permiso</button>
-            </div>
-            <p class="muted">Configura los permisos del sistema.</p>
-            <div class="permissions-grid">
-              <div class="permission-card" *ngFor="let permission of permissions">
-                <div class="permission-info">
-                  <h4>{{ permission.name }}</h4>
-                  <p>{{ permission.description }}</p>
-                  <span class="tab-badge">{{ permission.tab }}</span>
-                </div>
-                <div class="permission-actions">
-                  <button class="action-btn" (click)="editPermission(permission)">Editar</button>
-                  <button class="action-btn danger" (click)="deletePermission(permission)">Eliminar</button>
                 </div>
               </div>
             </div>
@@ -245,7 +194,7 @@ import { User } from '@angular/fire/auth';
 })
 export class TeamComponent implements OnInit {
   showProfile: boolean = false;
-  selected: 'members' | 'roles' | 'permissions' | 'invitations' = 'members';
+  selected: 'members' | 'invitations' = 'members';
   searchMembers: string = '';
   searchRoles: string = '';
   searchPermissions: string = '';
@@ -314,7 +263,7 @@ export class TeamComponent implements OnInit {
     });
   }
 
-  select(section: 'members' | 'roles' | 'permissions' | 'invitations') { this.selected = section; }
+  select(section: 'members' | 'invitations') { this.selected = section; }
 
   inviteMember() { alert('Invitar miembro'); }
   editMember(member: any) { 

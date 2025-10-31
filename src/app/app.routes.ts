@@ -23,6 +23,8 @@ import { MeetingsComponent } from './meetings/meetings.component';
 import { DocumentsComponent } from './documents/documents.component';
 import { TechnologyComponent } from './technology/technology.component';
 import { RndComponent } from './rnd/rnd.component';
+import { AccountsComponent } from './accounts/accounts.component';
+import { BudgetsComponent } from './budgets/budgets.component';
 
 export const routes: Routes = [
   { path: '', component: LoginComponent }, 
@@ -48,6 +50,8 @@ export const routes: Routes = [
   { path: 'documents', component: DocumentsComponent, canActivate: [AuthGuard] },
   { path: 'technology', component: TechnologyComponent, canActivate: [AuthGuard] },
   { path: 'rnd', component: RndComponent, canActivate: [AuthGuard] },
+  { path: 'financials', component: AccountsComponent, canActivate: [AuthGuard] },
+  { path: 'budgets', component: BudgetsComponent, canActivate: [AuthGuard] },
   // Contexto de proyecto
   { path: 'p/:projectId/inventory', component: InventoryComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/suppliers', component: SuppliersComponent, canActivate: [AuthGuard, ProjectGuard] },
@@ -66,4 +70,6 @@ export const routes: Routes = [
   { path: 'p/:projectId/documents', component: DocumentsComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/technology', component: TechnologyComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/rnd', component: RndComponent, canActivate: [AuthGuard, ProjectGuard] },
+  { path: 'p/:projectId/financials', component: AccountsComponent, canActivate: [AuthGuard, ProjectGuard] },
+  { path: 'p/:projectId/budgets', component: BudgetsComponent, canActivate: [AuthGuard, ProjectGuard] },
 ];

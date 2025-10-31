@@ -26,6 +26,7 @@
             <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Dirección</strong>
             <label class="check" *ngFor="let t of estrategiaTabs">
               <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
+              <i [class]="getTabIcon(t.key)" style="margin-left: 6px; margin-right: 2px;"></i>
               <span>{{ t.label }}</span>
             </label>
           </div>
@@ -33,6 +34,7 @@
             <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Operaciones</strong>
             <label class="check" *ngFor="let t of operacionesTabs">
               <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
+              <i [class]="getTabIcon(t.key)" style="margin-left: 6px; margin-right: 2px;"></i>
               <span>{{ t.label }}</span>
             </label>
           </div>
@@ -40,13 +42,7 @@
             <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Organización</strong>
             <label class="check" *ngFor="let t of organizacionTabs">
               <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
-              <span>{{ t.label }}</span>
-            </label>
-          </div>
-          <div class="tab-section" style="min-width: 130px;">
-            <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Recursos</strong>
-            <label class="check" *ngFor="let t of recursosTabs">
-              <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
+              <i [class]="getTabIcon(t.key)" style="margin-left: 6px; margin-right: 2px;"></i>
               <span>{{ t.label }}</span>
             </label>
           </div>
@@ -54,6 +50,15 @@
             <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Finanzas</strong>
             <label class="check" *ngFor="let t of finanzasTabs">
               <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
+              <i [class]="getTabIcon(t.key)" style="margin-left: 6px; margin-right: 2px;"></i>
+              <span>{{ t.label }}</span>
+            </label>
+          </div>
+          <div class="tab-section" style="min-width: 130px;">
+            <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Recursos</strong>
+            <label class="check" *ngFor="let t of recursosTabs">
+              <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
+              <i [class]="getTabIcon(t.key)" style="margin-left: 6px; margin-right: 2px;"></i>
               <span>{{ t.label }}</span>
             </label>
           </div>
@@ -61,6 +66,7 @@
             <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Crecimiento</strong>
             <label class="check" *ngFor="let t of crecimientoTabs">
               <input type="checkbox" [checked]="projectForm.enabledTabs?.includes(t.key)" (change)="toggleTab(t.key, $event)" />
+              <i [class]="getTabIcon(t.key)" style="margin-left: 6px; margin-right: 2px;"></i>
               <span>{{ t.label }}</span>
             </label>
           </div>
@@ -90,7 +96,7 @@
   .invoices-container { padding: 24px; }
   .card { border: none; border-radius: 10px; padding: 16px; background: #fff; margin-top: 8px; }
   .tabs-grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, auto); gap: 8px 16px; margin-top: 8px; align-items: start; }
-  .check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #333; }
+  .check { display: flex; align-items: center; gap: 4px; font-size: 14px; color: #333; }
   .check input { accent-color: #111; width: 18px; height: 18px; }
   .form-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
   .title-row { flex-direction: row; justify-content: space-between; align-items: flex-start; gap: 16px; }
@@ -185,5 +191,6 @@
     background: #fad2d2; color: #fff; border-color: #c62828 !important;
   }
 </style>
+
 
 
