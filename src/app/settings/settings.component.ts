@@ -29,8 +29,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     { key: 'roadmap', label: 'Roadmap' },
     { key: 'statistics', label: 'Estadísticas' },
     { key: 'map', label: 'Mapa' },
-    { key: 'inventory', label: 'Inventario' },
     { key: 'suppliers', label: 'Proveedores' },
+    { key: 'inventory', label: 'Inventario' },
     { key: 'customers', label: 'Clientes' },
     { key: 'team', label: 'Equipo' },
     { key: 'tasks', label: 'Tareas' },
@@ -48,7 +48,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ];
 
   estrategiaTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['roadmap', 'statistics'].includes(t.key));
-  operacionesTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['map', 'inventory', 'suppliers', 'customers'].includes(t.key));
+  operacionesTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['map', 'suppliers', 'inventory', 'customers'].includes(t.key));
   organizacionTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['team', 'tasks', 'events', 'meetings'].includes(t.key));
   recursosTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['credentials', 'technology', 'documents', 'legal'].includes(t.key));
   finanzasTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['invoices', 'financials', 'budgets'].includes(t.key));

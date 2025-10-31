@@ -6,6 +6,7 @@ import { ProfileComponent } from '../profile/profile.component';
 import { ProjectContextService } from '../services/project-context.service';
 import { MapAnnotationsService, MapAnnotationDto } from '../services/map-annotations.service';
 import { CustomersService, CustomerDto } from '../services/customers.service';
+import { SuppliersService, SupplierDto } from '../services/suppliers.service';
 
 declare const L: any;
 
@@ -22,6 +23,7 @@ declare const L: any;
           <select class="mini-select" [(ngModel)]="selectedDataset" (change)="onDatasetChange()">
             <option value="todos">Todos</option>
             <option value="clientes">Clientes</option>
+            <option value="proveedores">Proveedores</option>
             <option value="etiquetas">Etiquetas</option>
           </select>
           <button class="primary small" (click)="startAddLabel()">Nueva etiqueta</button>
@@ -33,7 +35,7 @@ declare const L: any;
     </div>
   `,
   styles: [`
-    .map-page { width: 100%; height: 100vh; background: white; position: relative; }
+    .map-page { width: 100%; height: 100vh; background: white; position: relative; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     .main-content { position: relative; margin-left: 250px; height: 100vh; background: white; padding: 0; }
     .leaflet-map { width: 100%; height: 100vh; }
     /* Ocultar controles y attribution */
@@ -47,14 +49,17 @@ declare const L: any;
     /* Popup bonito */
     :host ::ng-deep .leaflet-popup-content-wrapper { border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 1px solid #ececec; }
     :host ::ng-deep .leaflet-popup-tip { color: #fff; }
-    :host ::ng-deep .label-card { width: 280px; max-width: 80vw; display: flex; flex-direction: column; gap: 10px; }
+    :host ::ng-deep .label-card { width: 280px; max-width: 80vw; display: flex; flex-direction: column; gap: 10px; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     :host ::ng-deep .label-header { display: flex; justify-content: space-between; align-items: center; }
-    :host ::ng-deep .label-title { font-size: 18px; font-weight: 700; color: #111; }
-    :host ::ng-deep .label-text { font-size: 14px; color: #333; line-height: 1.4; }
+    :host ::ng-deep .label-title { font-size: 18px; font-weight: 700; color: #111; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    :host ::ng-deep .label-text { font-size: 14px; color: #333; line-height: 1.4; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     :host ::ng-deep .btn-row { display: flex; gap: 8px; justify-content: flex-end; }
     :host ::ng-deep .btn { border: 1px solid #ddd; background: #fff; color: #111; border-radius: 8px; padding: 8px 10px; font-size: 13px; cursor: pointer; }
     :host ::ng-deep .btn.delete { border-color: #f1c0c0; color: #b00020; }
     :host ::ng-deep .btn:hover { background: #f7f7f7; }
+
+    :host ::ng-deep .custom-flag-marker { background: transparent; border: none; }
+    :host ::ng-deep .custom-flag-marker svg { filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
 
     @media (max-width: 768px) { .main-content { margin-left: 200px; } .leaflet-map { height: 100vh; } }
   `]
@@ -65,13 +70,14 @@ export class MapComponent implements AfterViewInit {
   private adding = false;
   private markersById = new Map<string, any>();
   private customersLayer: any | null = null;
+  private suppliersLayer: any | null = null;
   private annotationsLayer: any | null = null;
   private geocodeCache = new Map<string, { lat: number; lng: number }>();
   private overlapCount = new Map<string, number>();
   errorMsg = '';
-  selectedDataset: 'todos' | 'clientes' | 'etiquetas' = 'todos';
+  selectedDataset: 'todos' | 'clientes' | 'proveedores' | 'etiquetas' = 'todos';
 
-  constructor(private projectCtx: ProjectContextService, private api: MapAnnotationsService, private customersApi: CustomersService) {}
+  constructor(private projectCtx: ProjectContextService, private api: MapAnnotationsService, private customersApi: CustomersService, private suppliersApi: SuppliersService) {}
 
   toggleProfile() { this.showProfile = !this.showProfile; }
   closeProfile() { this.showProfile = false; }
@@ -96,6 +102,8 @@ export class MapComponent implements AfterViewInit {
 
     // Capa para clientes
     this.customersLayer = L.layerGroup().addTo(this.map);
+    // Capa para proveedores
+    this.suppliersLayer = L.layerGroup().addTo(this.map);
     // Capa para etiquetas
     this.annotationsLayer = L.layerGroup().addTo(this.map);
 
@@ -146,10 +154,13 @@ export class MapComponent implements AfterViewInit {
   onDatasetChange() {
     if (!this.map) return;
     const showClientes = this.selectedDataset === 'clientes' || this.selectedDataset === 'todos';
+    const showProveedores = this.selectedDataset === 'proveedores' || this.selectedDataset === 'todos';
     const showEtiquetas = this.selectedDataset === 'etiquetas' || this.selectedDataset === 'todos';
     this.setLayerVisibility(this.customersLayer, showClientes);
+    this.setLayerVisibility(this.suppliersLayer, showProveedores);
     this.setLayerVisibility(this.annotationsLayer, showEtiquetas);
     if (showClientes) this.loadCustomersMarkers(); else this.clearCustomersMarkers();
+    if (showProveedores) this.loadSuppliersMarkers(); else this.clearSuppliersMarkers();
   }
 
   private setLayerVisibility(layer: any, visible: boolean) {
@@ -169,7 +180,12 @@ export class MapComponent implements AfterViewInit {
     if (this.customersLayer) {
       this.customersLayer.clearLayers();
     }
-    this.overlapCount.clear();
+  }
+
+  private clearSuppliersMarkers() {
+    if (this.suppliersLayer) {
+      this.suppliersLayer.clearLayers();
+    }
   }
 
   private loadCustomersMarkers() {
@@ -210,16 +226,102 @@ export class MapComponent implements AfterViewInit {
     });
   }
 
+  private loadSuppliersMarkers() {
+    const proj = this.projectCtx.getCurrent();
+    const projectId = (proj as any)?._id;
+    if (!projectId) { this.errorMsg = 'Abre un proyecto para ver proveedores en el mapa'; return; }
+
+    this.clearSuppliersMarkers();
+    this.suppliersApi.getSuppliers(projectId).subscribe({
+      next: async (suppliers) => {
+        const points: Array<{ s: SupplierDto, lat: number, lng: number }> = [];
+        for (const s of suppliers) {
+          const candidate = ((s.ciudad || '').trim()) || ((s.ubicacion || '').trim()) || ((s.pais || '').trim());
+          if (!candidate) continue;
+          let coords = this.geocodeCity(candidate);
+          if (!coords) {
+            coords = await this.geocodeCityAsync(candidate);
+          }
+          if (!coords) continue;
+          // Evitar solapamiento: pequeño desplazamiento si ya existe un marcador en esas coords
+          const key = `supplier_${coords.lat.toFixed(4)},${coords.lng.toFixed(4)}`;
+          const count = (this.overlapCount.get(key) || 0) + 1;
+          this.overlapCount.set(key, count);
+          const offset = this.computeOffset(coords.lat, coords.lng, count);
+          points.push({ s, lat: offset.lat, lng: offset.lng });
+        }
+
+        if (points.length === 0 && this.selectedDataset === 'proveedores') {
+          this.errorMsg = 'No se pudo ubicar ningún proveedor (revisa ciudad/ubicación).';
+        } else if (this.selectedDataset === 'proveedores') {
+          this.errorMsg = '';
+        }
+        points.forEach(p => this.renderSupplierMarker(p.s, p.lat, p.lng));
+        // Mantener siempre la vista de España
+        this.map.setView([40.0, -3.5], 5.5);
+      },
+      error: () => { this.errorMsg = 'No se pudieron cargar proveedores'; }
+    });
+  }
+
+  private renderSupplierMarker(s: SupplierDto, lat: number, lng: number) {
+    if (!this.map || !this.suppliersLayer) return;
+    const color = '#f59e0b'; // Color naranja/ámbar para proveedores
+    
+    const flagIcon = L.divIcon({
+      className: 'custom-flag-marker',
+      html: `
+        <svg width="24" height="32" viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg">
+          <!-- Poste -->
+          <rect x="2" y="2" width="2" height="28" fill="${color}"/>
+          <!-- Bandera -->
+          <path d="M 4 2 L 22 2 L 22 14 L 4 2 Z" fill="${color}" stroke="${color}" stroke-width="1"/>
+          <path d="M 4 2 L 4 14 L 22 14 Z" fill="${color}"/>
+        </svg>
+      `,
+      iconSize: [24, 32],
+      iconAnchor: [3, 30],
+      popupAnchor: [0, -30]
+    });
+    
+    const marker = L.marker([lat, lng], { icon: flagIcon }).addTo(this.suppliersLayer);
+    const name = (s.nombre || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const email = (s.email || 'Sin email').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const ciudad = (s.ciudad || 'Sin ciudad').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    marker.bindPopup(`<div class="label-card">` +
+      `<div class="label-header">` +
+        `<div class="label-title">${name}</div>` +
+      `</div>` +
+      `<div class="label-text">${email}</div>` +
+      `<div class="label-text">${ciudad}</div>` +
+    `</div>`);
+  }
+
   private renderCustomerMarker(c: CustomerDto, lat: number, lng: number) {
     if (!this.map || !this.customersLayer) return;
-    const color = '#0ea5e9';
-    const outer = L.circleMarker([lat, lng], { radius: 12, color, weight: 2, opacity: 1, fillColor: color, fillOpacity: 1 });
-    const inner = L.circleMarker([lat, lng], { radius: 7, color: '#fff', weight: 2, opacity: 1, fillColor: '#fff', fillOpacity: 1 });
-    const group = L.featureGroup([outer, inner]).addTo(this.customersLayer);
+    const color = '#0ea5e9'; // Color azul para clientes
+    
+    const flagIcon = L.divIcon({
+      className: 'custom-flag-marker',
+      html: `
+        <svg width="24" height="32" viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg">
+          <!-- Poste -->
+          <rect x="2" y="2" width="2" height="28" fill="${color}"/>
+          <!-- Bandera -->
+          <path d="M 4 2 L 22 2 L 22 14 L 4 2 Z" fill="${color}" stroke="${color}" stroke-width="1"/>
+          <path d="M 4 2 L 4 14 L 22 14 Z" fill="${color}"/>
+        </svg>
+      `,
+      iconSize: [24, 32],
+      iconAnchor: [3, 30],
+      popupAnchor: [0, -30]
+    });
+    
+    const marker = L.marker([lat, lng], { icon: flagIcon }).addTo(this.customersLayer);
     const name = (c.nombre || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const email = (c.email || 'Sin email').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const ciudad = (c.ciudad || 'Sin ciudad').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    group.bindPopup(`<div class="label-card">` +
+    marker.bindPopup(`<div class="label-card">` +
       `<div class="label-header">` +
         `<div class="label-title">${name}</div>` +
       `</div>` +
@@ -298,30 +400,30 @@ export class MapComponent implements AfterViewInit {
 
   private renderAnnotation(a: MapAnnotationDto) {
     if (!this.map || !this.annotationsLayer) return;
-    const outer = L.circleMarker([a.lat, a.lng], {
-      radius: 16,
-      color: '#111',
-      weight: 2,
-      opacity: 1,
-      fillColor: '#111',
-      fillOpacity: 1
+    
+    // Crear icono de bandera personalizado
+    const flagIcon = L.divIcon({
+      className: 'custom-flag-marker',
+      html: `
+        <svg width="24" height="32" viewBox="0 0 24 32" xmlns="http://www.w3.org/2000/svg">
+          <!-- Poste -->
+          <rect x="2" y="2" width="2" height="28" fill="#111"/>
+          <!-- Bandera -->
+          <path d="M 4 2 L 22 2 L 22 14 L 4 2 Z" fill="#111" stroke="#111" stroke-width="1"/>
+          <path d="M 4 2 L 4 14 L 22 14 Z" fill="#000"/>
+        </svg>
+      `,
+      iconSize: [24, 32],
+      iconAnchor: [3, 30],
+      popupAnchor: [0, -30]
     });
 
-    const inner = L.circleMarker([a.lat, a.lng], {
-      radius: 10,
-      color: '#fff',
-      weight: 2,
-      opacity: 1,
-      fillColor: '#fff',
-      fillOpacity: 1
-    });
-
-    const group = L.featureGroup([outer, inner]).addTo(this.annotationsLayer);
-    this.markersById.set(String(a._id || `${a.lat},${a.lng}`), group);
+    const marker = L.marker([a.lat, a.lng], { icon: flagIcon }).addTo(this.annotationsLayer);
+    this.markersById.set(String(a._id || `${a.lat},${a.lng}`), marker);
 
     const safeText = (a.text || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const idAttr = a._id ? `data-id=\"${a._id}\"` : '';
-    group.bindPopup(`<div class=\"label-card\">` +
+    marker.bindPopup(`<div class=\"label-card\">` +
       `<div class=\"label-header\">` +
         `<div class=\"label-title\">Etiqueta</div>` +
       `</div>` +
@@ -331,7 +433,7 @@ export class MapComponent implements AfterViewInit {
       `</div>` +
     `</div>`);
 
-    group.on('popupopen', (e: any) => {
+    marker.on('popupopen', (e: any) => {
       const el = e.popup.getElement() as HTMLElement;
       const btn = el.querySelector('button.delete-btn, .btn.delete') as HTMLButtonElement | null;
       if (!btn) return;
@@ -339,10 +441,10 @@ export class MapComponent implements AfterViewInit {
         const id = btn.getAttribute('data-id');
         const projId = (this.projectCtx.getCurrent() as any)?._id;
         if (!projId) { this.errorMsg = 'Abre un proyecto para eliminar'; return; }
-        if (!id) { group.remove(); return; }
+        if (!id) { marker.remove(); return; }
         this.api.delete(projId, id).subscribe({
           next: () => {
-            group.remove();
+            marker.remove();
             this.markersById.delete(id);
           },
           error: () => { this.errorMsg = 'No se pudo eliminar la etiqueta'; }

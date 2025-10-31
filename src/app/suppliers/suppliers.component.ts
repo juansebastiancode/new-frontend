@@ -11,19 +11,14 @@ import { ProjectContextService } from '../services/project-context.service';
   standalone: true,
   imports: [CommonModule, FormsModule, MenubarComponent, ProfileComponent],
   template: `
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <div class="suppliers-page">
       <app-menubar (profileClick)="toggleProfile()"></app-menubar>
       <div class="main-content">
         <div class="suppliers-container">
           <h2>Proveedores</h2>
 
-          <div class="tabs">
-            <button class="tab" [class.active]="selected === 'suppliers'" (click)="select('suppliers')">Proveedores</button>
-            <button class="tab" [class.active]="selected === 'contacts'" (click)="select('contacts')">Contactos</button>
-            <button class="tab" [class.active]="selected === 'purchases'" (click)="select('purchases')">Compras</button>
-          </div>
-
-          <div class="section" *ngIf="selected === 'suppliers'">
+          <div class="section">
             <div class="actions">
               <div class="search-wrap">
                 <i class="fas fa-search search-icon"></i>
@@ -60,28 +55,6 @@ import { ProjectContextService } from '../services/project-context.service';
             </div>
           </div>
 
-          <div class="section" *ngIf="selected === 'contacts'">
-            <div class="actions">
-              <div class="search-wrap">
-                <input class="search" type="text" placeholder="Buscar contactos..." [(ngModel)]="searchContacts" />
-              </div>
-              <button class="primary" (click)="addContact()">Añadir contacto</button>
-            </div>
-            
-            <div class="card">No hay contactos registrados.</div>
-          </div>
-
-          <div class="section" *ngIf="selected === 'purchases'">
-            <div class="actions">
-              <div class="search-wrap">
-                <input class="search" type="text" placeholder="Buscar compras..." [(ngModel)]="searchPurchases" />
-              </div>
-              <button class="primary" (click)="addPurchase()">Nueva compra</button>
-            </div>
-            
-            <div class="card">No hay compras registradas.</div>
-          </div>
-
           <!-- Modal añadir/editar proveedor -->
           <div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
             <div class="modal-content" (click)="$event.stopPropagation()">
@@ -110,7 +83,8 @@ import { ProjectContextService } from '../services/project-context.service';
     </div>
   `,
   styles: [`
-    .suppliers-page { width: 100%; height: 100vh; background: white; position: relative; }
+    .suppliers-page { width: 100%; height: 100vh; background: white; position: relative; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .suppliers-page i[class*="fa-"] { font-family: "Font Awesome 6 Free" !important; }
     .main-content { margin-left: 250px; height: 100vh; background: white; }
     .suppliers-container { padding: 24px; }
     h2 { margin: 0 0 12px 0; font-weight: 600; }
@@ -166,10 +140,7 @@ import { ProjectContextService } from '../services/project-context.service';
 })
 export class SuppliersComponent implements OnInit {
   showProfile: boolean = false;
-  selected: 'suppliers' | 'contacts' | 'purchases' = 'suppliers';
   searchSuppliers: string = '';
-  searchContacts: string = '';
-  searchPurchases: string = '';
   suppliers: SupplierDto[] = [];
   showModal: boolean = false;
   editing: SupplierDto | null = null;
@@ -191,8 +162,6 @@ export class SuppliersComponent implements OnInit {
       s.telefono?.includes(this.searchSuppliers)
     );
   }
-
-  select(section: 'suppliers' | 'contacts' | 'purchases') { this.selected = section; }
 
   openModal() { this.showModal = true; }
   closeModal() {
@@ -230,8 +199,6 @@ export class SuppliersComponent implements OnInit {
     if (!confirm(`¿Eliminar ${s.nombre}?`)) return;
     this.suppliersApi.deleteSupplier(s._id!).subscribe({ next: () => this.loadSuppliers() });
   }
-  addContact() { alert('Añadir contacto'); }
-  addPurchase() { alert('Nueva compra'); }
 
   toggleProfile() { this.showProfile = !this.showProfile; }
   closeProfile() { this.showProfile = false; }
