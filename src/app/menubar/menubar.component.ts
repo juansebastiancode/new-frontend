@@ -150,6 +150,12 @@ export class MenubarComponent implements OnInit, OnDestroy {
     else this.router.navigate(['/budgets']);
   }
 
+  goToLegal() {
+    const proj = this.projectCtx.getCurrent();
+    if (proj?._id) this.router.navigate(['/p', proj._id, 'legal']);
+    else this.router.navigate(['/legal']);
+  }
+
   goToStats() {
     const proj = this.projectCtx.getCurrent();
     if (proj?._id) this.router.navigate(['/p', proj._id, 'statistics']);
@@ -265,6 +271,7 @@ export class MenubarComponent implements OnInit, OnDestroy {
       case 'rnd': return 'rnd';
       case 'financials': return 'financials';
       case 'budgets': return 'budgets';
+      case 'legal': return 'legal';
       default: return tabKey;
     }
   }

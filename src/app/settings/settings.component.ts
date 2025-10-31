@@ -43,13 +43,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
     { key: 'financials', label: 'Movimientos' },
     { key: 'budgets', label: 'Presupuestos' },
     { key: 'marketing', label: 'Marketing' },
-    { key: 'rnd', label: 'I+D' }
+    { key: 'rnd', label: 'I+D' },
+    { key: 'legal', label: 'Legal' }
   ];
 
   estrategiaTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['roadmap', 'statistics'].includes(t.key));
   operacionesTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['map', 'inventory', 'suppliers', 'customers'].includes(t.key));
   organizacionTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['team', 'tasks', 'events', 'meetings'].includes(t.key));
-  recursosTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['credentials', 'technology', 'documents'].includes(t.key));
+  recursosTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['credentials', 'technology', 'documents', 'legal'].includes(t.key));
   finanzasTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['invoices', 'financials', 'budgets'].includes(t.key));
   crecimientoTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['marketing', 'rnd'].includes(t.key));
   showDeleteModal = false;
@@ -115,10 +116,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
       'technology': 'fas fa-star',
       'documents': 'far fa-file',
       'invoices': 'far fa-file-lines',
-      'financials': 'fas fa-dollar-sign',
+      'financials': 'fas fa-dollar',
       'budgets': 'far fa-file-lines',
       'marketing': 'fas fa-star',
-      'rnd': 'far fa-lightbulb'
+      'rnd': 'far fa-lightbulb',
+      'legal': 'fas fa-gavel'
     };
     return iconMap[tabKey] || '';
   }

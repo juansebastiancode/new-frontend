@@ -107,7 +107,7 @@
 
     <div class="nav-item" [class.active]="isActive('financials')" *ngIf="isEnabled('financials')" (click)="goToAccounts()">
       <div class="nav-icon">
-        <i class="fas fa-right-left"></i>
+        <i class="fas fa-dollar"></i>
       </div>
       <span class="nav-label">Movimientos</span>
     </div>
@@ -138,6 +138,13 @@
         <i class="far fa-file"></i>
       </div>
       <span class="nav-label">Documentos</span>
+    </div>
+
+    <div class="nav-item" [class.active]="isActive('legal')" *ngIf="isEnabled('legal')" (click)="goToLegal()">
+      <div class="nav-icon">
+        <i class="fas fa-gavel"></i>
+      </div>
+      <span class="nav-label">Legal</span>
     </div>
 
     <div class="nav-item" [class.active]="isActive('marketing')" *ngIf="isEnabled('marketing')" (click)="goToMarketing()">
