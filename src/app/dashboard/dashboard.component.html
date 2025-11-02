@@ -72,8 +72,12 @@
       </div>
       <div class="projects" *ngIf="filteredProjects?.length; else emptyState">
         <div class="project-card" *ngFor="let p of filteredProjects" (click)="openProject(p)" style="cursor:pointer;">
-          <h4>{{ p.name }}</h4>
-          <div class="meta">{{ p.sector || 'Sin sector' }} · {{ p.createdAt | date:'short' }}</div>
+          <div class="project-header">
+            <div>
+              <h4>{{ p.name }}</h4>
+              <div class="meta">{{ p.sector || 'Sin sector' }} · {{ p.createdAt | date:'short' }}</div>
+            </div>
+          </div>
         </div>
       </div>
       <ng-template #emptyState>
@@ -86,16 +90,49 @@
     </div>
 
     <div class="invitations-wrap" *ngIf="activeTab==='invitations'">
-      <div class="invitations">
-        <div class="invitation-card" *ngFor="let inv of filteredInvitations">
-          <div class="inv-email">{{ inv.email }}</div>
-          <div class="inv-meta">Rol: {{ inv.role }} · Enviada: {{ inv.sentAt }}</div>
-          <div class="inv-actions">
-            <button class="ghost">Reenviar</button>
-            <button class="primary">Aceptar</button>
+      <!-- Invitaciones pendientes -->
+      <div class="invitations" *ngIf="filteredInvitations && filteredInvitations.length > 0">
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #111;">Invitaciones pendientes</h3>
+        <div class="invitations-grid">
+          <div class="invitation-card" *ngFor="let inv of filteredInvitations">
+            <div class="inv-header">
+              <div class="inv-project-name" *ngIf="inv.projectId_data">{{ inv.projectId_data.name }}</div>
+              <div class="inv-project-name" *ngIf="!inv.projectId_data">Proyecto</div>
+              <div class="inv-inviter">Invitado por: {{ inv.inviterEmail }}</div>
+            </div>
+            <div class="inv-meta">{{ inv.createdAt | date:'short' }}</div>
+            <div class="inv-actions">
+              <button class="ghost danger" (click)="rejectInvitation(inv)">Rechazar</button>
+              <button class="primary" (click)="acceptInvitation(inv)">Aceptar</button>
+            </div>
           </div>
         </div>
-        <div class="empty" *ngIf="!filteredInvitations?.length">No tienes invitaciones.</div>
+      </div>
+
+      <!-- Proyectos donde fuiste invitado (ya aceptados) -->
+      <div class="invited-projects-section" *ngIf="filteredInvitedProjects && filteredInvitedProjects.length > 0">
+        <h3 style="font-size: 16px; font-weight: 600; margin: 20px 0 12px 0; color: #111;">Proyectos donde participas</h3>
+        <div class="projects">
+          <div class="project-card" *ngFor="let p of filteredInvitedProjects" (click)="openProject(p)" style="cursor:pointer;">
+            <div class="project-header">
+              <div>
+                <h4>{{ p.name }}</h4>
+                <div class="meta">{{ p.sector || 'Sin sector' }} · {{ p.createdAt | date:'short' }}</div>
+              </div>
+              <button class="leave-project-btn" (click)="leaveProject(p, $event)" title="Salir del proyecto">
+                <i class="fas fa-sign-out-alt"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado vacío -->
+      <div class="empty" *ngIf="!loadingInvitations && !filteredInvitations?.length && !filteredInvitedProjects?.length">
+        No tienes invitaciones ni proyectos compartidos.
+      </div>
+      <div class="empty" *ngIf="loadingInvitations">
+        <div class="spinner"></div>
       </div>
     </div>
 
@@ -203,8 +240,32 @@
     transition: transform .15s ease, box-shadow .15s ease;
   }
   .project-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+  .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
   .project-card h4 { margin: 0 0 6px 0; font-size: 16px; }
   .project-card .meta { color: #777; font-size: 12px; }
+  .leave-project-btn {
+    background: transparent;
+    border: 1px solid #ef4444;
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: #ef4444;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  .leave-project-btn:hover {
+    background: #fee2e2;
+    border-color: #dc2626;
+    color: #dc2626;
+  }
+  .leave-project-btn i {
+    font-size: 12px;
+  }
   .projects-wrap { max-width: 960px; margin: 4px auto 0 auto; padding: 0 24px; }
   .projects-header { display: flex; align-items: center; gap: 12px; }
   .projects-header h3 { margin: 0; font-size: 18px; }
@@ -218,9 +279,14 @@
   .invitations { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
   .invitation-card { border: 1px solid #ccc; border-radius: 10px; padding: 14px; background: #fff; display: flex; flex-direction: column; gap: 8px; transition: transform .15s ease, box-shadow .15s ease; }
   .invitation-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+  .inv-header { margin-bottom: 4px; }
+  .inv-project-name { font-weight: 600; font-size: 15px; color: #111; margin-bottom: 4px; }
+  .inv-inviter { color: #777; font-size: 12px; }
   .inv-email { font-weight: 600; }
   .inv-meta { color: #777; font-size: 12px; }
-  .inv-actions { display: flex; gap: 8px; }
+  .inv-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .ghost.danger { border-color: #ef4444; color: #ef4444; }
+  .ghost.danger:hover { background: #fee2e2; }
 
   /* Modal */
   .modal-overlay {

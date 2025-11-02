@@ -30,8 +30,10 @@ export const ProjectGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
   return userService.getUserByEmail(email).pipe(
     switchMap((resp: any) => {
       const proyectos: Array<{ _id: string }> = resp?.user?.proyectos || [];
+      const proyectosInvitados: Array<{ _id: string }> = resp?.user?.proyectosInvitados || [];
       const isMember = proyectos.some(p => String(p._id) === String(projectId));
-      if (!isMember) {
+      const isInvited = proyectosInvitados.some(p => String(p._id) === String(projectId));
+      if (!isMember && !isInvited) {
         ctx.clear();
         router.navigate(['/dashboard']);
         return of(false);

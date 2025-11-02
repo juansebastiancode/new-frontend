@@ -7,6 +7,7 @@ import { UserService } from '../services/user.service';
 import { ProjectService, ProjectDto } from '../services/project.service';
 import { ProjectContextService } from '../services/project-context.service';
 import { ProfileComponent } from '../profile/profile.component';
+import { InvitationsService, InvitationDto } from '../services/invitations.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -24,12 +25,12 @@ export class DashboardComponent {
   projectName: string = '';
   projectSector: string = '';
   projects: ProjectDto[] = [];
-  invitations: Array<{ email: string; role: string; sentAt: string }> = [
-    { email: 'ana@empresa.com', role: 'Colaborador', sentAt: '2024-01-15' },
-    { email: 'pedro@empresa.com', role: 'Viewer', sentAt: '2024-01-12' }
-  ];
+  invitedProjects: ProjectDto[] = [];
+  invitations: InvitationDto[] = [];
   mongoUserId: string = '';
   loadingProjects: boolean = false;
+  loadingInvitations: boolean = false;
+  currentUserEmail: string = '';
   loadError: string = '';
   // Usuario (header)
   userName: string = 'Usuario';
@@ -37,13 +38,16 @@ export class DashboardComponent {
   imageError: boolean = false;
   showUserDropdown: boolean = false;
 
-  constructor(public auth: AuthService, private projectService: ProjectService, private userService: UserService, private router: Router, private projectCtx: ProjectContextService) {
+  constructor(public auth: AuthService, private projectService: ProjectService, private userService: UserService, private router: Router, private projectCtx: ProjectContextService, private invitationsService: InvitationsService) {
     const user = this.auth.getCurrentUser();
-    if (user) {
-      this.userName = user.displayName || user.email?.split('@')[0] || 'Usuario';
+    if (user && user.email) {
+      this.currentUserEmail = user.email;
+      this.userName = user.displayName || user.email.split('@')[0] || 'Usuario';
       this.userInitial = this.userName.charAt(0).toUpperCase();
-    }
-    if (user?.email) {
+      
+      // Cargar invitaciones
+      this.loadInvitations(user.email);
+      
       // Activar loading inmediatamente para evitar parpadeos en UI
       this.loadingProjects = true;
       this.userService.getUserByEmail(user.email).subscribe({
@@ -57,6 +61,11 @@ export class DashboardComponent {
             this.loadingProjects = false;
           } else if (this.mongoUserId) {
             this.loadProjects(this.mongoUserId);
+          }
+          // Cargar proyectos invitados
+          const populatedInvited = resp?.user?.proyectosInvitados;
+          if (Array.isArray(populatedInvited)) {
+            this.invitedProjects = populatedInvited;
           }
         },
         error: () => {
@@ -129,6 +138,97 @@ export class DashboardComponent {
     });
   }
 
+  private loadInvitations(email: string) {
+    this.loadingInvitations = true;
+    this.invitationsService.getInvitationsByUser(email).subscribe({
+      next: (list) => {
+        console.log('Invitaciones recibidas:', list);
+        this.invitations = list || [];
+        this.loadingInvitations = false;
+      },
+      error: (e) => {
+        console.error('Error cargando invitaciones', e);
+        this.loadingInvitations = false;
+      }
+    });
+  }
+
+  acceptInvitation(invitation: InvitationDto) {
+    if (!invitation._id || !this.currentUserEmail) return;
+    
+    this.invitationsService.acceptInvitation(invitation._id, this.currentUserEmail).subscribe({
+      next: () => {
+        console.log('Invitación aceptada');
+        // Recargar invitaciones
+        this.loadInvitations(this.currentUserEmail);
+        // Recargar proyectos
+        if (this.mongoUserId) {
+          this.loadProjects(this.mongoUserId);
+        }
+        // Recargar proyectos invitados
+        this.userService.getUserByEmail(this.currentUserEmail).subscribe({
+          next: (resp: any) => {
+            const populatedInvited = resp?.user?.proyectosInvitados;
+            if (Array.isArray(populatedInvited)) {
+              this.invitedProjects = populatedInvited;
+            }
+          },
+          error: () => {}
+        });
+      },
+      error: (e) => {
+        console.error('Error aceptando invitación', e);
+        alert('Error al aceptar la invitación');
+      }
+    });
+  }
+
+  rejectInvitation(invitation: InvitationDto) {
+    if (!invitation._id || !this.currentUserEmail) return;
+    
+    if (!confirm('¿Seguro que quieres rechazar esta invitación?')) return;
+    
+    this.invitationsService.rejectInvitation(invitation._id, this.currentUserEmail).subscribe({
+      next: () => {
+        console.log('Invitación rechazada');
+        // Recargar invitaciones
+        this.loadInvitations(this.currentUserEmail);
+      },
+      error: (e) => {
+        console.error('Error rechazando invitación', e);
+        alert('Error al rechazar la invitación');
+      }
+    });
+  }
+
+  leaveProject(project: ProjectDto, event: Event) {
+    event.stopPropagation(); // Evitar que se abra el proyecto
+    const projectId = (project as any)._id;
+    if (!projectId || !this.currentUserEmail) return;
+    
+    if (!confirm(`¿Seguro que quieres salir del proyecto "${project.name}"?`)) return;
+    
+    this.invitationsService.leaveProject(projectId, this.currentUserEmail).subscribe({
+      next: () => {
+        console.log('Proyecto abandonado');
+        // Recargar datos del usuario
+        this.userService.getUserByEmail(this.currentUserEmail).subscribe({
+          next: (resp: any) => {
+            const populatedInvited = resp?.user?.proyectosInvitados;
+            if (Array.isArray(populatedInvited)) {
+              this.invitedProjects = populatedInvited;
+            }
+          },
+          error: () => {}
+        });
+      },
+      error: (e) => {
+        console.error('Error abandonando proyecto', e);
+        alert('Error al salir del proyecto');
+      }
+    });
+  }
+
   // Header user actions
   toggleUserDropdown() {
     this.showUserDropdown = !this.showUserDropdown;
@@ -171,9 +271,31 @@ export class DashboardComponent {
     );
   }
 
-  get filteredInvitations() {
+  get filteredInvitedProjects(): ProjectDto[] {
+    if (!this.invitedProjects || !this.invitedProjects.length) return [];
+    const q = (this.searchQuery || '').trim().toLowerCase();
+    if (!q) return this.invitedProjects;
+    return this.invitedProjects.filter(p =>
+      (p.name || '').toLowerCase().includes(q) ||
+      (p.sector || '').toLowerCase().includes(q)
+    );
+  }
+
+  getProjectId(project: ProjectDto): string {
+    return (project as any)._id || '';
+  }
+
+  isInvitedProject(projectId: string): boolean {
+    return this.invitedProjects.some(p => (p as any)._id === projectId);
+  }
+
+  get filteredInvitations(): InvitationDto[] {
+    if (!this.invitations || !this.invitations.length) return [];
     const q = (this.searchQuery || '').trim().toLowerCase();
     if (!q) return this.invitations;
-    return this.invitations.filter(i => i.email.toLowerCase().includes(q) || i.role.toLowerCase().includes(q));
+    return this.invitations.filter(i => 
+      i.inviterEmail.toLowerCase().includes(q) || 
+      (i.projectId_data && i.projectId_data.name && i.projectId_data.name.toLowerCase().includes(q))
+    );
   }
 }

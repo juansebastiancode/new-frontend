@@ -149,7 +149,7 @@ import { ProjectContextService } from '../services/project-context.service';
     </div>
   `,
   styles: [`
-    .credentials-page { width: 100%; height: 100vh; background: white; position: relative; }
+    .credentials-page { width: 100%; height: 100vh; background: white; position: relative; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     .main-content { margin-left: 250px; height: 100vh; background: white; overflow: auto; }
     .credentials-container { padding: 24px; }
     h2 { margin: 0 0 8px 0; font-weight: 600; font-size: 24px; }

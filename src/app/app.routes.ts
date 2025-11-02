@@ -6,7 +6,6 @@ import { AuthGuard } from './guards/auth.guard';
 import { AsistenteComponent } from './asistente/asistente.component';
 import { ProfileComponent } from './profile/profile.component';
 import { InventoryComponent } from './inventory/inventory.component';
-import { SuppliersComponent } from './suppliers/suppliers.component';
 import { CustomersComponent } from './customers/customers.component';
 import { InvoicesComponent } from './invoices/invoices.component';
 import { StatisticsComponent } from './statistics/statistics.component';
@@ -35,7 +34,6 @@ export const routes: Routes = [
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'asistente', component: AsistenteComponent },
   { path: 'inventory', component: InventoryComponent, canActivate: [AuthGuard] },
-  { path: 'suppliers', component: SuppliersComponent, canActivate: [AuthGuard] },
   { path: 'customers', component: CustomersComponent, canActivate: [AuthGuard] },
   { path: 'marketing', component: MarketingComponent, canActivate: [AuthGuard] },
   { path: 'team', component: TeamComponent, canActivate: [AuthGuard] },
@@ -56,7 +54,6 @@ export const routes: Routes = [
   { path: 'legal', component: LegalComponent, canActivate: [AuthGuard] },
   // Contexto de proyecto
   { path: 'p/:projectId/inventory', component: InventoryComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/suppliers', component: SuppliersComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/customers', component: CustomersComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/marketing', component: MarketingComponent, canActivate: [AuthGuard, ProjectGuard] },
   { path: 'p/:projectId/team', component: TeamComponent, canActivate: [AuthGuard, ProjectGuard] },

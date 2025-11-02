@@ -29,7 +29,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     { key: 'roadmap', label: 'Roadmap' },
     { key: 'statistics', label: 'Estadísticas' },
     { key: 'map', label: 'Mapa' },
-    { key: 'suppliers', label: 'Proveedores' },
     { key: 'inventory', label: 'Inventario' },
     { key: 'customers', label: 'Clientes' },
     { key: 'team', label: 'Equipo' },
@@ -48,7 +47,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ];
 
   estrategiaTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['roadmap', 'statistics'].includes(t.key));
-  operacionesTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['map', 'suppliers', 'inventory', 'customers'].includes(t.key));
+  operacionesTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['map', 'inventory', 'customers'].includes(t.key));
   organizacionTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['team', 'tasks', 'events', 'meetings'].includes(t.key));
   recursosTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['credentials', 'technology', 'documents', 'legal'].includes(t.key));
   finanzasTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['invoices', 'financials', 'budgets'].includes(t.key));
@@ -106,7 +105,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       'statistics': 'far fa-chart-bar',
       'map': 'far fa-map',
       'inventory': 'far fa-clipboard',
-      'suppliers': 'far fa-address-book',
       'customers': 'far fa-user',
       'team': 'far fa-user-circle',
       'tasks': 'far fa-square-check',

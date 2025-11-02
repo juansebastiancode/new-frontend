@@ -49,12 +49,6 @@
       <span class="nav-label">Mapa</span>
     </div>
 
-    <div class="nav-item" [class.active]="isActive('suppliers')" *ngIf="isEnabled('suppliers')" (click)="goToSuppliers()">
-      <div class="nav-icon">
-        <i class="far fa-address-book"></i>
-      </div>
-      <span class="nav-label">Proveedores</span>
-    </div>
 
     <div class="nav-item" [class.active]="isActive('inventory')" *ngIf="isEnabled('inventory')" (click)="goToInventory()">
       <div class="nav-icon">

@@ -21,6 +21,7 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
 
           <div class="tabs">
             <button class="tab" [class.active]="selected === 'items'" (click)="select('items')">Artículos</button>
+            <button class="tab" [class.active]="selected === 'proveedores'" (click)="select('proveedores')">Proveedores</button>
             <button class="tab" [class.active]="selected === 'pedidos'" (click)="select('pedidos')">Registro de pedidos</button>
           </div>
 
@@ -91,19 +92,26 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
                     </span>
                   </div>
                 </div>
-                <div class="supplier-contact" *ngIf="(item.cantidad === 0 || isLowStock(item)) && supplierFor(item.proveedor)">
-                  <div class="contact-title"><i class="far fa-address-book"></i> Contacto del proveedor</div>
-                  <div class="contact-row">
-                    <span class="contact-label">Proveedor:</span>
-                    <span class="contact-value">{{ supplierFor(item.proveedor)?.nombre }}</span>
+                <div class="supplier-contact" *ngIf="item.cantidad === 0 || isLowStock(item)">
+                  <div class="contact-title" *ngIf="supplierFor(item.proveedor)">
+                    <i class="far fa-address-book"></i> Contacto del proveedor
                   </div>
-                  <div class="contact-row" *ngIf="supplierFor(item.proveedor)?.email">
-                    <span class="contact-label">Email:</span>
-                    <span class="contact-value">{{ supplierFor(item.proveedor)?.email }}</span>
+                  <div *ngIf="!supplierFor(item.proveedor)" class="no-supplier-message">
+                    <i class="fas fa-info-circle"></i> No tienes un proveedor asignado a este artículo
                   </div>
-                  <div class="contact-row" *ngIf="supplierFor(item.proveedor)?.telefono">
-                    <span class="contact-label">Teléfono:</span>
-                    <span class="contact-value">{{ supplierFor(item.proveedor)?.telefono }}</span>
+                  <div *ngIf="supplierFor(item.proveedor)">
+                    <div class="contact-row">
+                      <span class="contact-label">Proveedor:</span>
+                      <span class="contact-value">{{ supplierFor(item.proveedor)?.nombre }}</span>
+                    </div>
+                    <div class="contact-row" *ngIf="supplierFor(item.proveedor)?.email">
+                      <span class="contact-label">Email:</span>
+                      <span class="contact-value">{{ supplierFor(item.proveedor)?.email }}</span>
+                    </div>
+                    <div class="contact-row" *ngIf="supplierFor(item.proveedor)?.telefono">
+                      <span class="contact-label">Teléfono:</span>
+                      <span class="contact-value">{{ supplierFor(item.proveedor)?.telefono }}</span>
+                    </div>
                   </div>
                   <div class="contact-actions">
                     <button class="primary small" (click)="openOrderModalFromItem(item)">
@@ -122,6 +130,43 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
             </div>
           </div>
 
+          <div class="section" *ngIf="selected === 'proveedores'">
+            <div class="actions">
+              <div class="search-wrap">
+                <i class="fas fa-search search-icon"></i>
+                <input class="search" type="text" placeholder="Buscar proveedores..." [(ngModel)]="searchSuppliers" />
+              </div>
+              <button class="primary" (click)="openSupplierModal()">Añadir proveedor</button>
+            </div>
+            
+            <div class="suppliers-grid">
+              <div class="supplier-card" *ngFor="let s of filteredSuppliers">
+                <div class="supplier-header">
+                  <div class="supplier-icon"><i class="fas fa-truck"></i></div>
+                  <div class="supplier-info">
+                    <h3>{{ s.nombre }}</h3>
+                    <p class="supplier-detail">{{ s.email || 'Sin email' }}</p>
+                  </div>
+                  <div class="supplier-actions">
+                    <button class="action-btn edit-btn" (click)="editSupplier(s)"><i class="fas fa-edit"></i></button>
+                    <button class="action-btn delete-btn" (click)="deleteSupplier(s)"><i class="fas fa-trash"></i></button>
+                  </div>
+                </div>
+                <div class="supplier-details">
+                  <div class="detail-item"><span class="detail-label">Teléfono:</span><span class="detail-value">{{ s.telefono || 'No especificado' }}</span></div>
+                  <div class="detail-item"><span class="detail-label">Ubicación:</span><span class="detail-value">{{ s.ubicacion || 'No especificada' }}</span></div>
+                  <div class="detail-item" *ngIf="s.ciudad || s.pais"><span class="detail-label">Ciudad:</span><span class="detail-value">{{ s.ciudad }}{{ s.pais ? ', ' + s.pais : '' }}</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="empty-state" *ngIf="filteredSuppliers.length === 0">
+              <i class="far fa-address-book empty-icon"></i>
+              <h3>No hay proveedores</h3>
+              <p>Comienza agregando tu primer proveedor.</p>
+            </div>
+          </div>
+
           <div class="section" *ngIf="selected === 'pedidos'">
             <div class="actions">
               <div class="search-wrap">
@@ -130,11 +175,11 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
               </div>
               <button class="primary" (click)="addPedido()">Nuevo pedido</button>
             </div>
-            <p class="muted">Registra y gestiona tus pedidos a proveedores.</p>
               <div class="orders-table-wrap" *ngIf="filteredOrders.length > 0; else emptyOrders">
               <table class="orders-table">
                 <thead>
                   <tr>
+                    <th style="width: 50px;"></th>
                     <th>Fecha</th>
                     <th>Hora</th>
                     <th>Artículo</th>
@@ -142,26 +187,47 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
                     <th class="right">Cantidad</th>
                     <th>Llegada</th>
                     <th>Notas</th>
-                      <th>Estado</th>
+                    <th>Factura</th>
+                    <th>Estado</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let o of filteredOrders">
+                    <td>
+                      <button class="edit-order-btn" (click)="openEditOrderModal(o)" title="Editar pedido">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                    </td>
                     <td>{{ o.fecha }}</td>
                     <td>{{ o.hora }}</td>
                     <td>{{ o.itemNombre }}</td>
                     <td>{{ o.proveedor }}</td>
                     <td class="right">{{ o.cantidad }}</td>
                     <td>{{ o.llegada || '—' }}</td>
-                    <td>{{ o.notas || '—' }}</td>
-                      <td>
-                        <button class="status-btn" 
-                                [class.done]="o.estado === 'completado'"
-                                [class.canceled]="o.estado === 'cancelado'"
-                                (click)="openEstadoModal(o)">
-                          {{ o.estado === 'completado' ? 'Completado' : (o.estado === 'cancelado' ? 'Cancelado' : 'Pendiente') }}
+                    <td class="notes-cell">
+                      <span style="word-wrap: break-word; white-space: normal; display: block;">{{ o.notas || '—' }}</span>
+                    </td>
+                    <td class="facturas-cell">
+                      <div style="display: flex; gap: 6px; align-items: center; flex-wrap: nowrap;">
+                        <button *ngIf="o.facturaPdf" class="invoice-btn" (click)="downloadInvoice(o)" [title]="'Ver ' + o.facturaPdf" style="flex: 1; min-width: 0;">
+                          <i class="fas fa-file-pdf"></i> <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ o.facturaPdf.length > 20 ? (o.facturaPdf.substring(0, 20) + '...') : o.facturaPdf }}</span>
                         </button>
-                      </td>
+                        <button *ngIf="o.facturaPdf" class="delete-invoice-btn" (click)="deleteInvoice(o)" title="Eliminar factura" style="flex-shrink: 0;">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                        <button *ngIf="!o.facturaPdf" class="add-invoice-btn" (click)="openInvoiceModal(o)" title="Añadir factura">
+                          <i class="fas fa-plus"></i> Añadir factura
+                        </button>
+                      </div>
+                    </td>
+                    <td>
+                      <button class="status-btn" 
+                              [class.done]="o.estado === 'completado'"
+                              [class.canceled]="o.estado === 'cancelado'"
+                              (click)="openEstadoModal(o)">
+                        {{ o.estado === 'completado' ? 'Completado' : (o.estado === 'cancelado' ? 'Cancelado' : 'Pendiente') }}
+                      </button>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -244,10 +310,10 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
             </div>
           </div>
 
-          <!-- Modal registro de pedido -->
+          <!-- Modal registro de pedido (crear/editar) -->
           <div class="modal-backdrop" *ngIf="showOrderModal" (click)="closeOrderModal()">
             <div class="modal-content" (click)="$event.stopPropagation()">
-              <h3>Nuevo registro de pedido</h3>
+              <h3>{{ editingOrder ? 'Editar pedido' : 'Nuevo registro de pedido' }}</h3>
               <div class="modal-form">
                 <div class="form-row">
                   <div class="form-group">
@@ -289,11 +355,93 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
                   <label>Anotaciones</label>
                   <textarea rows="3" [(ngModel)]="orderForm.notas" placeholder="Notas del pedido..."></textarea>
                 </div>
+                <div class="form-row" *ngIf="editingOrder">
+                  <div class="form-group">
+                    <label>Estado</label>
+                    <select [(ngModel)]="orderForm.estado">
+                      <option value="pendiente">Pendiente</option>
+                      <option value="completado">Completado</option>
+                      <option value="cancelado">Cancelado</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Factura PDF (opcional)</label>
+                  <input type="file" accept="application/pdf" (change)="onInvoiceFileSelected($event)" />
+                  <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">Solo archivos PDF. Máximo 10MB.</small>
+                  <span *ngIf="orderForm.invoiceFile" style="color: #059669; font-size: 12px; margin-top: 4px; display: block;">
+                    <i class="fas fa-check-circle"></i> {{ orderForm.invoiceFile.name }}
+                  </span>
+                  <small *ngIf="editingOrder && editingOrder.facturaPdf" style="color: #666; font-size: 12px; margin-top: 8px; display: block;">
+                    Factura actual: {{ editingOrder.facturaPdf }}. Se reemplazará con la nueva.
+                  </small>
+                </div>
               </div>
               <div class="modal-actions">
                 <button class="modal-btn cancel-btn" (click)="closeOrderModal()">Cancelar</button>
                 <button class="modal-btn primary-btn" (click)="saveOrder()">Guardar</button>
               </div>
+            </div>
+          </div>
+
+          <!-- Modal añadir/editar factura -->
+          <div class="modal-backdrop" *ngIf="showInvoiceModal" (click)="closeInvoiceModal()">
+            <div class="modal-content small" (click)="$event.stopPropagation()">
+              <h3>{{ selectedOrderForInvoice?.facturaPdf ? 'Cambiar factura' : 'Añadir factura' }}</h3>
+              <div class="modal-form">
+                <div class="form-group">
+                  <label>Factura PDF *</label>
+                  <input type="file" accept="application/pdf" (change)="onInvoiceFileSelectedForOrder($event)" />
+                  <small style="color: #666; font-size: 12px; margin-top: 4px; display: block;">Solo archivos PDF. Máximo 10MB.</small>
+                  <span *ngIf="invoiceFileForOrder" style="color: #059669; font-size: 12px; margin-top: 4px; display: block;">
+                    <i class="fas fa-check-circle"></i> {{ invoiceFileForOrder.name }}
+                  </span>
+                </div>
+              </div>
+              <div class="modal-actions">
+                <button class="modal-btn cancel-btn" (click)="closeInvoiceModal()">Cancelar</button>
+                <button class="modal-btn primary-btn" (click)="saveInvoiceToOrder()" [disabled]="!invoiceFileForOrder">{{ selectedOrderForInvoice?.facturaPdf ? 'Reemplazar' : 'Guardar' }}</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal editar notas -->
+          <div class="modal-backdrop" *ngIf="showEditNotesModal" (click)="closeEditNotesModal()">
+            <div class="modal-content small" (click)="$event.stopPropagation()">
+              <h3>Editar notas del pedido</h3>
+              <div class="modal-form">
+                <div class="form-group">
+                  <label>Notas</label>
+                  <textarea rows="5" [(ngModel)]="notesToEdit" placeholder="Notas del pedido..."></textarea>
+                </div>
+              </div>
+              <div class="modal-actions">
+                <button class="modal-btn cancel-btn" (click)="closeEditNotesModal()">Cancelar</button>
+                <button class="modal-btn primary-btn" (click)="saveNotes()">Guardar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modal añadir/editar proveedor -->
+          <div class="modal-backdrop" *ngIf="showSupplierModal" (click)="closeSupplierModal()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+              <h3>{{ editingSupplier ? 'Editar proveedor' : 'Nuevo proveedor' }}</h3>
+              <div class="modal-form">
+                <div class="form-group"><label>Nombre *</label><input type="text" [(ngModel)]="supplierForm.nombre" /></div>
+                <div class="form-group"><label>Email</label><input type="email" [(ngModel)]="supplierForm.email" /></div>
+                <div class="form-group"><label>Teléfono</label><input type="text" [(ngModel)]="supplierForm.telefono" /></div>
+                <div class="form-group"><label>Dirección</label><input type="text" [(ngModel)]="supplierForm.ubicacion" /></div>
+                <div class="form-row">
+                  <div class="form-group"><label>Ciudad</label><input type="text" [(ngModel)]="supplierForm.ciudad" /></div>
+                  <div class="form-group"><label>País</label><input type="text" [(ngModel)]="supplierForm.pais" /></div>
+                </div>
+                <div class="form-group"><label>Notas</label><textarea rows="3" [(ngModel)]="supplierForm.notas"></textarea></div>
+              </div>
+              <div class="modal-actions">
+                <button class="modal-btn cancel-btn" (click)="closeSupplierModal()">Cancelar</button>
+                <button class="modal-btn primary-btn" [disabled]="!supplierForm.nombre || loadingSupplier" (click)="saveSupplier()">{{ loadingSupplier ? 'Guardando...' : 'Guardar' }}</button>
+              </div>
+              <span class="error" *ngIf="supplierError">{{ supplierError }}</span>
             </div>
           </div>
 
@@ -340,20 +488,19 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
     .muted { color: #555; font-size: 13px; margin: 0 0 8px 0; }
 
     .tabs { display: flex; gap: 8px; margin: 8px 0 24px 0; }
-    .tab { border: 1px solid #ddd; background: #fff; color: #111; border-radius: 8px; padding: 8px 16px; cursor: pointer; font-size: 14px; transition: all 0.2s ease; }
+    .tab { border: 1px solid #ccc; background: #fff; color: #111; border-radius: 8px; padding: 8px 16px; cursor: pointer; font-size: 14px; transition: all 0.2s ease; }
     .tab.active { background: #111; color: #fff; border-color: #111; }
 
     .actions { display: flex; gap: 10px; align-items: center; margin: 16px 0 20px 0; }
     .search-wrap { position: relative; }
-    .search { min-width: 420px; border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px 10px 36px; outline: none; }
+    .search { min-width: 420px; border: 1px solid #ccc; border-radius: 8px; padding: 10px 12px 10px 36px; outline: none; }
     .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 14px; }
     .primary { background: #111; color: #fff; border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; }
     .primary:hover { opacity: .92; }
 
-    .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 20px; margin-bottom: 24px; }
-    .item-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .items-grid { display: flex; flex-direction: column; gap: 20px; margin-bottom: 24px; }
+    .item-card { background: white; border: 1px solid #ccc; border-radius: 12px; padding: 20px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
     .item-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-    .item-card.low-stock { border-left: 4px solid #ef4444; }
     .item-header { display: flex; align-items: flex-start; margin-bottom: 16px; }
     .item-icon { width: 48px; height: 48px; border-radius: 8px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; }
     .item-icon i { font-size: 20px; color: #6b7280; }
@@ -382,28 +529,52 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
     .detail-value { color: #111; font-size: 14px; word-break: keep-all; }
     .stock-number { font-weight: 700; font-size: 16px; white-space: nowrap; }
     .qty-control { display: inline-flex; align-items: center; gap: 10px; }
-    .qty-btn { width: 30px; height: 30px; line-height: 30px; text-align: center; border: 1px solid #e5e7eb; background: #f9fafb; color: #111; border-radius: 6px; cursor: pointer; flex-shrink: 0; }
+    .qty-btn { width: 30px; height: 30px; line-height: 30px; text-align: center; border: 1px solid #ccc; background: #f9fafb; color: #111; border-radius: 6px; cursor: pointer; flex-shrink: 0; }
     .qty-btn:disabled { opacity: .6; cursor: not-allowed; }
 
-    .supplier-contact { background:#f9fafb; border:1px solid #e5e7eb; border-radius:10px; padding:10px 12px; margin-top:10px; }
+    .supplier-contact { background:#f9fafb; border:1px solid #ccc; border-left: 4px solid #ef4444; border-radius:10px; padding:10px 12px; margin-top:10px; }
     .contact-title { font-size:12px; font-weight:700; color:#374151; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+    .no-supplier-message { font-size:13px; color:#6b7280; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+    .no-supplier-message i { color:#3b82f6; }
     .contact-row { display:flex; align-items:center; gap:6px; font-size:13px; }
     .contact-label { color:#6b7280; min-width:80px; }
     .contact-value { color:#111; }
     .contact-actions { display:flex; justify-content:flex-end; margin-top:8px; }
     .primary.small { background:#111; color:#fff; border:none; border-radius:8px; padding:8px 10px; cursor:pointer; font-size:13px; }
 
-    .orders-table-wrap { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 12px; }
-    .orders-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    .orders-table th, .orders-table td { padding: 10px 8px; border-bottom: 1px solid #eee; text-align: left; }
+    .orders-table-wrap { background: #fff; border: 1px solid #ccc; border-radius: 12px; padding: 12px; }
+    .orders-table { width: 100%; border-collapse: collapse; font-size: 14px; table-layout: auto; }
+    .orders-table th, .orders-table td { padding: 10px 8px; border-bottom: 1px solid #eee; text-align: left; white-space: nowrap; vertical-align: top; }
     .orders-table th.right, .orders-table td.right { text-align: right; font-variant-numeric: tabular-nums; }
+    .orders-table td.notes-cell { white-space: normal; }
+    .orders-table td.notes-cell > div > span { word-wrap: break-word; white-space: normal; display: block; max-width: 300px; }
+    .orders-table td.facturas-cell { white-space: normal; min-width: 200px; }
+    .orders-table td.facturas-cell > div > div { white-space: normal; }
     .status-btn { padding: 6px 10px; border-radius: 999px; border: 1px solid #fb923c; background: #fff7ed; color: #c2410c; font-size: 12px; cursor: pointer; }
     .status-btn.done { background: #e7f5eb; border-color: #34d399; color: #065f46; }
     .status-btn.canceled { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
+    .invoice-btn { padding: 6px 10px; border-radius: 6px; border: 1px solid #dc2626; background: #fee2e2; color: #dc2626; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .invoice-btn:hover { background: #fecaca; }
+    .invoice-btn i { font-size: 14px; }
+    .delete-invoice-btn { padding: 6px 8px; border-radius: 6px; border: 1px solid #dc2626; background: #fee2e2; color: #dc2626; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    .delete-invoice-btn:hover { background: #fecaca; }
+    .delete-invoice-btn i { font-size: 12px; }
+    .add-invoice-btn { padding: 0; border: none; background: transparent; color: #2563eb; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+    .add-invoice-btn:hover { color: #1d4ed8; }
+    .add-invoice-btn i { font-size: 11px; }
+    .edit-invoice-btn { padding: 6px 8px; border-radius: 6px; border: 1px solid #3b82f6; background: #eff6ff; color: #2563eb; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    .edit-invoice-btn:hover { background: #dbeafe; border-color: #2563eb; color: #1d4ed8; }
+    .edit-invoice-btn i { font-size: 12px; }
+    .edit-notes-btn { padding: 4px 6px; border-radius: 4px; border: 1px solid #6b7280; background: #f3f4f6; color: #6b7280; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .edit-notes-btn:hover { background: #e5e7eb; border-color: #4b5563; color: #4b5563; }
+    .edit-notes-btn i { font-size: 11px; }
+    .edit-order-btn { padding: 6px 10px; border-radius: 6px; border: 1px solid #3b82f6; background: #eff6ff; color: #2563eb; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    .edit-order-btn:hover { background: #dbeafe; border-color: #2563eb; color: #1d4ed8; }
+    .edit-order-btn i { font-size: 14px; }
 
     .modal-content.small { max-width: 400px; }
     .estado-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-    .estado-option { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s ease; }
+    .estado-option { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 2px solid #ccc; border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s ease; }
     .estado-option:hover { border-color: #d1d5db; background: #f9fafb; }
     .estado-option.active { border-color: #111; background: #f9fafb; }
     .estado-badge { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
@@ -416,7 +587,7 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
     .empty-state h3 { margin: 0 0 8px 0; font-size: 18px; color: #6b7280; }
     .empty-state p { margin: 0; color: #9ca3af; }
 
-    .card { border: 1px solid #ddd; border-radius: 10px; padding: 14px; background: #fff; }
+    .card { border: 1px solid #ccc; border-radius: 10px; padding: 14px; background: #fff; }
 
     .modal-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; }
     .modal-content { background: white; border-radius: 12px; padding: 24px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
@@ -425,7 +596,8 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
     .form-group { margin-bottom: 16px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .form-group label { display: block; margin-bottom: 6px; font-size: 14px; font-weight: 500; color: #333; }
-    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s ease; box-sizing: border-box; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s ease; box-sizing: border-box; }
+    .form-group input[type="file"] { padding: 8px; cursor: pointer; }
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #111; }
     .form-group select:disabled { background: #f3f4f6; color: #6b7280; cursor: not-allowed; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
@@ -437,14 +609,30 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
     .primary-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .error { color: #dc2626; font-size: 14px; display: block; margin-top: 8px; }
 
-    @media (max-width: 768px) { .main-content { margin-left: 0; } .actions { flex-direction: column; align-items: stretch; } .search { min-width: 100%; } .items-grid { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
+    .suppliers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; margin-bottom: 24px; }
+    .supplier-card { background: #fff; border: 1px solid #ccc; border-radius: 12px; padding: 20px; transition: transform .2s, box-shadow .2s; }
+    .supplier-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+    .supplier-header { display: flex; align-items: flex-start; margin-bottom: 16px; }
+    .supplier-icon { width: 48px; height: 48px; border-radius: 8px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; }
+    .supplier-icon i { font-size: 20px; color: #6b7280; }
+    .supplier-info { flex-grow: 1; }
+    .supplier-info h3 { margin: 0 0 4px 0; font-size: 16px; font-weight: 600; color: #111; }
+    .supplier-detail { margin: 0; color: #6b7280; font-size: 14px; }
+    .supplier-actions { display: flex; gap: 8px; }
+    .supplier-details { margin-bottom: 16px; }
+    .supplier-details .detail-item { display: flex; margin-bottom: 8px; }
+    .supplier-details .detail-label { font-weight: 500; color: #6b7280; min-width: 80px; font-size: 14px; }
+    .supplier-details .detail-value { color: #111; font-size: 14px; word-break: break-all; }
+
+    @media (max-width: 768px) { .main-content { margin-left: 0; } .actions { flex-direction: column; align-items: stretch; } .search { min-width: 100%; } .items-grid { grid-template-columns: 1fr; } .suppliers-grid { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
   `]
 })
 export class InventoryComponent implements OnInit {
   showProfile: boolean = false;
-  selected: 'items' | 'pedidos' = 'items';
+  selected: 'items' | 'proveedores' | 'pedidos' = 'items';
   searchItems: string = '';
   searchPedidos: string = '';
+  searchSuppliers: string = '';
   items: InventoryItemDto[] = [];
   orders: InventoryOrderDto[] = [];
   suppliers: SupplierDto[] = [];
@@ -454,10 +642,22 @@ export class InventoryComponent implements OnInit {
   editing: InventoryItemDto | null = null;
   savingId: string | null = null;
   showOrderModal: boolean = false;
-  orderForm: any = { articulo: '', proveedor: '', fecha: '', hora: '', cantidad: 0, llegada: '', notas: '', fromItem: false };
+  editingOrder: InventoryOrderDto | null = null;
+  orderForm: any = { articulo: '', proveedor: '', fecha: '', hora: '', cantidad: 0, llegada: '', notas: '', invoiceFile: null, fromItem: false };
   showEstadoModal: boolean = false;
   selectedEstadoOrder: InventoryOrderDto | null = null;
   selectedEstado: 'pendiente' | 'completado' | 'cancelado' = 'pendiente';
+  showInvoiceModal: boolean = false;
+  selectedOrderForInvoice: InventoryOrderDto | null = null;
+  invoiceFileForOrder: File | null = null;
+  showEditNotesModal: boolean = false;
+  selectedOrderForNotes: InventoryOrderDto | null = null;
+  notesToEdit: string = '';
+  showSupplierModal: boolean = false;
+  editingSupplier: SupplierDto | null = null;
+  supplierForm: any = { nombre: '', email: '', telefono: '', ubicacion: '', ciudad: '', pais: '', notas: '' };
+  loadingSupplier: boolean = false;
+  supplierError: string = '';
   form: any = {
     nombre: '',
     descripcion: '',
@@ -489,6 +689,15 @@ export class InventoryComponent implements OnInit {
     return (currentProject as any)?._id || null;
   }
 
+  get filteredSuppliers() {
+    if (!this.searchSuppliers) return this.suppliers;
+    return this.suppliers.filter(s =>
+      s.nombre.toLowerCase().includes(this.searchSuppliers.toLowerCase()) ||
+      s.email?.toLowerCase().includes(this.searchSuppliers.toLowerCase()) ||
+      s.telefono?.includes(this.searchSuppliers)
+    );
+  }
+
   get filteredOrders() {
     if (!this.searchPedidos) return this.orders;
     return this.orders.filter(o =>
@@ -506,9 +715,10 @@ export class InventoryComponent implements OnInit {
     );
   }
 
-  select(section: 'items' | 'pedidos') { 
+  select(section: 'items' | 'proveedores' | 'pedidos') { 
     this.selected = section; 
     if (section === 'pedidos') this.loadOrders();
+    if (section === 'proveedores') this.loadSuppliers();
   }
 
   isLowStock(item: InventoryItemDto): boolean {
@@ -672,20 +882,6 @@ export class InventoryComponent implements OnInit {
     });
   }
 
-  addPedido() {
-    this.orderForm = {
-      articulo: '',
-      proveedor: '',
-      fecha: new Date().toISOString().slice(0,10),
-      hora: new Date().toTimeString().slice(0,5),
-      cantidad: 1,
-      llegada: '',
-      notas: '',
-      fromItem: false
-    };
-    this.showOrderModal = true;
-  }
-
   toggleProfile() { this.showProfile = !this.showProfile; }
   closeProfile() { this.showProfile = false; }
 
@@ -696,6 +892,7 @@ export class InventoryComponent implements OnInit {
   }
 
   openOrderModalFromItem(item: InventoryItemDto) {
+    this.editingOrder = null;
     this.orderForm = {
       articulo: item.nombre,
       proveedor: item.proveedor || (this.supplierFor(item.proveedor)?.nombre || ''),
@@ -704,29 +901,212 @@ export class InventoryComponent implements OnInit {
       cantidad: Math.max(item.stockMinimo - item.cantidad, 1),
       llegada: '',
       notas: '',
-      fromItem: true
+      invoiceFile: null,
+      fromItem: true,
+      estado: 'pendiente'
     };
     this.showOrderModal = true;
   }
 
-  closeOrderModal() { this.showOrderModal = false; }
+  addPedido() {
+    this.editingOrder = null;
+    this.orderForm = {
+      articulo: '',
+      proveedor: '',
+      fecha: new Date().toISOString().slice(0,10),
+      hora: new Date().toTimeString().slice(0,5),
+      cantidad: 0,
+      llegada: '',
+      notas: '',
+      invoiceFile: null,
+      fromItem: false,
+      estado: 'pendiente'
+    };
+    this.showOrderModal = true;
+  }
+
+  closeOrderModal() { 
+    this.showOrderModal = false;
+    this.editingOrder = null;
+    this.orderForm = { articulo: '', proveedor: '', fecha: '', hora: '', cantidad: 0, llegada: '', notas: '', invoiceFile: null, fromItem: false, estado: 'pendiente' };
+  }
+
+  openEditOrderModal(order: InventoryOrderDto) {
+    this.editingOrder = order;
+    this.orderForm = {
+      articulo: order.itemNombre || '',
+      proveedor: order.proveedor || '',
+      fecha: order.fecha || '',
+      hora: order.hora || '',
+      cantidad: order.cantidad || 0,
+      llegada: order.llegada || '',
+      notas: order.notas || '',
+      invoiceFile: null,
+      fromItem: false,
+      estado: order.estado || 'pendiente'
+    };
+    this.showOrderModal = true;
+  }
 
   saveOrder() {
     if (!this.projectId) { this.closeOrderModal(); return; }
-    const payload: InventoryOrderDto = {
-      projectId: this.projectId,
-      itemNombre: this.orderForm.articulo,
-      proveedor: this.orderForm.proveedor,
-      fecha: this.orderForm.fecha,
-      hora: this.orderForm.hora || new Date().toTimeString().slice(0,5),
-      cantidad: Number(this.orderForm.cantidad) || 0,
-      llegada: this.orderForm.llegada || '',
-      notas: this.orderForm.notas || '',
-      estado: 'pendiente'
-    };
-    this.ordersService.create(payload).subscribe({
-      next: () => { this.closeOrderModal(); this.loadOrders(); },
-      error: () => { this.closeOrderModal(); }
+    
+    if (this.editingOrder && this.editingOrder._id) {
+      // Editar pedido existente
+      const updatePayload: Partial<InventoryOrderDto> = {
+        itemNombre: this.orderForm.articulo,
+        proveedor: this.orderForm.proveedor,
+        fecha: this.orderForm.fecha,
+        hora: this.orderForm.hora || new Date().toTimeString().slice(0,5),
+        cantidad: Number(this.orderForm.cantidad) || 0,
+        llegada: this.orderForm.llegada || '',
+        notas: this.orderForm.notas || '',
+        estado: this.orderForm.estado || 'pendiente'
+      };
+      
+      this.ordersService.update(this.editingOrder._id, updatePayload, this.orderForm.invoiceFile || undefined).subscribe({
+        next: () => { 
+          this.closeOrderModal(); 
+          this.loadOrders(); 
+        },
+        error: (err) => { 
+          console.error('Error actualizando pedido:', err);
+          this.closeOrderModal(); 
+        }
+      });
+    } else {
+      // Crear nuevo pedido
+      const payload: InventoryOrderDto = {
+        projectId: this.projectId,
+        itemNombre: this.orderForm.articulo,
+        proveedor: this.orderForm.proveedor,
+        fecha: this.orderForm.fecha,
+        hora: this.orderForm.hora || new Date().toTimeString().slice(0,5),
+        cantidad: Number(this.orderForm.cantidad) || 0,
+        llegada: this.orderForm.llegada || '',
+        notas: this.orderForm.notas || '',
+        estado: 'pendiente'
+      };
+      this.ordersService.create(payload, this.orderForm.invoiceFile || undefined).subscribe({
+        next: () => { this.closeOrderModal(); this.loadOrders(); },
+        error: () => { this.closeOrderModal(); }
+      });
+    }
+  }
+
+  onInvoiceFileSelected(event: any) {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        alert('Solo se permiten archivos PDF');
+        event.target.value = '';
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        alert('El archivo es demasiado grande. Máximo 10MB');
+        event.target.value = '';
+        return;
+      }
+      this.orderForm.invoiceFile = file;
+    }
+  }
+
+  downloadInvoice(order: InventoryOrderDto) {
+    if (!order._id || !order.facturaPdf) return;
+    // Abrir el PDF en una nueva pestaña del navegador
+    const url = this.ordersService.getInvoiceUrl(order._id);
+    window.open(url, '_blank');
+  }
+
+  deleteInvoice(order: InventoryOrderDto) {
+    if (!order._id || !order.facturaPdf) return;
+    
+    if (!confirm(`¿Seguro que quieres eliminar la factura del pedido "${order.itemNombre}"?`)) {
+      return;
+    }
+    
+    this.ordersService.deleteInvoice(order._id).subscribe({
+      next: () => {
+        // Actualizar la lista de pedidos para reflejar el cambio
+        this.loadOrders();
+      },
+      error: (err) => {
+        console.error('Error eliminando factura:', err);
+        alert('Error al eliminar la factura');
+      }
+    });
+  }
+
+  openInvoiceModal(order: InventoryOrderDto) {
+    this.selectedOrderForInvoice = order;
+    this.invoiceFileForOrder = null;
+    this.showInvoiceModal = true;
+  }
+
+  closeInvoiceModal() {
+    this.showInvoiceModal = false;
+    this.selectedOrderForInvoice = null;
+    this.invoiceFileForOrder = null;
+  }
+
+  onInvoiceFileSelectedForOrder(event: any) {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        alert('Solo se permiten archivos PDF');
+        event.target.value = '';
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        alert('El archivo es demasiado grande. Máximo 10MB');
+        event.target.value = '';
+        return;
+      }
+      this.invoiceFileForOrder = file;
+    }
+  }
+
+  saveInvoiceToOrder() {
+    if (!this.selectedOrderForInvoice?._id || !this.invoiceFileForOrder) return;
+    
+    // Actualizar el pedido con la nueva factura (reemplaza la anterior si existe)
+    this.ordersService.update(this.selectedOrderForInvoice._id, {}, this.invoiceFileForOrder).subscribe({
+      next: () => {
+        this.closeInvoiceModal();
+        this.loadOrders(); // Recargar la lista para mostrar la nueva factura
+      },
+      error: (err: any) => {
+        console.error('Error guardando factura:', err);
+        alert('Error al guardar la factura');
+      }
+    });
+  }
+
+  openEditNotesModal(order: InventoryOrderDto) {
+    this.selectedOrderForNotes = order;
+    this.notesToEdit = order.notas || '';
+    this.showEditNotesModal = true;
+  }
+
+  closeEditNotesModal() {
+    this.showEditNotesModal = false;
+    this.selectedOrderForNotes = null;
+    this.notesToEdit = '';
+  }
+
+  saveNotes() {
+    if (!this.selectedOrderForNotes?._id) return;
+    
+    const update = { notas: this.notesToEdit || '' };
+    this.ordersService.update(this.selectedOrderForNotes._id, update).subscribe({
+      next: () => {
+        this.closeEditNotesModal();
+        this.loadOrders(); // Recargar la lista para mostrar las notas actualizadas
+      },
+      error: (err) => {
+        console.error('Error guardando notas:', err);
+        alert('Error al guardar las notas');
+      }
     });
   }
 
@@ -761,6 +1141,71 @@ export class InventoryComponent implements OnInit {
         }
         this.closeEstadoModal();
       }
+    });
+  }
+
+  openSupplierModal() { 
+    this.editingSupplier = null; 
+    this.supplierForm = { nombre: '', email: '', telefono: '', ubicacion: '', ciudad: '', pais: '', notas: '' }; 
+    this.supplierError = ''; 
+    this.showSupplierModal = true; 
+  }
+
+  closeSupplierModal() { 
+    this.showSupplierModal = false; 
+    this.editingSupplier = null; 
+    this.supplierError = ''; 
+    this.supplierForm = { nombre: '', email: '', telefono: '', ubicacion: '', ciudad: '', pais: '', notas: '' }; 
+  }
+
+  editSupplier(s: SupplierDto) {
+    this.editingSupplier = s;
+    this.supplierForm = { 
+      nombre: s.nombre, 
+      email: s.email || '', 
+      telefono: s.telefono || '', 
+      ubicacion: s.ubicacion || '', 
+      ciudad: s.ciudad || '', 
+      pais: s.pais || '', 
+      notas: s.notas || '' 
+    };
+    this.supplierError = '';
+    this.showSupplierModal = true;
+  }
+
+  saveSupplier() {
+    if (!this.supplierForm.nombre) { 
+      this.supplierError = 'El nombre es obligatorio'; 
+      return; 
+    }
+    if (!this.projectId) { 
+      this.supplierError = 'No hay proyecto seleccionado'; 
+      return; 
+    }
+    this.loadingSupplier = true; 
+    this.supplierError = '';
+    const data: Partial<SupplierDto> = { projectId: this.projectId, ...this.supplierForm };
+    const op = this.editingSupplier 
+      ? this.suppliersService.updateSupplier(this.editingSupplier._id!, data) 
+      : this.suppliersService.createSupplier(data);
+    op.subscribe({
+      next: () => { 
+        this.loadingSupplier = false; 
+        this.closeSupplierModal(); 
+        this.loadSuppliers(); 
+      },
+      error: () => { 
+        this.loadingSupplier = false; 
+        this.supplierError = 'Error al guardar'; 
+      }
+    });
+  }
+
+  deleteSupplier(s: SupplierDto) {
+    if (!confirm(`¿Eliminar ${s.nombre}?`)) return;
+    if (!s._id) return;
+    this.suppliersService.deleteSupplier(s._id).subscribe({ 
+      next: () => this.loadSuppliers() 
     });
   }
 }

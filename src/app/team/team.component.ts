@@ -5,6 +5,8 @@ import { MenubarComponent } from '../menubar/menubar.component';
 import { ProfileComponent } from '../profile/profile.component';
 import { AuthService } from '../services/auth.service';
 import { User } from '@angular/fire/auth';
+import { ProjectContextService } from '../services/project-context.service';
+import { InvitationsService, InvitationDto } from '../services/invitations.service';
 
 @Component({
   selector: 'app-team',
@@ -30,24 +32,27 @@ import { User } from '@angular/fire/auth';
               <button class="primary" (click)="inviteMember()">Invitar miembro</button>
             </div>
             <p class="muted">Gestiona los miembros de tu equipo.</p>
-            <div class="members-grid">
+            <div class="members-grid" *ngIf="!loading; else loadingState">
               <div class="member-card" *ngFor="let member of members">
                 <div class="member-avatar">
-                  <div class="avatar-circle">{{ member.name.charAt(0) }}</div>
+                  <div class="avatar-circle">{{ member.nombre?.charAt(0) || 'U' }}</div>
                 </div>
                 <div class="member-info">
-                  <h4>{{ member.name }}</h4>
-                  <p>{{ member.role }}</p>
-                  <span class="member-status" [class]="'status-' + member.status">{{ member.status }}</span>
-                </div>
-                <div class="member-actions" *ngIf="!member.isCurrentUser">
-                  <button class="action-btn" (click)="editMember(member)">Editar</button>
-                  <button class="action-btn danger" (click)="removeMember(member)">
-                    Eliminar
-                  </button>
+                  <h4>{{ member.nombre }}</h4>
+                  <p>{{ member.email }}</p>
+                  <span class="member-status status-activo">Activo</span>
                 </div>
               </div>
+              <div class="empty-state" *ngIf="members.length === 0">
+                <p>No hay miembros en el equipo aún.</p>
+              </div>
             </div>
+            <ng-template #loadingState>
+              <div class="empty-state">
+                <div class="spinner"></div>
+              </div>
+            </ng-template>
+            <div class="error" *ngIf="error">{{ error }}</div>
           </div>
 
           <div class="section" *ngIf="selected === 'invitations'">
@@ -55,25 +60,51 @@ import { User } from '@angular/fire/auth';
               <div class="search-wrap">
                 <input class="search" type="text" placeholder="Buscar invitaciones..." [(ngModel)]="searchInvitations" />
               </div>
-              <button class="primary" (click)="sendInvitation()">Enviar invitación</button>
+              <button class="primary" (click)="inviteMember()">Enviar invitación</button>
             </div>
-            <p class="muted">Gestiona las invitaciones pendientes y enviadas.</p>
-            <div class="invitations-grid">
+            <p class="muted">Gestiona las invitaciones pendientes.</p>
+            <div class="invitations-grid" *ngIf="!loadingInvitations; else loadingInvitationsState">
               <div class="invitation-card" *ngFor="let invitation of invitations">
                 <div class="invitation-info">
-                  <h4>{{ invitation.email }}</h4>
-                  <p>Rol: {{ invitation.role }}</p>
-                  <span class="invitation-status" [class]="'status-' + invitation.status">{{ invitation.status }}</span>
+                  <h4>{{ invitation.inviteeEmail }}</h4>
+                  <p>Invitado por: {{ invitation.inviterEmail }}</p>
+                  <span class="invitation-status status-enviada">Pendiente</span>
                 </div>
                 <div class="invitation-meta">
-                  <span class="invitation-date">{{ invitation.sentDate }}</span>
-                  <span class="invitation-expires" *ngIf="invitation.expiresDate">Expira: {{ invitation.expiresDate }}</span>
+                  <span class="invitation-date">{{ invitation.createdAt | date:'short' }}</span>
                 </div>
                 <div class="invitation-actions">
-                  <button class="action-btn" (click)="resendInvitation(invitation)">Reenviar</button>
                   <button class="action-btn danger" (click)="cancelInvitation(invitation)">Cancelar</button>
                 </div>
               </div>
+              <div class="empty-state" *ngIf="invitations.length === 0">
+                <p>No hay invitaciones pendientes.</p>
+              </div>
+            </div>
+            <ng-template #loadingInvitationsState>
+              <div class="empty-state">
+                <div class="spinner"></div>
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Modal de invitación -->
+          <div class="modal-backdrop" *ngIf="showInviteModal" (click)="closeInviteModal()">
+            <div class="modal-content" (click)="$event.stopPropagation()">
+              <h3>Invitar miembro</h3>
+              <div class="modal-form">
+                <div class="form-group">
+                  <label>Email del miembro *</label>
+                  <input type="email" [(ngModel)]="inviteEmail" placeholder="usuario@ejemplo.com" />
+                </div>
+              </div>
+              <div class="modal-actions">
+                <button class="modal-btn cancel-btn" (click)="closeInviteModal()">Cancelar</button>
+                <button class="modal-btn primary-btn" (click)="sendInvitation()" [disabled]="!inviteEmail || loading">
+                  {{ loading ? 'Enviando...' : 'Enviar invitación' }}
+                </button>
+              </div>
+              <span class="error" *ngIf="inviteError">{{ inviteError }}</span>
             </div>
           </div>
         </div>
@@ -82,7 +113,7 @@ import { User } from '@angular/fire/auth';
     </div>
   `,
   styles: [`
-    .team-page { width: 100%; height: 100vh; background: white; position: relative; }
+    .team-page { width: 100%; height: 100vh; background: white; position: relative; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     .main-content { margin-left: 250px; height: 100vh; background: white; }
     .team-container { padding: 24px; }
     h2 { margin: 0 0 12px 0; font-weight: 600; }
@@ -189,6 +220,116 @@ import { User } from '@angular/fire/auth';
     .invitation-date, .invitation-expires { font-size: 10px; color: #999; display: block; }
     .invitation-actions { display: flex; gap: 8px; margin-top: 8px; }
 
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      width: 90%;
+      max-width: 480px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .modal-content h3 {
+      margin: 0 0 20px 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .modal-form {
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .form-group input:focus {
+      border-color: #111;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .modal-btn {
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      transition: opacity 0.2s ease;
+    }
+    .cancel-btn {
+      background: #f3f4f6;
+      color: #374151;
+    }
+    .cancel-btn:hover {
+      opacity: 0.8;
+    }
+    .primary-btn {
+      background: #111;
+      color: white;
+    }
+    .primary-btn:hover {
+      opacity: 0.9;
+    }
+    .primary-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .error {
+      color: #dc2626;
+      font-size: 14px;
+      display: block;
+      margin-top: 8px;
+    }
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: #6b7280;
+    }
+    .empty-state p {
+      margin: 0;
+    }
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #eee;
+      border-top-color: #111;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 12px auto;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
     @media (max-width: 768px) { .main-content { margin-left: 200px; } }
   `]
 })
@@ -196,102 +337,137 @@ export class TeamComponent implements OnInit {
   showProfile: boolean = false;
   selected: 'members' | 'invitations' = 'members';
   searchMembers: string = '';
-  searchRoles: string = '';
-  searchPermissions: string = '';
   searchInvitations: string = '';
   currentUser: User | null = null;
   currentUserName: string = 'Usuario';
+  currentUserEmail: string = '';
+  currentProjectId: string | null = null;
+  loading: boolean = false;
+  loadingInvitations: boolean = false;
+  error: string = '';
 
-  members = [
-    { name: 'Usuario', role: 'Administrador', status: 'activo', isCurrentUser: true },
-    { name: 'Juan Pérez', role: 'Desarrollador', status: 'activo', isCurrentUser: false },
-    { name: 'María García', role: 'Diseñador', status: 'activo', isCurrentUser: false },
-    { name: 'Carlos López', role: 'Manager', status: 'pendiente', isCurrentUser: false }
-  ];
+  members: any[] = [];
+  invitations: InvitationDto[] = [];
 
-  roles = [
-    { 
-      name: 'Administrador', 
-      description: 'Acceso completo al sistema', 
-      memberCount: 1, 
-      permissions: ['Crear', 'Editar', 'Eliminar', 'Configurar'] 
-    },
-    { 
-      name: 'Desarrollador', 
-      description: 'Acceso a desarrollo y testing', 
-      memberCount: 2, 
-      permissions: ['Crear', 'Editar', 'Ver'] 
-    },
-    { 
-      name: 'Diseñador', 
-      description: 'Acceso a diseño y contenido', 
-      memberCount: 1, 
-      permissions: ['Crear', 'Editar', 'Ver'] 
-    }
-  ];
+  // Modal de invitación
+  showInviteModal: boolean = false;
+  inviteEmail: string = '';
+  inviteError: string = '';
 
-  permissions = [
-    { name: 'Acceso a Roadmap', description: 'Ver y gestionar el roadmap estratégico', tab: 'roadmap' },
-    { name: 'Acceso a Tareas', description: 'Gestionar tareas del proyecto', tab: 'tasks' },
-    { name: 'Acceso a Mapa', description: 'Ver y usar el mapa de ubicaciones', tab: 'map' },
-    { name: 'Acceso a Eventos', description: 'Crear y gestionar eventos', tab: 'events' },
-    { name: 'Acceso a Inventario', description: 'Gestionar inventario y productos', tab: 'inventory' },
-    { name: 'Acceso a Proveedores', description: 'Gestionar proveedores y contactos', tab: 'suppliers' },
-    { name: 'Acceso a Clientes', description: 'Gestionar clientes y leads', tab: 'customers' },
-    { name: 'Acceso a Marketing', description: 'Gestionar campañas y analíticas', tab: 'marketing' },
-    { name: 'Acceso a Equipo', description: 'Gestionar miembros del equipo', tab: 'team' },
-    { name: 'Acceso a Facturas', description: 'Gestionar facturas y pagos', tab: 'invoices' },
-    { name: 'Acceso a Estadísticas', description: 'Ver reportes y métricas', tab: 'statistics' }
-  ];
-
-  invitations = [
-    { email: 'ana@empresa.com', role: 'Desarrollador', status: 'enviada', sentDate: '2024-01-15', expiresDate: '2024-01-22' },
-    { email: 'pedro@empresa.com', role: 'Diseñador', status: 'aceptada', sentDate: '2024-01-10' },
-    { email: 'laura@empresa.com', role: 'Manager', status: 'expirada', sentDate: '2024-01-01', expiresDate: '2024-01-08' }
-  ];
-
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private projectCtx: ProjectContextService,
+    private invitationsService: InvitationsService
+  ) {}
 
   ngOnInit() {
     this.authService.user$.subscribe(user => {
       this.currentUser = user;
-      if (user) {
-        this.currentUserName = user.displayName || user.email?.split('@')[0] || 'Usuario';
-        // Actualizar el primer miembro con los datos del usuario actual
-        this.members[0].name = this.currentUserName;
+      if (user && user.email) {
+        this.currentUserEmail = user.email;
+        this.currentUserName = user.displayName || user.email.split('@')[0] || 'Usuario';
+      }
+    });
+
+    // Cargar datos del proyecto actual
+    const currentProject = this.projectCtx.getCurrent();
+    if (currentProject && (currentProject as any)._id) {
+      this.currentProjectId = (currentProject as any)._id;
+      this.loadTeamData();
+    }
+  }
+
+  loadTeamData() {
+    if (!this.currentProjectId) return;
+    
+    // Cargar miembros
+    this.loading = true;
+    this.invitationsService.getProjectMembers(this.currentProjectId).subscribe({
+      next: (membersList) => {
+        this.members = membersList || [];
+        this.loading = false;
+      },
+      error: (e) => {
+        console.error('Error cargando miembros:', e);
+        this.error = 'Error al cargar miembros del equipo';
+        this.loading = false;
+      }
+    });
+
+    // Cargar invitaciones pendientes
+    this.loadingInvitations = true;
+    this.invitationsService.getInvitationsByProject(this.currentProjectId).subscribe({
+      next: (invList) => {
+        this.invitations = invList || [];
+        this.loadingInvitations = false;
+      },
+      error: (e) => {
+        console.error('Error cargando invitaciones:', e);
+        this.loadingInvitations = false;
       }
     });
   }
 
   select(section: 'members' | 'invitations') { this.selected = section; }
 
-  inviteMember() { alert('Invitar miembro'); }
-  editMember(member: any) { 
-    if (member.isCurrentUser) {
-      alert('No puedes editar tu propio perfil desde aquí. Ve a tu perfil personal.');
-      return;
-    }
-    alert('Editar miembro: ' + member.name); 
-  }
-  removeMember(member: any) { 
-    if (member.isCurrentUser) {
-      alert('No puedes eliminarte a ti mismo del equipo.');
-      return;
-    }
-    alert('Eliminar miembro: ' + member.name); 
+  inviteMember() {
+    this.showInviteModal = true;
+    this.inviteEmail = '';
+    this.inviteError = '';
   }
 
-  addRole() { alert('Crear rol'); }
-  editRole(role: any) { alert('Editar rol: ' + role.name); }
-  deleteRole(role: any) { alert('Eliminar rol: ' + role.name); }
+  closeInviteModal() {
+    this.showInviteModal = false;
+    this.inviteEmail = '';
+    this.inviteError = '';
+  }
 
-  addPermission() { alert('Nuevo permiso'); }
-  editPermission(permission: any) { alert('Editar permiso: ' + permission.name); }
-  deletePermission(permission: any) { alert('Eliminar permiso: ' + permission.name); }
+  sendInvitation() {
+    if (!this.inviteEmail || !this.currentProjectId || !this.currentUserEmail) {
+      this.inviteError = 'Email requerido';
+      return;
+    }
 
-  sendInvitation() { alert('Enviar invitación'); }
-  resendInvitation(invitation: any) { alert('Reenviar invitación a: ' + invitation.email); }
-  cancelInvitation(invitation: any) { alert('Cancelar invitación a: ' + invitation.email); }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.inviteEmail)) {
+      this.inviteError = 'Email no válido';
+      return;
+    }
+
+    this.loading = true;
+    this.inviteError = '';
+
+    console.log('Enviando invitación con:', {
+      projectId: this.currentProjectId,
+      inviterEmail: this.currentUserEmail,
+      inviteeEmail: this.inviteEmail
+    });
+
+    this.invitationsService.createInvitation({
+      projectId: this.currentProjectId,
+      inviterEmail: this.currentUserEmail,
+      inviteeEmail: this.inviteEmail
+    }).subscribe({
+      next: () => {
+        console.log('Invitación enviada');
+        this.loading = false;
+        this.closeInviteModal();
+        this.loadTeamData(); // Recargar datos
+      },
+      error: (e: any) => {
+        console.error('Error enviando invitación:', e);
+        console.error('Error details:', e.error);
+        this.inviteError = e.error?.error || 'Error al enviar la invitación';
+        this.loading = false;
+      }
+    });
+  }
+
+  cancelInvitation(invitation: InvitationDto) {
+    if (!confirm('¿Seguro que quieres cancelar esta invitación?')) return;
+    // Nota: No hay endpoint para cancelar, pero podríamos implementarlo o simplemente marcar como rejected
+    alert('Funcionalidad de cancelar aún no implementada');
+  }
 
   toggleProfile() { this.showProfile = !this.showProfile; }
   closeProfile() { this.showProfile = false; }

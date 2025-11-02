@@ -180,11 +180,6 @@ export class MenubarComponent implements OnInit, OnDestroy {
     else this.router.navigate(['/inventory']);
   }
 
-  goToSuppliers() {
-    const proj = this.projectCtx.getCurrent();
-    if (proj?._id) this.router.navigate(['/p', proj._id, 'suppliers']);
-    else this.router.navigate(['/suppliers']);
-  }
 
   goToCustomers() {
     const proj = this.projectCtx.getCurrent();
@@ -260,7 +255,6 @@ export class MenubarComponent implements OnInit, OnDestroy {
       case 'map': return 'map';
       case 'events': return 'events';
       case 'inventory': return 'inventory';
-      case 'suppliers': return 'suppliers';
       case 'customers': return 'customers';
       case 'marketing': return 'marketing';
       case 'team': return 'team';
