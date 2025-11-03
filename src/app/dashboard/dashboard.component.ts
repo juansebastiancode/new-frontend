@@ -32,6 +32,7 @@ export class DashboardComponent {
   loadingInvitations: boolean = false;
   currentUserEmail: string = '';
   loadError: string = '';
+  openDropdownId: string | null = null;
   // Usuario (header)
   userName: string = 'Usuario';
   userInitial: string = 'U';
@@ -203,6 +204,7 @@ export class DashboardComponent {
 
   leaveProject(project: ProjectDto, event: Event) {
     event.stopPropagation(); // Evitar que se abra el proyecto
+    this.openDropdownId = null; // Cerrar el dropdown
     const projectId = (project as any)._id;
     if (!projectId || !this.currentUserEmail) return;
     
@@ -250,8 +252,15 @@ export class DashboardComponent {
     const target = event.target as HTMLElement;
     const withinHeader = target.closest('.user-header');
     const withinDropdown = target.closest('.user-dropdown');
+    const withinOptionsDropdown = target.closest('.options-dropdown');
+    const withinMoreOptionsBtn = target.closest('.more-options-btn');
+    
     if (!withinHeader && !withinDropdown) {
       this.showUserDropdown = false;
+    }
+    
+    if (!withinOptionsDropdown && !withinMoreOptionsBtn) {
+      this.openDropdownId = null;
     }
   }
 
@@ -287,6 +296,12 @@ export class DashboardComponent {
 
   isInvitedProject(projectId: string): boolean {
     return this.invitedProjects.some(p => (p as any)._id === projectId);
+  }
+
+  toggleDropdown(project: ProjectDto, event: Event) {
+    event.stopPropagation();
+    const projectId = this.getProjectId(project);
+    this.openDropdownId = this.openDropdownId === projectId ? null : projectId;
   }
 
   get filteredInvitations(): InvitationDto[] {

@@ -34,13 +34,26 @@ import { InvitationsService, InvitationDto } from '../services/invitations.servi
             <p class="muted">Gestiona los miembros de tu equipo.</p>
             <div class="members-grid" *ngIf="!loading; else loadingState">
               <div class="member-card" *ngFor="let member of members">
-                <div class="member-avatar">
-                  <div class="avatar-circle">{{ member.nombre?.charAt(0) || 'U' }}</div>
+                <div class="member-header">
+                  <div class="member-avatar">
+                    <div class="avatar-circle">{{ member.nombre?.charAt(0) || 'U' }}</div>
+                  </div>
+                  <div class="member-info">
+                    <h4>{{ member.nombre }}</h4>
+                    <p>{{ member.email }}</p>
+                    <span class="member-status" [class.status-activo]="member.isOwner" [class.status-owner]="member.isOwner">
+                      {{ member.isOwner ? 'Propietario' : 'Miembro' }}
+                    </span>
+                  </div>
                 </div>
-                <div class="member-info">
-                  <h4>{{ member.nombre }}</h4>
-                  <p>{{ member.email }}</p>
-                  <span class="member-status status-activo">Activo</span>
+                <div class="member-permissions" *ngIf="!member.isOwner">
+                  <div class="permissions-title">Permisos de acceso:</div>
+                  <div class="permissions-checkboxes">
+                    <label class="checkbox-label" *ngFor="let tab of availableTabs">
+                      <input type="checkbox" [checked]="member.allowedTabs?.includes(tab.key)" (change)="toggleTabPermission(member, tab.key, $event)" />
+                      <span>{{ tab.label }}</span>
+                    </label>
+                  </div>
                 </div>
               </div>
               <div class="empty-state" *ngIf="members.length === 0">
@@ -142,7 +155,8 @@ import { InvitationsService, InvitationDto } from '../services/invitations.servi
       padding: 16px; 
     }
 
-    .member-card { display: flex; align-items: center; gap: 12px; }
+    .member-card { display: flex; flex-direction: column; gap: 12px; }
+    .member-header { display: flex; align-items: center; gap: 12px; }
     .member-avatar { flex-shrink: 0; }
     .avatar-circle { 
       width: 40px; 
@@ -161,8 +175,15 @@ import { InvitationsService, InvitationDto } from '../services/invitations.servi
     .member-info p { margin: 0 0 4px 0; font-size: 12px; color: #666; }
     .member-status { padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
     .status-activo { background: #d1fae5; color: #059669; }
+    .status-owner { background: #dbeafe; color: #2563eb; }
     .status-pendiente { background: #fef3c7; color: #d97706; }
     .status-inactivo { background: #fee2e2; color: #dc2626; }
+    .member-permissions { border-top: 1px solid #e5e7eb; padding-top: 12px; margin-top: 8px; }
+    .permissions-title { font-size: 12px; font-weight: 600; margin-bottom: 8px; color: #374151; }
+    .permissions-checkboxes { display: flex; flex-direction: column; gap: 6px; }
+    .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; }
+    .checkbox-label input[type="checkbox"] { cursor: pointer; }
+    .checkbox-label span { color: #374151; }
     .member-actions { display: flex; gap: 8px; }
     .action-btn { 
       padding: 4px 8px; 
@@ -348,6 +369,25 @@ export class TeamComponent implements OnInit {
 
   members: any[] = [];
   invitations: InvitationDto[] = [];
+  availableTabs: { key: string; label: string }[] = [
+    { key: 'roadmap', label: 'Roadmap' },
+    { key: 'statistics', label: 'Estadísticas' },
+    { key: 'map', label: 'Mapa' },
+    { key: 'inventory', label: 'Inventario' },
+    { key: 'customers', label: 'Clientes' },
+    { key: 'tasks', label: 'Tareas' },
+    { key: 'events', label: 'Eventos' },
+    { key: 'meetings', label: 'Reuniones' },
+    { key: 'credentials', label: 'Credenciales' },
+    { key: 'technology', label: 'Tecnología' },
+    { key: 'documents', label: 'Documentos' },
+    { key: 'invoices', label: 'Facturas' },
+    { key: 'financials', label: 'Movimientos' },
+    { key: 'budgets', label: 'Presupuestos' },
+    { key: 'marketing', label: 'Marketing' },
+    { key: 'rnd', label: 'I+D' },
+    { key: 'legal', label: 'Legal' }
+  ];
 
   // Modal de invitación
   showInviteModal: boolean = false;
@@ -467,6 +507,47 @@ export class TeamComponent implements OnInit {
     if (!confirm('¿Seguro que quieres cancelar esta invitación?')) return;
     // Nota: No hay endpoint para cancelar, pero podríamos implementarlo o simplemente marcar como rejected
     alert('Funcionalidad de cancelar aún no implementada');
+  }
+
+  toggleTabPermission(member: any, tabKey: string, event: Event) {
+    if (!this.currentProjectId || !member.email) return;
+    
+    const checkbox = event.target as HTMLInputElement;
+    const isChecked = checkbox.checked;
+    
+    // Actualizar localmente
+    if (!member.allowedTabs) {
+      member.allowedTabs = [];
+    }
+    
+    if (isChecked) {
+      if (!member.allowedTabs.includes(tabKey)) {
+        member.allowedTabs.push(tabKey);
+      }
+    } else {
+      member.allowedTabs = member.allowedTabs.filter((t: string) => t !== tabKey);
+    }
+    
+    // Guardar en backend
+    this.invitationsService.updateMemberPermissions(
+      this.currentProjectId,
+      member.email,
+      member.allowedTabs
+    ).subscribe({
+      next: () => {
+        console.log('Permisos actualizados');
+      },
+      error: (err) => {
+        console.error('Error actualizando permisos:', err);
+        // Revertir el cambio local
+        checkbox.checked = !isChecked;
+        if (isChecked) {
+          member.allowedTabs = member.allowedTabs.filter((t: string) => t !== tabKey);
+        } else {
+          member.allowedTabs.push(tabKey);
+        }
+      }
+    });
   }
 
   toggleProfile() { this.showProfile = !this.showProfile; }

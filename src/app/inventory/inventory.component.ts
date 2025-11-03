@@ -22,7 +22,7 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
           <div class="tabs">
             <button class="tab" [class.active]="selected === 'items'" (click)="select('items')">Artículos</button>
             <button class="tab" [class.active]="selected === 'proveedores'" (click)="select('proveedores')">Proveedores</button>
-            <button class="tab" [class.active]="selected === 'pedidos'" (click)="select('pedidos')">Registro de pedidos</button>
+            <button class="tab" [class.active]="selected === 'pedidos'" (click)="select('pedidos')">Registro de compras</button>
           </div>
 
           <div class="section" *ngIf="selected === 'items'">
@@ -116,7 +116,7 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
                   <div class="contact-actions">
                     <button class="primary small" (click)="openOrderModalFromItem(item)">
                       <i class="fas fa-plus"></i>
-                      Añadir registro de pedido
+                      Añadir compra
                     </button>
                   </div>
                 </div>
@@ -171,9 +171,9 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
             <div class="actions">
               <div class="search-wrap">
                 <i class="fas fa-search search-icon"></i>
-                <input class="search" type="text" placeholder="Buscar pedidos..." [(ngModel)]="searchPedidos" />
+                <input class="search" type="text" placeholder="Buscar compras..." [(ngModel)]="searchPedidos" />
               </div>
-              <button class="primary" (click)="addPedido()">Nuevo pedido</button>
+              <button class="primary" (click)="addPedido()">Nueva compra</button>
             </div>
               <div class="orders-table-wrap" *ngIf="filteredOrders.length > 0; else emptyOrders">
               <table class="orders-table">
@@ -194,7 +194,7 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
                 <tbody>
                   <tr *ngFor="let o of filteredOrders">
                     <td>
-                      <button class="edit-order-btn" (click)="openEditOrderModal(o)" title="Editar pedido">
+                      <button class="edit-order-btn" (click)="openEditOrderModal(o)" title="Editar compra">
                         <i class="fas fa-edit"></i>
                       </button>
                     </td>
@@ -233,7 +233,7 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
               </table>
             </div>
             <ng-template #emptyOrders>
-              <div class="card">No hay pedidos registrados.</div>
+              <div class="card">No hay compras registradas.</div>
             </ng-template>
           </div>
 
@@ -310,10 +310,10 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
             </div>
           </div>
 
-          <!-- Modal registro de pedido (crear/editar) -->
+          <!-- Modal compra (crear/editar) -->
           <div class="modal-backdrop" *ngIf="showOrderModal" (click)="closeOrderModal()">
             <div class="modal-content" (click)="$event.stopPropagation()">
-              <h3>{{ editingOrder ? 'Editar pedido' : 'Nuevo registro de pedido' }}</h3>
+              <h3>{{ editingOrder ? 'Editar compra' : 'Nueva compra' }}</h3>
               <div class="modal-form">
                 <div class="form-row">
                   <div class="form-group">
@@ -333,7 +333,7 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
                 </div>
                 <div class="form-row">
                   <div class="form-group">
-                    <label>Fecha del pedido</label>
+                    <label>Fecha de la compra</label>
                     <input type="date" [(ngModel)]="orderForm.fecha" />
                   </div>
                   <div class="form-group">
@@ -353,7 +353,7 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
                 </div>
                 <div class="form-group">
                   <label>Anotaciones</label>
-                  <textarea rows="3" [(ngModel)]="orderForm.notas" placeholder="Notas del pedido..."></textarea>
+                  <textarea rows="3" [(ngModel)]="orderForm.notas" placeholder="Notas de la compra..."></textarea>
                 </div>
                 <div class="form-row" *ngIf="editingOrder">
                   <div class="form-group">
@@ -408,11 +408,11 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
           <!-- Modal editar notas -->
           <div class="modal-backdrop" *ngIf="showEditNotesModal" (click)="closeEditNotesModal()">
             <div class="modal-content small" (click)="$event.stopPropagation()">
-              <h3>Editar notas del pedido</h3>
+              <h3>Editar notas de la compra</h3>
               <div class="modal-form">
                 <div class="form-group">
                   <label>Notas</label>
-                  <textarea rows="5" [(ngModel)]="notesToEdit" placeholder="Notas del pedido..."></textarea>
+                  <textarea rows="5" [(ngModel)]="notesToEdit" placeholder="Notas de la compra..."></textarea>
                 </div>
               </div>
               <div class="modal-actions">
@@ -448,7 +448,7 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
           <!-- Modal seleccionar estado -->
           <div class="modal-backdrop" *ngIf="showEstadoModal" (click)="closeEstadoModal()">
             <div class="modal-content small" (click)="$event.stopPropagation()">
-              <h3>Cambiar estado del pedido</h3>
+              <h3>Cambiar estado de la compra</h3>
               <div class="estado-options">
                 <button class="estado-option" 
                         [class.active]="selectedEstado === 'pendiente'"

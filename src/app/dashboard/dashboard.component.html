@@ -113,15 +113,23 @@
       <div class="invited-projects-section" *ngIf="filteredInvitedProjects && filteredInvitedProjects.length > 0">
         <h3 style="font-size: 16px; font-weight: 600; margin: 20px 0 12px 0; color: #111;">Proyectos donde participas</h3>
         <div class="projects">
-          <div class="project-card" *ngFor="let p of filteredInvitedProjects" (click)="openProject(p)" style="cursor:pointer;">
+          <div class="project-card" *ngFor="let p of filteredInvitedProjects">
             <div class="project-header">
-              <div>
+              <div style="flex: 1; cursor: pointer;" (click)="openProject(p)">
                 <h4>{{ p.name }}</h4>
                 <div class="meta">{{ p.sector || 'Sin sector' }} · {{ p.createdAt | date:'short' }}</div>
               </div>
-              <button class="leave-project-btn" (click)="leaveProject(p, $event)" title="Salir del proyecto">
-                <i class="fas fa-sign-out-alt"></i>
-              </button>
+              <div class="dropdown-wrapper">
+                <button class="more-options-btn" (click)="toggleDropdown(p, $event)" title="Opciones">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="options-dropdown" *ngIf="openDropdownId === getProjectId(p)">
+                  <div class="dropdown-option danger" (click)="leaveProject(p, $event)">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Abandonar proyecto</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -266,6 +274,48 @@
   .leave-project-btn i {
     font-size: 12px;
   }
+  .dropdown-wrapper { position: relative; }
+  .more-options-btn {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .more-options-btn:hover {
+    color: #333;
+  }
+  .more-options-btn i { font-size: 14px; }
+  .options-dropdown {
+    position: absolute;
+    right: -180px;
+    bottom: 100%;
+    margin-bottom: 4px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 10;
+    min-width: 180px;
+    overflow: hidden;
+  }
+  .dropdown-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s ease;
+  }
+  .dropdown-option:hover { background: #f5f5f5; }
+  .dropdown-option.danger { color: #ef4444; }
+  .dropdown-option.danger:hover { background: #fee2e2; }
+  .dropdown-option i { width: 14px; text-align: center; font-size: 12px; }
   .projects-wrap { max-width: 960px; margin: 4px auto 0 auto; padding: 0 24px; }
   .projects-header { display: flex; align-items: center; gap: 12px; }
   .projects-header h3 { margin: 0; font-size: 18px; }

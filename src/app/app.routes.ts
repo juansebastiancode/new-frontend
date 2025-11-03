@@ -10,6 +10,7 @@ import { CustomersComponent } from './customers/customers.component';
 import { InvoicesComponent } from './invoices/invoices.component';
 import { StatisticsComponent } from './statistics/statistics.component';
 import { ProjectGuard } from './guards/project.guard';
+import { TabPermissionGuard } from './guards/tab-permission.guard';
 import { SettingsComponent } from './settings/settings.component';
 import { EventsComponent } from './events/events.component';
 import { RoadmapComponent } from './roadmap/roadmap.component';
@@ -53,23 +54,23 @@ export const routes: Routes = [
   { path: 'budgets', component: BudgetsComponent, canActivate: [AuthGuard] },
   { path: 'legal', component: LegalComponent, canActivate: [AuthGuard] },
   // Contexto de proyecto
-  { path: 'p/:projectId/inventory', component: InventoryComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/customers', component: CustomersComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/marketing', component: MarketingComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/team', component: TeamComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/invoices', component: InvoicesComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/statistics', component: StatisticsComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/settings', component: SettingsComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/events', component: EventsComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/roadmap', component: RoadmapComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/tasks', component: TasksComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/map', component: MapComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/credentials', component: CredentialsComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/meetings', component: MeetingsComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/documents', component: DocumentsComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/technology', component: TechnologyComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/rnd', component: RndComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/financials', component: AccountsComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/budgets', component: BudgetsComponent, canActivate: [AuthGuard, ProjectGuard] },
-  { path: 'p/:projectId/legal', component: LegalComponent, canActivate: [AuthGuard, ProjectGuard] },
+  { path: 'p/:projectId/inventory', component: InventoryComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/customers', component: CustomersComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/marketing', component: MarketingComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/team', component: TeamComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/invoices', component: InvoicesComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/statistics', component: StatisticsComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/settings', component: SettingsComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/events', component: EventsComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/roadmap', component: RoadmapComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/tasks', component: TasksComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/map', component: MapComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/credentials', component: CredentialsComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/meetings', component: MeetingsComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/documents', component: DocumentsComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/technology', component: TechnologyComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/rnd', component: RndComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/financials', component: AccountsComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/budgets', component: BudgetsComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/legal', component: LegalComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
 ];

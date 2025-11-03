@@ -10,6 +10,7 @@ export interface ProjectDto {
   description?: string;
   type?: string;
   enabledTabs?: string[];
+  allowedTabs?: string[]; // Permisos del usuario invitado (solo se usa si no es owner)
   createdAt?: string;
 }
 

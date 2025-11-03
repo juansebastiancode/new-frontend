@@ -13,6 +13,7 @@ import { setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { UserService } from './user.service';
+import { ProjectContextService } from './project-context.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,19 +21,26 @@ import { UserService } from './user.service';
 export class AuthService {
   private userSubject = new BehaviorSubject<User | null>(null);
   user$ = this.userSubject.asObservable();
+  private mongoUserIdSubject = new BehaviorSubject<string | null>(null);
+  mongoUserId$ = this.mongoUserIdSubject.asObservable();
 
   constructor(
     private auth: Auth,
     private router: Router,
-    private userService: UserService
+    private userService: UserService,
+    private projectCtx: ProjectContextService
   ) {
     // Configurar persistencia local
     setPersistence(this.auth, browserLocalPersistence);
 
     // Recuperar el estado de autenticación del localStorage
     const savedUser = localStorage.getItem('user');
+    const savedMongoUserId = localStorage.getItem('mongoUserId');
     if (savedUser) {
       this.userSubject.next(JSON.parse(savedUser));
+    }
+    if (savedMongoUserId) {
+      this.mongoUserIdSubject.next(savedMongoUserId);
     }
 
     // Escuchar cambios en la autenticación
@@ -46,12 +54,16 @@ export class AuthService {
           localStorage.setItem('token', token);
         });
         
-        // Registrar usuario en MongoDB
-        this.registerUserInMongoDB(user);
+        // Cargar el MongoDB ID del usuario
+        this.loadMongoUserId(user);
       } else {
         // Limpiar localStorage al cerrar sesión
         localStorage.removeItem('user');
         localStorage.removeItem('token');
+        localStorage.removeItem('mongoUserId');
+        this.mongoUserIdSubject.next(null);
+        // Limpiar también el proyecto actual
+        this.projectCtx.clear();
       }
     });
   }
@@ -81,6 +93,8 @@ export class AuthService {
   async logout() {
     try {
       await signOut(this.auth);
+      // Limpiar manualmente por si acaso onAuthStateChanged no se dispara rápido
+      this.projectCtx.clear();
       this.router.navigate(['/']);
     } catch (error) {
       throw error;
@@ -108,15 +122,39 @@ export class AuthService {
     }
   }
 
-  // Método privado para registrar usuario en MongoDB
-  private registerUserInMongoDB(user: User) {
-    this.userService.registerUser(user).subscribe({
+  // Método privado para cargar el MongoDB ID del usuario
+  private loadMongoUserId(user: User) {
+    if (!user.email) return;
+    
+    // Primero intentar obtener el usuario existente
+    this.userService.getUserByEmail(user.email).subscribe({
       next: (response) => {
-        console.log('✅ Usuario registrado en MongoDB:', response);
+        console.log('✅ Usuario encontrado en MongoDB:', response);
+        if (response?.user?._id) {
+          this.mongoUserIdSubject.next(response.user._id);
+          localStorage.setItem('mongoUserId', response.user._id);
+        }
       },
       error: (error) => {
-        console.error('❌ Error al registrar usuario en MongoDB:', error);
+        // Si no existe, registrarlo
+        console.log('Usuario no encontrado, registrándolo...');
+        this.userService.registerUser(user).subscribe({
+          next: (response) => {
+            console.log('✅ Usuario registrado en MongoDB:', response);
+            if (response?.user?._id) {
+              this.mongoUserIdSubject.next(response.user._id);
+              localStorage.setItem('mongoUserId', response.user._id);
+            }
+          },
+          error: (err) => {
+            console.error('❌ Error al registrar usuario en MongoDB:', err);
+          }
+        });
       }
     });
+  }
+
+  getMongoUserId(): string | null {
+    return this.mongoUserIdSubject.value;
   }
 } 

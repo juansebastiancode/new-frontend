@@ -4,6 +4,8 @@ import { AuthService } from '../services/auth.service';
 import { User } from '@angular/fire/auth';
 import { CommonModule } from '@angular/common';
 import { ProjectContextService } from '../services/project-context.service';
+import { UserService } from '../services/user.service';
+import { InvitationsService } from '../services/invitations.service';
 
 @Component({
   selector: 'app-menubar',
@@ -23,11 +25,16 @@ export class MenubarComponent implements OnInit, OnDestroy {
   isMobile: boolean = false;
   appTitle: string = 'Plan B2B';
   enabledTabs: Set<string> | null = null;
+  isProjectOwner: boolean = false;
+  userAllowedTabs: Set<string> | null = null;
+  currentProjectId: string | null = null;
 
   constructor(
     private router: Router,
     private authService: AuthService,
-    private projectCtx: ProjectContextService
+    private projectCtx: ProjectContextService,
+    private userService: UserService,
+    private invitationsService: InvitationsService
   ) {}
 
   ngOnInit() {
@@ -52,10 +59,127 @@ export class MenubarComponent implements OnInit, OnDestroy {
 
     // Cargar título y tabs habilitados desde el contexto de proyecto
     this.projectCtx.currentProject$.subscribe(proj => {
+      const projId = (proj as any)?._id || null;
+      
+      // Si se limpia el proyecto (logout), resetear todo
+      if (!proj) {
+        this.currentProjectId = null;
+        this.isProjectOwner = false;
+        this.userAllowedTabs = null;
+        this.appTitle = 'Plan B2B';
+        this.enabledTabs = null;
+        return;
+      }
+      
+      // Solo verificar si cambió el proyecto
+      if (projId !== this.currentProjectId) {
+        this.currentProjectId = projId;
+        this.isProjectOwner = false; // Reset al cambiar proyecto
+        this.userAllowedTabs = null; // Reset permisos
+        
+        // Verificar si el usuario es propietario del proyecto
+        if (proj && this.user?.email) {
+          this.checkProjectOwner(proj);
+        }
+      }
+      
       this.appTitle = proj?.name || 'Plan B2B';
       const tabs = (proj as any)?.enabledTabs as string[] | undefined;
       this.enabledTabs = tabs && tabs.length ? new Set(tabs) : null;
     });
+  }
+  
+  checkProjectOwner(project: any) {
+    if (!this.user?.email || !project?._id) return;
+    
+    // Si ya sabemos que es propietario, no hacer nada
+    if (this.isProjectOwner) return;
+    
+    // Verificar localmente comparando el userId del proyecto con el mongoUserId del usuario
+    const mongoUserId = this.authService.getMongoUserId();
+    if (mongoUserId && project.userId) {
+      this.isProjectOwner = project.userId === mongoUserId;
+      
+      if (!this.isProjectOwner) {
+        // Si no es propietario, usar allowedTabs del proyecto si están disponibles (para no parpadear)
+        if (project.allowedTabs && Array.isArray(project.allowedTabs)) {
+          this.userAllowedTabs = new Set(project.allowedTabs);
+        }
+        // Siempre refrescar desde backend para captar cambios recientes de permisos
+        this.loadUserPermissionsAndCache(project);
+      } else {
+        this.userAllowedTabs = null;
+      }
+      return;
+    }
+    
+    // Fallback: si no tenemos mongoUserId localmente, hacer la llamada HTTP
+    this.userService.getUserByEmail(this.user.email).subscribe({
+      next: (resp: any) => {
+        const user = resp?.user;
+        if (!user) {
+          this.isProjectOwner = true; // Si no hay datos, asumir owner por compatibilidad
+          this.userAllowedTabs = null;
+          return;
+        }
+        
+        // Verificar si el projectId está en proyectosInvitados
+        const invitedProjects = user.proyectosInvitados || [];
+        const invitedProject = invitedProjects.find((p: any) => String(p._id || p) === String(project._id));
+        const isInvited = !!invitedProject;
+        
+        // Si está en proyectosInvitados, NO es owner
+        this.isProjectOwner = !isInvited;
+        
+        // Si es invitado, usar allowedTabs del proyecto si están disponibles
+        if (isInvited) {
+          if (invitedProject && invitedProject.allowedTabs && Array.isArray(invitedProject.allowedTabs)) {
+            // Usar cache inmediato
+            this.userAllowedTabs = new Set(invitedProject.allowedTabs);
+            this.updateProjectCache(project._id, invitedProject.allowedTabs);
+          } else {
+            this.userAllowedTabs = null;
+          }
+          // Y refrescar permisos desde backend para captar cambios recientes
+          this.loadUserPermissionsAndCache(project);
+        } else {
+          this.userAllowedTabs = null;
+        }
+      },
+      error: () => {
+        // En caso de error, asumir owner
+        this.isProjectOwner = true;
+        this.userAllowedTabs = null;
+      }
+    });
+  }
+
+  loadUserPermissionsAndCache(project: any) {
+    if (!this.user?.email || !project?._id) return;
+    
+    this.invitationsService.getProjectMembers(project._id).subscribe({
+      next: (members) => {
+        const currentMember = members.find((m: any) => m.email === this.user?.email);
+        if (currentMember && currentMember.allowedTabs) {
+          this.userAllowedTabs = new Set(currentMember.allowedTabs);
+          // Actualizar el cache del proyecto con los allowedTabs
+          this.updateProjectCache(project._id, currentMember.allowedTabs);
+        } else {
+          this.userAllowedTabs = null;
+        }
+      },
+      error: () => {
+        this.userAllowedTabs = null;
+      }
+    });
+  }
+
+  updateProjectCache(projectId: string, allowedTabs: string[]) {
+    const currentProject = this.projectCtx.getCurrent();
+    if (currentProject && currentProject._id === projectId) {
+      const updatedProject = { ...currentProject, allowedTabs };
+      this.projectCtx.setProject(updatedProject);
+    }
   }
 
   ngOnDestroy() {
@@ -236,9 +360,15 @@ export class MenubarComponent implements OnInit, OnDestroy {
 
   // Visibilidad y estado activo
   isEnabled(tabKey: string): boolean {
-    if (tabKey === 'settings') return true;
-    if (!this.enabledTabs) return true;
-    return this.enabledTabs.has(tabKey);
+    if (tabKey === 'settings') return this.isProjectOwner;
+    // Si es propietario, usa la configuración de enabledTabs
+    if (this.isProjectOwner) {
+      if (!this.enabledTabs) return true;
+      return this.enabledTabs.has(tabKey);
+    }
+    // Si es invitado, verificar permisos específicos
+    if (!this.userAllowedTabs) return false; // Si no hay permisos configurados, no mostrar nada
+    return this.userAllowedTabs.has(tabKey);
   }
 
   isActive(tabKey: string): boolean {

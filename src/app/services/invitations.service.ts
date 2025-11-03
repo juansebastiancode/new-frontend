@@ -48,5 +48,9 @@ export class InvitationsService {
   leaveProject(projectId: string, email: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/invitations/leave-project`, { projectId, email });
   }
+
+  updateMemberPermissions(projectId: string, inviteeEmail: string, allowedTabs: string[]): Observable<any> {
+    return this.http.put(`${this.apiUrl}/invitations/permissions`, { projectId, inviteeEmail, allowedTabs });
+  }
 }
 

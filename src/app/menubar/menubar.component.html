@@ -21,7 +21,7 @@
 
   <!-- Navegación -->
   <div class="navigation">
-    <div class="nav-item" [class.active]="isActive('settings')" *ngIf="isEnabled('settings')" (click)="goToSettings()">
+    <div class="nav-item" [class.active]="isActive('settings')" *ngIf="isEnabled('settings') && isProjectOwner" (click)="goToSettings()">
       <div class="nav-icon">
         <i class="far fa-rectangle-list"></i>
       </div>

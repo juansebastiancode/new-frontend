@@ -42,6 +42,13 @@ export const ProjectGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
       return projectService.getProjectById(projectId).pipe(
         map((project) => {
           if (project) {
+            console.log('📦 ProjectGuard: Proyecto cargado:', project);
+            // Preservar allowedTabs del proyecto anterior si existe
+            const currentProject = ctx.getCurrent();
+            const allowedTabs = currentProject?.allowedTabs;
+            if (allowedTabs && Array.isArray(allowedTabs)) {
+              (project as any).allowedTabs = allowedTabs;
+            }
             ctx.setProject(project);
           } else {
             ctx.setProject({ _id: projectId, userId: '', name: 'Project', sector: '', createdAt: '' } as any);
