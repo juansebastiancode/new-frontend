@@ -33,7 +33,13 @@ export class LoginComponent {
     try {
       await this.authService.signupWithGoogle();
     } catch (error: any) {
-      this.errorMessage = error.message;
+      // Silenciar cierre manual del popup de Google
+      const code = error?.code || error?.error?.code || '';
+      if (code === 'auth/popup-closed-by-user') {
+        this.errorMessage = '';
+        return;
+      }
+      this.errorMessage = error?.message || 'Error durante la autenticación';
     }
   }
 }
