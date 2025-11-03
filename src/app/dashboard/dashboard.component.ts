@@ -270,7 +270,7 @@ export class DashboardComponent {
     const projectId = (p as any)._id;
     const allowedTabs = (p as any).allowedTabs as string[] | undefined;
     const validTabsOrder = [
-      'roadmap','statistics','map','inventory','customers','tasks','events','meetings','credentials','technology','documents','invoices','financials','budgets','marketing','rnd','legal','team','settings'
+      'roadmap','statistics','map','inventory','customers','orders','tasks','events','meetings','credentials','technology','documents','invoices','financials','budgets','marketing','rnd','legal','team','settings'
     ];
     let targetTab = 'inventory';
     if (Array.isArray(allowedTabs) && allowedTabs.length > 0) {

@@ -7,6 +7,7 @@ import { AsistenteComponent } from './asistente/asistente.component';
 import { ProfileComponent } from './profile/profile.component';
 import { InventoryComponent } from './inventory/inventory.component';
 import { CustomersComponent } from './customers/customers.component';
+import { OrdersComponent } from './orders/orders.component';
 import { InvoicesComponent } from './invoices/invoices.component';
 import { StatisticsComponent } from './statistics/statistics.component';
 import { ProjectGuard } from './guards/project.guard';
@@ -36,6 +37,7 @@ export const routes: Routes = [
   { path: 'asistente', component: AsistenteComponent },
   { path: 'inventory', component: InventoryComponent, canActivate: [AuthGuard] },
   { path: 'customers', component: CustomersComponent, canActivate: [AuthGuard] },
+  { path: 'orders', component: OrdersComponent, canActivate: [AuthGuard] },
   { path: 'marketing', component: MarketingComponent, canActivate: [AuthGuard] },
   { path: 'team', component: TeamComponent, canActivate: [AuthGuard] },
   { path: 'invoices', component: InvoicesComponent, canActivate: [AuthGuard] },
@@ -56,6 +58,7 @@ export const routes: Routes = [
   // Contexto de proyecto
   { path: 'p/:projectId/inventory', component: InventoryComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
   { path: 'p/:projectId/customers', component: CustomersComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/orders', component: OrdersComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
   { path: 'p/:projectId/marketing', component: MarketingComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
   { path: 'p/:projectId/team', component: TeamComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
   { path: 'p/:projectId/invoices', component: InvoicesComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },

@@ -38,7 +38,7 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
               <div class="item-card" *ngFor="let item of filteredItems" [class.low-stock]="isLowStock(item)">
                 <div class="item-header">
                   <div class="item-icon">
-                    <i class="fas fa-box"></i>
+                    <i class="fas fa-tags"></i>
                   </div>
                   <div class="item-info">
                     <h3>{{ item.nombre }}</h3>
@@ -124,7 +124,7 @@ import { InventoryOrdersService, InventoryOrderDto } from '../services/inventory
             </div>
 
             <div class="empty-state" *ngIf="filteredItems.length === 0">
-              <i class="fas fa-box empty-icon"></i>
+              <i class="fas fa-tags empty-icon"></i>
               <h3>No hay artículos</h3>
               <p>Comienza agregando tu primer artículo al inventario.</p>
             </div>

@@ -375,6 +375,7 @@ export class TeamComponent implements OnInit {
     { key: 'map', label: 'Mapa' },
     { key: 'inventory', label: 'Inventario' },
     { key: 'customers', label: 'Clientes' },
+    { key: 'orders', label: 'Pedidos' },
     { key: 'tasks', label: 'Tareas' },
     { key: 'events', label: 'Eventos' },
     { key: 'meetings', label: 'Reuniones' },

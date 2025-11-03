@@ -23,28 +23,28 @@
   <div class="navigation">
     <div class="nav-item" [class.active]="isActive('settings')" *ngIf="isEnabled('settings') && isProjectOwner" (click)="goToSettings()">
       <div class="nav-icon">
-        <i class="far fa-rectangle-list"></i>
+        <i class="fas fa-rectangle-list"></i>
       </div>
       <span class="nav-label">Ajustes</span>
     </div>
 
     <div class="nav-item" [class.active]="isActive('roadmap')" *ngIf="isEnabled('roadmap')" (click)="goToRoadmap()">
       <div class="nav-icon">
-        <i class="far fa-flag"></i>
+        <i class="fas fa-flag"></i>
       </div>
       <span class="nav-label">Roadmap</span>
     </div>
 
     <div class="nav-item" [class.active]="isActive('statistics')" *ngIf="isEnabled('statistics')" (click)="goToStats()">
       <div class="nav-icon">
-        <i class="far fa-chart-bar"></i>
+        <i class="fas fa-chart-bar"></i>
       </div>
       <span class="nav-label">Estadísticas</span>
     </div>
 
     <div class="nav-item" [class.active]="isActive('map')" *ngIf="isEnabled('map')" (click)="goToMap()">
       <div class="nav-icon">
-        <i class="far fa-map"></i>
+        <i class="fas fa-map"></i>
       </div>
       <span class="nav-label">Mapa</span>
     </div>
@@ -52,49 +52,56 @@
 
     <div class="nav-item" [class.active]="isActive('inventory')" *ngIf="isEnabled('inventory')" (click)="goToInventory()">
       <div class="nav-icon">
-        <i class="far fa-clipboard"></i>
+        <i class="fas fa-clipboard"></i>
       </div>
       <span class="nav-label">Inventario</span>
     </div>
 
     <div class="nav-item" [class.active]="isActive('customers')" *ngIf="isEnabled('customers')" (click)="goToCustomers()">
       <div class="nav-icon">
-        <i class="far fa-user"></i>
+        <i class="fas fa-user"></i>
       </div>
       <span class="nav-label">Clientes</span>
     </div>
 
+    <div class="nav-item" [class.active]="isActive('orders')" *ngIf="isEnabled('orders')" (click)="goToOrders()">
+      <div class="nav-icon">
+        <i class="fas fa-box"></i>
+      </div>
+      <span class="nav-label">Pedidos</span>
+    </div>
+
     <div class="nav-item" [class.active]="isActive('team')" *ngIf="isEnabled('team')" (click)="goToTeam()">
       <div class="nav-icon">
-        <i class="far fa-user-circle"></i>
+        <i class="fas fa-user-circle"></i>
       </div>
       <span class="nav-label">Equipo</span>
     </div>
 
     <div class="nav-item" [class.active]="isActive('tasks')" *ngIf="isEnabled('tasks')" (click)="goToTasks()">
       <div class="nav-icon">
-        <i class="far fa-square-check"></i>
+        <i class="fas fa-square-check"></i>
       </div>
       <span class="nav-label">Tareas</span>
     </div>
 
     <div class="nav-item" [class.active]="isActive('events')" *ngIf="isEnabled('events')" (click)="goToEvents()">
       <div class="nav-icon">
-        <i class="far fa-calendar"></i>
+        <i class="fas fa-calendar"></i>
       </div>
       <span class="nav-label">Eventos</span>
     </div>
 
     <div class="nav-item" [class.active]="isActive('meetings')" *ngIf="isEnabled('meetings')" (click)="goToMeetings()">
       <div class="nav-icon">
-        <i class="far fa-calendar-check"></i>
+        <i class="fas fa-calendar-check"></i>
       </div>
       <span class="nav-label">Reuniones</span>
     </div>
 
     <div class="nav-item" [class.active]="isActive('invoices')" *ngIf="isEnabled('invoices')" (click)="goToInvoices()">
       <div class="nav-icon">
-        <i class="far fa-file-lines"></i>
+        <i class="fas fa-file-lines"></i>
       </div>
       <span class="nav-label">Facturas</span>
     </div>
@@ -108,7 +115,7 @@
 
     <div class="nav-item" [class.active]="isActive('budgets')" *ngIf="isEnabled('budgets')" (click)="goToBudgets()">
       <div class="nav-icon">
-        <i class="far fa-file-lines"></i>
+        <i class="fas fa-file-lines"></i>
       </div>
       <span class="nav-label">Presupuestos</span>
     </div>
@@ -122,9 +129,9 @@
 
     <div class="nav-item" [class.active]="isActive('technology')" *ngIf="isEnabled('technology')" (click)="goToTechnology()">
       <div class="nav-icon">
-        <i class="fas fa-star"></i>
+        <i class="fas fa-laptop"></i>
       </div>
-      <span class="nav-label">Tecnología</span>
+        <span class="nav-label">Tecnología</span>
     </div>
 
     <div class="nav-item" [class.active]="isActive('documents')" *ngIf="isEnabled('documents')" (click)="goToDocuments()">
@@ -501,7 +508,8 @@
   .nav-icon i {
     font-size: 14px;
     color: #333;
-    font-weight: 300;
+    font-weight: 900; /* Font Awesome Solid */
+    font-family: "Font Awesome 6 Free";
   }
 
   .nav-label {
@@ -541,9 +549,7 @@
       gap: 12px;
     }
 
-    .nav-icon i {
-      font-size: 16px;
-    }
+    .nav-icon i { font-size: 16px; font-weight: 900; font-family: "Font Awesome 6 Free"; }
 
     .nav-label {
       font-size: 14px;

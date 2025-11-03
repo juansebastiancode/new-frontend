@@ -7,6 +7,7 @@ import { AuthService } from '../services/auth.service';
 const routeToTabMap: { [key: string]: string } = {
   'inventory': 'inventory',
   'customers': 'customers',
+  'orders': 'orders',
   'marketing': 'marketing',
   'team': 'team',
   'invoices': 'invoices',
@@ -91,7 +92,7 @@ export const TabPermissionGuard: CanActivateFn = (route) => {
   console.log('🔒 TabPermissionGuard: No tiene permiso, redirigiendo a primer tab permitido');
   const projectId = (route.params as any)['projectId'];
   const validTabsOrder = [
-    'roadmap','statistics','map','inventory','customers','tasks','events','meetings','credentials','technology','documents','invoices','financials','budgets','marketing','rnd','legal','team','settings'
+    'roadmap','statistics','map','inventory','customers','orders','tasks','events','meetings','credentials','technology','documents','invoices','financials','budgets','marketing','rnd','legal','team','settings'
   ];
   const firstAllowed = allowedTabs.find((t: string) => validTabsOrder.includes(t));
   if (projectId && firstAllowed) {

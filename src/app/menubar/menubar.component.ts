@@ -311,6 +311,12 @@ export class MenubarComponent implements OnInit, OnDestroy {
     else this.router.navigate(['/customers']);
   }
 
+  goToOrders() {
+    const proj = this.projectCtx.getCurrent();
+    if (proj?._id) this.router.navigate(['/p', proj._id, 'orders']);
+    else this.router.navigate(['/orders']);
+  }
+
   goToMarketing() {
     const proj = this.projectCtx.getCurrent();
     if (proj?._id) this.router.navigate(['/p', proj._id, 'marketing']);
