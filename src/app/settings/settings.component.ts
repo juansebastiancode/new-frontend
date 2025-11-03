@@ -102,24 +102,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   getTabIcon(tabKey: string): string {
     const iconMap: { [key: string]: string } = {
-      'roadmap': 'far fa-flag',
-      'statistics': 'far fa-chart-bar',
-      'map': 'far fa-map',
+      'roadmap': 'fas fa-flag',
+      'statistics': 'fas fa-chart-bar',
+      'map': 'fas fa-map',
       'inventory': 'fas fa-clipboard',
-      'customers': 'far fa-user',
+      'customers': 'fas fa-user',
       'orders': 'fas fa-box',
-      'team': 'far fa-user-circle',
-      'tasks': 'far fa-square-check',
-      'events': 'far fa-calendar',
-      'meetings': 'far fa-calendar-check',
-      'credentials': 'far fa-id-card',
+      'team': 'fas fa-user-circle',
+      'tasks': 'fas fa-square-check',
+      'events': 'fas fa-calendar',
+      'meetings': 'fas fa-calendar-check',
+      'credentials': 'fas fa-id-card',
       'technology': 'fas fa-laptop',
-      'documents': 'far fa-file',
-      'invoices': 'far fa-file-lines',
+      'documents': 'fas fa-file',
+      'invoices': 'fas fa-file-lines',
       'financials': 'fas fa-dollar',
-      'budgets': 'far fa-file-lines',
+      'budgets': 'fas fa-file-lines',
       'marketing': 'fas fa-star',
-      'rnd': 'far fa-lightbulb',
+      'rnd': 'fas fa-lightbulb',
       'legal': 'fas fa-gavel'
     };
     return iconMap[tabKey] || '';
