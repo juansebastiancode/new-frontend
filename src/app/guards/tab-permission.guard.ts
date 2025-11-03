@@ -88,8 +88,17 @@ export const TabPermissionGuard: CanActivateFn = (route) => {
   }
 
   // No tiene permiso para esta tab
-  console.log('🔒 TabPermissionGuard: No tiene permiso, DENEGAR');
-  router.navigate(['/dashboard']);
+  console.log('🔒 TabPermissionGuard: No tiene permiso, redirigiendo a primer tab permitido');
+  const projectId = (route.params as any)['projectId'];
+  const validTabsOrder = [
+    'roadmap','statistics','map','inventory','customers','tasks','events','meetings','credentials','technology','documents','invoices','financials','budgets','marketing','rnd','legal','team','settings'
+  ];
+  const firstAllowed = allowedTabs.find((t: string) => validTabsOrder.includes(t));
+  if (projectId && firstAllowed) {
+    router.navigate(['/p', projectId, firstAllowed]);
+  } else {
+    router.navigate(['/dashboard']);
+  }
   return false;
 };
 

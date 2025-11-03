@@ -267,7 +267,17 @@ export class DashboardComponent {
   openProject(p: ProjectDto) {
     if (!p || !(p as any)._id) return;
     this.projectCtx.setProject(p);
-    this.router.navigate(['/p', (p as any)._id, 'inventory']);
+    const projectId = (p as any)._id;
+    const allowedTabs = (p as any).allowedTabs as string[] | undefined;
+    const validTabsOrder = [
+      'roadmap','statistics','map','inventory','customers','tasks','events','meetings','credentials','technology','documents','invoices','financials','budgets','marketing','rnd','legal','team','settings'
+    ];
+    let targetTab = 'inventory';
+    if (Array.isArray(allowedTabs) && allowedTabs.length > 0) {
+      const firstAllowed = allowedTabs.find(t => validTabsOrder.includes(t));
+      if (firstAllowed) targetTab = firstAllowed;
+    }
+    this.router.navigate(['/p', projectId, targetTab]);
   }
 
   get filteredProjects(): ProjectDto[] {

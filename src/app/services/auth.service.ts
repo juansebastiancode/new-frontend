@@ -113,6 +113,8 @@ export class AuthService {
   async signupWithGoogle() {
     try {
       const provider = new GoogleAuthProvider();
+      // Forzar selección de cuenta siempre
+      provider.setCustomParameters({ prompt: 'select_account' });
       const userCredential = await signInWithPopup(this.auth, provider);
       const user = userCredential.user;
       this.router.navigate(['/dashboard']);
