@@ -52,5 +52,9 @@ export class InvitationsService {
   updateMemberPermissions(projectId: string, inviteeEmail: string, allowedTabs: string[]): Observable<any> {
     return this.http.put(`${this.apiUrl}/invitations/permissions`, { projectId, inviteeEmail, allowedTabs });
   }
+
+  removeMember(projectId: string, email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/invitations/remove-member`, { projectId, email });
+  }
 }
 

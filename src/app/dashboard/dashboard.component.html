@@ -31,18 +31,14 @@
         </div>
       </div>
       <h1>Plan B2B</h1>
-      <div class="tabs">
-        <button class="tab" [class.active]="activeTab==='projects'" (click)="selectTab('projects')">Mis proyectos</button>
-        <button class="tab" [class.active]="activeTab==='invitations'" (click)="selectTab('invitations')">Invitaciones</button>
-      </div>
       <div class="actions">
         <div class="search-wrap">
           <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 5.65 5.65a7.5 7.5 0 0 0 10.6 10.6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          <input class="search" type="text" [placeholder]="activeTab==='projects' ? 'Buscar proyectos...' : 'Buscar invitaciones...'" [(ngModel)]="searchQuery" (input)="onSearchChange()" />
+          <input class="search" type="text" placeholder="Buscar proyectos e invitaciones..." [(ngModel)]="searchQuery" (input)="onSearchChange()" />
         </div>
-        <button class="primary" *ngIf="activeTab==='projects'" (click)="createProject()">Crear proyecto</button>
+        <button class="primary" (click)="createProject()">Crear proyecto</button>
       </div>
       
     </div>
@@ -65,42 +61,24 @@
       </div>
     </div>
     
-    <div class="projects-wrap" *ngIf="activeTab==='projects'">
+    <div class="projects-wrap">
       <div class="projects-header">
-        <span class="muted" *ngIf="loadingProjects"></span>
+        <span class="muted" *ngIf="loadingProjects || loadingInvitations"></span>
         <span class="error" *ngIf="loadError">{{ loadError }}</span>
       </div>
-      <div class="projects" *ngIf="filteredProjects?.length; else emptyState">
-        <div class="project-card" *ngFor="let p of filteredProjects" (click)="openProject(p)" style="cursor:pointer;">
-          <div class="project-header">
-            <div>
-              <h4>{{ p.name }}</h4>
-              <div class="meta">{{ p.sector || 'Sin sector' }} · {{ p.createdAt | date:'short' }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <ng-template #emptyState>
-        <div class="empty" *ngIf="loadingProjects">
-          <div class="spinner"></div>
-        </div>
-        <div class="empty" *ngIf="!loadingProjects && !searchQuery">No tienes proyectos todavía. Crea el primero.</div>
-        <div class="empty" *ngIf="!loadingProjects && searchQuery">Sin resultados para "{{ searchQuery }}".</div>
-      </ng-template>
-    </div>
 
-    <div class="invitations-wrap" *ngIf="activeTab==='invitations'">
       <!-- Invitaciones pendientes -->
       <div class="invitations" *ngIf="filteredInvitations && filteredInvitations.length > 0">
-        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #111;">Invitaciones pendientes</h3>
         <div class="invitations-grid">
           <div class="invitation-card" *ngFor="let inv of filteredInvitations">
-            <div class="inv-header">
-              <div class="inv-project-name" *ngIf="inv.projectId_data">{{ inv.projectId_data.name }}</div>
-              <div class="inv-project-name" *ngIf="!inv.projectId_data">Proyecto</div>
-              <div class="inv-inviter">Invitado por: {{ inv.inviterEmail }}</div>
+            <div class="inv-info">
+              <div class="inv-header">
+                <div class="inv-project-name" *ngIf="inv.projectId_data">{{ inv.projectId_data.name }}</div>
+                <div class="inv-project-name" *ngIf="!inv.projectId_data">Proyecto</div>
+                <div class="inv-inviter">Invitado por: {{ inv.inviterEmail }}</div>
+              </div>
+              <div class="inv-meta">{{ inv.createdAt | date:'short' }}</div>
             </div>
-            <div class="inv-meta">{{ inv.createdAt | date:'short' }}</div>
             <div class="inv-actions">
               <button class="ghost danger" (click)="rejectInvitation(inv)">Rechazar</button>
               <button class="primary" (click)="acceptInvitation(inv)">Aceptar</button>
@@ -109,17 +87,20 @@
         </div>
       </div>
 
-      <!-- Proyectos donde fuiste invitado (ya aceptados) -->
-      <div class="invited-projects-section" *ngIf="filteredInvitedProjects && filteredInvitedProjects.length > 0">
-        <h3 style="font-size: 16px; font-weight: 600; margin: 20px 0 12px 0; color: #111;">Proyectos donde participas</h3>
+      <!-- Mis proyectos -->
+      <div class="projects-section" *ngIf="filteredProjects && filteredProjects.length > 0">
+        <h3 style="font-size: 16px; font-weight: 600; margin: 20px 0 12px 0; color: #111;">Mis proyectos</h3>
         <div class="projects">
-          <div class="project-card" *ngFor="let p of filteredInvitedProjects">
+          <div class="project-card" *ngFor="let p of filteredProjects">
             <div class="project-header">
               <div style="flex: 1; cursor: pointer;" (click)="openProject(p)">
-                <h4>{{ p.name }}</h4>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                  <h4>{{ p.name }}</h4>
+                  <span class="project-badge" *ngIf="p.isParticipant" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">Participante</span>
+                </div>
                 <div class="meta">{{ p.sector || 'Sin sector' }} · {{ p.createdAt | date:'short' }}</div>
               </div>
-              <div class="dropdown-wrapper">
+              <div class="dropdown-wrapper" *ngIf="p.isParticipant">
                 <button class="more-options-btn" (click)="toggleDropdown(p, $event)" title="Opciones">
                   <i class="fas fa-ellipsis-v"></i>
                 </button>
@@ -136,10 +117,13 @@
       </div>
 
       <!-- Estado vacío -->
-      <div class="empty" *ngIf="!loadingInvitations && !filteredInvitations?.length && !filteredInvitedProjects?.length">
-        No tienes invitaciones ni proyectos compartidos.
+      <div class="empty" *ngIf="!loadingProjects && !loadingInvitations && !filteredInvitations?.length && !filteredProjects?.length && !searchQuery">
+        No tienes proyectos ni invitaciones todavía.
       </div>
-      <div class="empty" *ngIf="loadingInvitations">
+      <div class="empty" *ngIf="!loadingProjects && !loadingInvitations && !filteredInvitations?.length && !filteredProjects?.length && searchQuery">
+        Sin resultados para "{{ searchQuery }}".
+      </div>
+      <div class="empty" *ngIf="loadingProjects || loadingInvitations">
         <div class="spinner"></div>
       </div>
     </div>
@@ -327,14 +311,18 @@
 
   .invitations-wrap { max-width: 960px; margin: 4px auto 0 auto; padding: 0 24px; }
   .invitations { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-  .invitation-card { border: 1px solid #ccc; border-radius: 10px; padding: 14px; background: #fff; display: flex; flex-direction: column; gap: 8px; transition: transform .15s ease, box-shadow .15s ease; }
+  .invitation-card { border: 1px solid #ccc; border-radius: 10px; padding: 14px; background: #fff; display: flex; flex-direction: column; gap: 12px; transition: transform .15s ease, box-shadow .15s ease; }
   .invitation-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+  .inv-info { flex: 1; }
   .inv-header { margin-bottom: 4px; }
   .inv-project-name { font-weight: 600; font-size: 15px; color: #111; margin-bottom: 4px; }
   .inv-inviter { color: #777; font-size: 12px; }
   .inv-email { font-weight: 600; }
   .inv-meta { color: #777; font-size: 12px; }
-  .inv-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .inv-actions { display: flex; gap: 8px; align-items: center; justify-content: flex-end; margin-top: auto; }
+  .inv-actions .ghost, .inv-actions .primary { padding: 6px 12px; font-size: 13px; min-width: 80px; height: 28px; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+  .inv-actions .ghost { border: 1px solid; }
+  .inv-actions .primary { border: 1px solid transparent; }
   .ghost.danger { border-color: #ef4444; color: #ef4444; }
   .ghost.danger:hover { background: #fee2e2; }
 

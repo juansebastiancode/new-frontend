@@ -71,13 +71,6 @@
       <span class="nav-label">Pedidos</span>
     </div>
 
-    <div class="nav-item" [class.active]="isActive('team')" *ngIf="isEnabled('team')" (click)="goToTeam()">
-      <div class="nav-icon">
-        <i class="fas fa-user-circle"></i>
-      </div>
-      <span class="nav-label">Equipo</span>
-    </div>
-
     <div class="nav-item" [class.active]="isActive('tasks')" *ngIf="isEnabled('tasks')" (click)="goToTasks()">
       <div class="nav-icon">
         <i class="fas fa-square-check"></i>

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MenubarComponent } from '../menubar/menubar.component';
 import { ProfileComponent } from '../profile/profile.component';
@@ -6,6 +6,8 @@ import { ActivatedRoute } from '@angular/router';
 import { ProjectContextService } from '../services/project-context.service';
 import { FormsModule } from '@angular/forms';
 import { ProjectService, ProjectDto } from '../services/project.service';
+import { InvitationsService } from '../services/invitations.service';
+import { AuthService } from '../services/auth.service';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
@@ -32,7 +34,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     { key: 'inventory', label: 'Inventario' },
     { key: 'customers', label: 'Clientes' },
     { key: 'orders', label: 'Pedidos' },
-    { key: 'team', label: 'Equipo' },
     { key: 'tasks', label: 'Tareas' },
     { key: 'events', label: 'Eventos' },
     { key: 'meetings', label: 'Reuniones' },
@@ -49,7 +50,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   estrategiaTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['roadmap', 'statistics'].includes(t.key));
   operacionesTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['map', 'inventory', 'customers', 'orders'].includes(t.key));
-  organizacionTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['team', 'tasks', 'events', 'meetings'].includes(t.key));
+  organizacionTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['tasks', 'events', 'meetings'].includes(t.key));
   recursosTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['credentials', 'technology', 'documents', 'legal'].includes(t.key));
   finanzasTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['invoices', 'financials', 'budgets'].includes(t.key));
   crecimientoTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['marketing', 'rnd'].includes(t.key));
@@ -58,7 +59,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     public projectCtx: ProjectContextService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private invitationsService: InvitationsService,
+    private auth: AuthService
   ) {
     this.projectId = this.route.snapshot.paramMap.get('projectId');
     const current = this.projectCtx.getCurrent();
@@ -84,11 +87,154 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.saveSubject.pipe(debounceTime(1000)).subscribe(() => {
       this.save();
     });
+    // Cargar participantes del proyecto
+    const proj = this.projectCtx.getCurrent();
+    const projId = this.projectId || (proj as any)?._id;
+    if (projId) {
+      this.loadMembers(projId);
+    }
   }
 
   ngOnDestroy() {
     this.saveSubject.complete();
   }
+
+  // Participantes
+  members: any[] = [];
+  loadingMembers: boolean = false;
+  membersError: string = '';
+  pendingInvitations: any[] = [];
+  loadingInvites: boolean = false;
+  searchParticipants: string = '';
+  // Invite modal
+  showInviteModal: boolean = false;
+  inviteEmail: string = '';
+  inviteError: string = '';
+  loadingInvite: boolean = false;
+  openDropdownEmail: string | null = null;
+
+  loadMembers(projectId: string) {
+    this.loadingMembers = true;
+    this.membersError = '';
+    this.invitationsService.getProjectMembers(projectId).subscribe({
+      next: (members) => {
+        this.members = members || [];
+        this.loadingMembers = false;
+      },
+      error: () => {
+        this.loadingMembers = false;
+        this.membersError = 'No se pudieron cargar los participantes';
+      }
+    });
+    // Cargar invitaciones pendientes
+    this.loadingInvites = true;
+    this.invitationsService.getInvitationsByProject(projectId).subscribe({
+      next: (resp: any) => {
+        const invitations = Array.isArray(resp) ? resp : (resp?.invitations || []);
+        this.pendingInvitations = invitations.filter((i: any) => i.status === 'pending');
+        this.loadingInvites = false;
+      },
+      error: () => { this.loadingInvites = false; }
+    });
+  }
+
+  get filteredParticipants(): any[] {
+    const q = (this.searchParticipants || '').trim().toLowerCase();
+    const normalizedMembers = this.members.map(m => ({
+      nombre: m.nombre,
+      email: m.email,
+      isOwner: !!m.isOwner,
+      invited: false,
+      allowedTabs: m.allowedTabs || []
+    }));
+    const normalizedInvites = this.pendingInvitations.map((i: any) => ({
+      nombre: i.inviteeEmail?.split('@')[0] || 'Usuario',
+      email: i.inviteeEmail,
+      isOwner: false,
+      invited: true
+    }));
+    const all = [...normalizedMembers, ...normalizedInvites];
+    if (!q) return all;
+    return all.filter((p: any) =>
+      (p.nombre || '').toLowerCase().includes(q) || (p.email || '').toLowerCase().includes(q)
+    );
+  }
+
+
+  toggleParticipantDropdown(member: any, event: Event) {
+    event.stopPropagation();
+    const email = member?.email;
+    this.openDropdownEmail = this.openDropdownEmail === email ? null : email;
+  }
+
+  @HostListener('document:click')
+  onDocClick() {
+    this.openDropdownEmail = null;
+  }
+
+  openInviteModal() {
+    this.showInviteModal = true;
+    this.inviteEmail = '';
+    this.inviteError = '';
+  }
+
+  closeInviteModal() {
+    this.showInviteModal = false;
+    this.inviteEmail = '';
+    this.inviteError = '';
+  }
+
+  sendInvitation() {
+    const projectId = this.projectId || (this.projectCtx.getCurrent() as any)?._id;
+    const inviterEmail = this.auth.getCurrentUser()?.email || '';
+    if (!this.inviteEmail || !projectId || !inviterEmail) {
+      this.inviteError = 'Email requerido';
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.inviteEmail)) {
+      this.inviteError = 'Email no válido';
+      return;
+    }
+    this.loadingInvite = true;
+    this.invitationsService.createInvitation({ projectId, inviterEmail, inviteeEmail: this.inviteEmail }).subscribe({
+      next: () => {
+        this.loadingInvite = false;
+        this.closeInviteModal();
+        this.loadMembers(projectId);
+      },
+      error: (e) => {
+        this.loadingInvite = false;
+        this.inviteError = e?.error?.error || 'Error al enviar la invitación';
+      }
+    });
+  }
+
+  // Gestión de permisos
+  showPermsModal: boolean = false;
+  permsMember: any = null;
+  permsAllowedTabs: string[] = [];
+  openPerms(member: any) {
+    this.permsMember = member;
+    this.permsAllowedTabs = Array.isArray(member.allowedTabs) ? [...member.allowedTabs] : [];
+    this.showPermsModal = true;
+  }
+  closePermsModal() { this.showPermsModal = false; this.permsMember = null; }
+  togglePerm(tabKey: string, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const current = new Set(this.permsAllowedTabs);
+    if (input.checked) current.add(tabKey); else current.delete(tabKey);
+    this.permsAllowedTabs = Array.from(current);
+    // Guardar inmediatamente
+    const projectId = this.projectId || (this.projectCtx.getCurrent() as any)?._id;
+    if (!projectId || !this.permsMember?.email) return;
+    this.invitationsService.updateMemberPermissions(projectId, this.permsMember.email, this.permsAllowedTabs).subscribe({
+      next: () => {
+        this.members = this.members.map(m => m.email === this.permsMember.email ? { ...m, allowedTabs: [...this.permsAllowedTabs] } : m);
+      }
+    });
+  }
+  
 
   onFormChange() {
     this.saveSubject.next();
@@ -108,7 +254,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       'inventory': 'fas fa-clipboard',
       'customers': 'fas fa-user',
       'orders': 'fas fa-box',
-      'team': 'fas fa-user-circle',
       'tasks': 'fas fa-square-check',
       'events': 'fas fa-calendar',
       'meetings': 'fas fa-calendar-check',
@@ -215,6 +360,27 @@ export class SettingsComponent implements OnInit, OnDestroy {
           this.loadError = 'No se pudo eliminar el proyecto';
           console.error(err);
         }
+      }
+    });
+  }
+
+  removeMember(member: any) {
+    if (!this.projectId || !member.email) return;
+
+    if (!confirm(`¿Seguro que quieres expulsar a ${member.nombre || member.email} del proyecto?`)) {
+      return;
+    }
+
+    this.invitationsService.removeMember(this.projectId, member.email).subscribe({
+      next: () => {
+        console.log('Miembro expulsado');
+        if (this.projectId) {
+          this.loadMembers(this.projectId); // Recargar la lista de participantes
+        }
+      },
+      error: (err) => {
+        console.error('Error expulsando miembro:', err);
+        alert('Error al expulsar al miembro');
       }
     });
   }

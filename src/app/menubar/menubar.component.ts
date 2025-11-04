@@ -323,11 +323,6 @@ export class MenubarComponent implements OnInit, OnDestroy {
     else this.router.navigate(['/marketing']);
   }
 
-  goToTeam() {
-    const proj = this.projectCtx.getCurrent();
-    if (proj?._id) this.router.navigate(['/p', proj._id, 'team']);
-    else this.router.navigate(['/team']);
-  }
 
   goToInvoices() {
     const proj = this.projectCtx.getCurrent();
@@ -393,7 +388,6 @@ export class MenubarComponent implements OnInit, OnDestroy {
       case 'inventory': return 'inventory';
       case 'customers': return 'customers';
       case 'marketing': return 'marketing';
-      case 'team': return 'team';
       case 'invoices': return 'invoices';
       case 'credentials': return 'credentials';
       case 'documents': return 'documents';

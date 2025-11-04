@@ -9,6 +9,11 @@ import { ProjectContextService } from '../services/project-context.service';
 import { ProfileComponent } from '../profile/profile.component';
 import { InvitationsService, InvitationDto } from '../services/invitations.service';
 
+interface ProjectWithRole extends ProjectDto {
+  isOwner?: boolean;
+  isParticipant?: boolean;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -18,7 +23,6 @@ import { InvitationsService, InvitationDto } from '../services/invitations.servi
 })
 export class DashboardComponent {
   showProfile: boolean = false;
-  activeTab: 'projects' | 'invitations' = 'projects';
   searchQuery: string = '';
   searchHint: string = '';
   showCreateModal: boolean = false;
@@ -86,18 +90,13 @@ export class DashboardComponent {
     }
   }
 
-  createProject() {
-    this.showCreateModal = true;
-  }
-
   onSearchChange() {
     // Actualización en tiempo real se maneja vía getter filteredProjects
     this.searchHint = '';
   }
 
-  selectTab(tab: 'projects' | 'invitations') {
-    this.activeTab = tab;
-    this.searchQuery = '';
+  createProject() {
+    this.showCreateModal = true;
   }
 
   closeModal() {
@@ -105,7 +104,6 @@ export class DashboardComponent {
   }
 
   confirmCreate() {
-    // Placeholder: aquí podríamos llamar a un servicio
     if (!this.mongoUserId) { this.closeModal(); return; }
     const payload: ProjectDto = { userId: this.mongoUserId, name: this.projectName, sector: this.projectSector };
     this.projectService.createProject(payload).subscribe({
@@ -213,7 +211,7 @@ export class DashboardComponent {
     this.invitationsService.leaveProject(projectId, this.currentUserEmail).subscribe({
       next: () => {
         console.log('Proyecto abandonado');
-        // Recargar datos del usuario
+        // Recargar datos del usuario para actualizar la lista unificada
         this.userService.getUserByEmail(this.currentUserEmail).subscribe({
           next: (resp: any) => {
             const populatedInvited = resp?.user?.proyectosInvitados;
@@ -269,35 +267,49 @@ export class DashboardComponent {
     this.projectCtx.setProject(p);
     const projectId = (p as any)._id;
     const allowedTabs = (p as any).allowedTabs as string[] | undefined;
+    const mongoUserId = this.auth.getMongoUserId ? this.auth.getMongoUserId() : null;
+    const isOwner = mongoUserId && (p as any).userId && String((p as any).userId) === String(mongoUserId);
     const validTabsOrder = [
       'roadmap','statistics','map','inventory','customers','orders','tasks','events','meetings','credentials','technology','documents','invoices','financials','budgets','marketing','rnd','legal','team','settings'
     ];
-    let targetTab = 'inventory';
+    // Si es propietario, navegar por defecto a Ajustes
+    let targetTab = isOwner ? 'settings' : 'inventory';
     if (Array.isArray(allowedTabs) && allowedTabs.length > 0) {
       const firstAllowed = allowedTabs.find(t => validTabsOrder.includes(t));
-      if (firstAllowed) targetTab = firstAllowed;
+      if (!isOwner && firstAllowed) targetTab = firstAllowed;
     }
     this.router.navigate(['/p', projectId, targetTab]);
   }
 
-  get filteredProjects(): ProjectDto[] {
-    if (!this.projects || !this.projects.length) return [];
+  get filteredProjects(): ProjectWithRole[] {
+    const allProjects: ProjectWithRole[] = [];
+    
+    // Añadir proyectos propios como propietario
+    if (this.projects && this.projects.length > 0) {
+      this.projects.forEach(p => {
+        allProjects.push({ ...p, isOwner: true, isParticipant: false });
+      });
+    }
+    
+    // Añadir proyectos invitados como participante
+    if (this.invitedProjects && this.invitedProjects.length > 0) {
+      this.invitedProjects.forEach(p => {
+        allProjects.push({ ...p, isOwner: false, isParticipant: true });
+      });
+    }
+    
     const q = (this.searchQuery || '').trim().toLowerCase();
-    if (!q) return this.projects;
-    return this.projects.filter(p =>
+    if (!q) return allProjects;
+    
+    return allProjects.filter(p =>
       (p.name || '').toLowerCase().includes(q) ||
       (p.sector || '').toLowerCase().includes(q)
     );
   }
 
   get filteredInvitedProjects(): ProjectDto[] {
-    if (!this.invitedProjects || !this.invitedProjects.length) return [];
-    const q = (this.searchQuery || '').trim().toLowerCase();
-    if (!q) return this.invitedProjects;
-    return this.invitedProjects.filter(p =>
-      (p.name || '').toLowerCase().includes(q) ||
-      (p.sector || '').toLowerCase().includes(q)
-    );
+    // Ya no se usa por separado, todo está en filteredProjects
+    return [];
   }
 
   getProjectId(project: ProjectDto): string {

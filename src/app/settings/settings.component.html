@@ -20,7 +20,7 @@
       </div>
 
       <div class="card">
-        <h3 style="margin:-8px 0 24px 0; font-size:16px;">Secciones del proyecto</h3>
+        <h3 style="margin:-8px 0 24px 0; font-size:16px;">SECCIONES</h3>
         <div class="tabs-columns" style="display: flex; gap: 24px; flex-wrap: nowrap; overflow-x: auto;">
           <div class="tab-section" style="min-width: 130px;">
             <strong style="font-size: 12px; color: #666; text-transform: uppercase; display: block; margin-bottom: 12px;">Dirección</strong>
@@ -73,6 +73,40 @@
         </div>
       </div>
 
+
+
+      <div class="card participants-section">
+        <h3 style="margin:-8px 0 16px 0; font-size:16px;">PARTICIPANTES</h3>
+        <div class="actions participants-actions-row" style="margin-bottom: 10px;">
+          <div class="search-wrap">
+            <i class="fas fa-search search-icon"></i>
+            <input class="search" type="text" placeholder="Buscar participantes..." [(ngModel)]="searchParticipants" style="font-size: 13px;" />
+          </div>
+          <button class="primary" (click)="openInviteModal()">Invitar participante</button>
+        </div>
+        <div *ngIf="loadingMembers" class="empty-state">
+          <div class="spinner"></div>
+        </div>
+        <div *ngIf="!loadingMembers && filteredParticipants.length > 0" class="participants-grid">
+          <div class="participant" *ngFor="let m of filteredParticipants">
+            <div class="avatar-circle">{{ m.nombre?.charAt(0) || 'U' }}</div>
+            <div class="info">
+              <div class="name">{{ m.nombre || 'Usuario' }}</div>
+              <div class="email">{{ m.email }}</div>
+            </div>
+            <span class="tag" [class.owner]="m.isOwner">{{ m.invited ? 'Invitación enviada' : (m.isOwner ? 'Propietario' : 'Participante') }}</span>
+            <div class="actions" *ngIf="!m.isOwner && !m.invited">
+              <button class="perm-btn" (click)="openPerms(m)"><i class="fas fa-sliders"></i> Gestionar permisos</button>
+              <button class="remove-btn" (click)="removeMember(m)" title="Expulsar del proyecto"><i class="fas fa-user-times"></i> Expulsar</button>
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="!loadingMembers && filteredParticipants.length === 0">
+          <p>No hay participantes.</p>
+        </div>
+        <span class="error" *ngIf="membersError">{{ membersError }}</span>
+      </div>
+
       <button (click)="showDeleteModal = true" class="danger-outline">Eliminar proyecto</button>
 
       <div *ngIf="showDeleteModal" class="modal-backdrop">
@@ -95,6 +129,7 @@
   .main-content { margin-left: 250px; height: 100vh; background: white; }
   .invoices-container { padding: 24px; }
   .card { border: none; border-radius: 10px; padding: 16px; background: #fff; margin-top: 8px; }
+  .card.participants-section { margin-top: 120px !important; }
   .tabs-grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, auto); gap: 8px 16px; margin-top: 8px; align-items: start; }
   .check { display: flex; align-items: center; gap: 4px; font-size: 14px; color: #333; }
   .check input { accent-color: #111; width: 18px; height: 18px; }
@@ -190,7 +225,111 @@
   .danger-outline.really.modal-btn:hover {
     background: #fad2d2; color: #fff; border-color: #c62828 !important;
   }
+  .participants-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .participant { display:flex; align-items: center; gap:12px; padding:10px; border:1px solid #eee; border-radius:8px; }
+  .participant .avatar-circle { width:36px; height:36px; border-radius:50%; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; }
+  .participant .info { flex:1; }
+  .participant .name { font-weight:600; color:#111; }
+  .participant .email { font-size: 13px; color:#666; }
+  .participant .tag { font-size: 12px; color:#2563eb; background:#eff6ff; border: 1px solid #bfdbfe; border-radius: 999px; padding: 4px 8px; }
+  .participant .tag.owner { background:#e7f5eb; color:#065f46; border: 1px solid #a7f3d0; }
+
+  /* Invite modal */
+  .invite-modal { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important; }
+  .invite-modal * { font-family: inherit !important; }
+  .invite-modal.modal-backdrop { background: rgba(0,0,0,0.5); }
+  .invite-modal .modal-content {
+    text-align:left;
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 480px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    font-family: inherit; /* misma tipografía que Settings */
+  }
+  .invite-modal .modal-content h3 { margin: 0 0 20px 0; font-size: 20px; font-weight: 600; }
+  .invite-modal .modal-form { margin-bottom: 20px; }
+  .invite-modal .form-group { margin-bottom: 16px; }
+  .invite-modal .form-group label { display:block; margin-bottom: 6px; font-size:14px; font-weight:500; color:#333; font-family: inherit; }
+  .invite-modal .form-group input { width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:8px; font-size:14px; outline:none; box-sizing:border-box; font-family: inherit; }
+  .invite-modal .form-group input:focus { border-color:#111; }
+  .invite-modal .modal-actions { justify-content: flex-end; gap:12px; margin-top:24px; }
+  .invite-modal .modal-actions .modal-btn { font-family: inherit; }
+  /* Borde para las barras de búsqueda y campos del modal */
+  .actions .search-wrap .search {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: #fff;
+    outline: none;
+  }
+  .actions .search-wrap .search:focus { border-color: #999; }
+  .modal-form input[type="email"],
+  .modal-form input[type="text"],
+  .modal-form input[type="search"] {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: #fff;
+    outline: none;
+  }
+  .modal-form input:focus { border-color: #999; }
+  .participant { position: relative; }
+  .perm-btn { background:#f3f4f6; border:1px solid #ddd; border-radius:8px; padding:8px 10px; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:8px; }
+  .perm-btn:hover { background:#eaeaea; }
+  .remove-btn { background:#fee2e2; border:1px solid #ef4444; border-radius:8px; padding:8px 10px; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:8px; color:#dc2626; }
+  .remove-btn:hover { background:#fecaca; }
+  .participant .actions { display: flex; gap: 8px; }
+  /* participantes - estilos como Equipo */
+  .actions .search-wrap { position: relative; }
+  .actions .search-wrap .search { min-width: 420px; border: 1px solid #ccc; border-radius: 8px; padding: 10px 12px 10px 36px; outline: none; font-size: 13px; }
+ 
+  .actions .search-wrap .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 14px; }
+  .participants-actions-row { justify-content: flex-start !important; }
+  /* tipografía también para el modal de permisos */
+  .perms-modal { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important; }
+  .perms-modal * { font-family: inherit !important; }
+  /* estilos de checkboxes como en Equipo */
+  .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; }
+  .checkbox-label input[type="checkbox"] { cursor: pointer; }
+  .permissions-checkboxes { display: flex; flex-direction: column; gap: 6px; }
 </style>
 
+<!-- Modal de invitación -->
+<div class="modal-backdrop invite-modal" *ngIf="showInviteModal" (click)="closeInviteModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Invitar participante</h3>
+    <div class="modal-form">
+      <div class="form-group">
+        <label>Email del participante *</label>
+        <input type="email" [(ngModel)]="inviteEmail" placeholder="usuario@ejemplo.com" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel-btn" (click)="closeInviteModal()">Cancelar</button>
+      <button class="modal-btn primary-btn" (click)="sendInvitation()" [disabled]="!inviteEmail || loadingInvite">
+        {{ loadingInvite ? 'Enviando...' : 'Enviar invitación' }}
+      </button>
+    </div>
+    <span class="error" *ngIf="inviteError">{{ inviteError }}</span>
+  </div>
+</div>
 
-
+<!-- Modal permisos -->
+<div class="modal-backdrop perms-modal" *ngIf="showPermsModal" (click)="closePermsModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Permisos de {{ permsMember?.nombre || permsMember?.email }}</h3>
+    <div class="modal-form">
+      <div class="permissions-checkboxes">
+        <label class="checkbox-label" *ngFor="let tab of availableTabs">
+          <input type="checkbox" [checked]="permsAllowedTabs.includes(tab.key)" (change)="togglePerm(tab.key, $event)" />
+          <span>{{ tab.label }}</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-actions" style="justify-content: flex-end;">
+      <button class="modal-btn cancel-btn" (click)="closePermsModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
