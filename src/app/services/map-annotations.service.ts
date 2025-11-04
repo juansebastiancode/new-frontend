@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface MapAnnotationDto {
   _id?: string;
@@ -13,7 +14,7 @@ export interface MapAnnotationDto {
 
 @Injectable({ providedIn: 'root' })
 export class MapAnnotationsService {
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = environment.apiUrl;
   constructor(private http: HttpClient) {}
 
   list(projectId: string): Observable<MapAnnotationDto[]> {
