@@ -127,6 +127,13 @@
         <span class="nav-label">Tecnología</span>
     </div>
 
+    <div class="nav-item" [class.active]="isActive('assistant')" *ngIf="isEnabled('assistant')" (click)="goToAssistant()">
+      <div class="nav-icon">
+        <i class="fas fa-robot"></i>
+      </div>
+      <span class="nav-label">Asistente</span>
+    </div>
+
     <div class="nav-item" [class.active]="isActive('documents')" *ngIf="isEnabled('documents')" (click)="goToDocuments()">
       <div class="nav-icon">
         <i class="far fa-file"></i>

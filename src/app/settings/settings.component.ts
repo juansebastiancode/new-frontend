@@ -39,6 +39,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     { key: 'meetings', label: 'Reuniones' },
     { key: 'credentials', label: 'Credenciales' },
     { key: 'technology', label: 'Tecnología' },
+    { key: 'assistant', label: 'Asistente' },
     { key: 'documents', label: 'Documentos' },
     { key: 'invoices', label: 'Facturas' },
     { key: 'financials', label: 'Movimientos' },
@@ -51,7 +52,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   estrategiaTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['roadmap', 'statistics'].includes(t.key));
   operacionesTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['map', 'inventory', 'customers', 'orders'].includes(t.key));
   organizacionTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['tasks', 'events', 'meetings'].includes(t.key));
-  recursosTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['credentials', 'technology', 'documents', 'legal'].includes(t.key));
+  recursosTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['credentials', 'technology', 'assistant', 'documents', 'legal'].includes(t.key));
   finanzasTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['invoices', 'financials', 'budgets'].includes(t.key));
   crecimientoTabs: { key: string; label: string }[] = this.availableTabs.filter(t => ['marketing', 'rnd'].includes(t.key));
   showDeleteModal = false;
@@ -259,6 +260,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       'meetings': 'fas fa-calendar-check',
       'credentials': 'fas fa-id-card',
       'technology': 'fas fa-laptop',
+      'assistant': 'fas fa-robot',
       'documents': 'fas fa-file',
       'invoices': 'fas fa-file-lines',
       'financials': 'fas fa-dollar',

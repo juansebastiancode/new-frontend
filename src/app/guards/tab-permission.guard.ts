@@ -21,6 +21,7 @@ const routeToTabMap: { [key: string]: string } = {
   'meetings': 'meetings',
   'documents': 'documents',
   'technology': 'technology',
+  'assistant': 'assistant',
   'rnd': 'rnd',
   'financials': 'financials',
   'budgets': 'budgets',

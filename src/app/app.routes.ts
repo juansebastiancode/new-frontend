@@ -27,6 +27,7 @@ import { RndComponent } from './rnd/rnd.component';
 import { AccountsComponent } from './accounts/accounts.component';
 import { BudgetsComponent } from './budgets/budgets.component';
 import { LegalComponent } from './legal/legal.component';
+import { AssistantComponent } from './assistant/assistant.component';
 
 export const routes: Routes = [
   { path: '', component: LoginComponent }, 
@@ -55,6 +56,7 @@ export const routes: Routes = [
   { path: 'financials', component: AccountsComponent, canActivate: [AuthGuard] },
   { path: 'budgets', component: BudgetsComponent, canActivate: [AuthGuard] },
   { path: 'legal', component: LegalComponent, canActivate: [AuthGuard] },
+  { path: 'assistant', component: AssistantComponent, canActivate: [AuthGuard] },
   // Contexto de proyecto
   { path: 'p/:projectId/inventory', component: InventoryComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
   { path: 'p/:projectId/customers', component: CustomersComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
@@ -76,4 +78,5 @@ export const routes: Routes = [
   { path: 'p/:projectId/financials', component: AccountsComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
   { path: 'p/:projectId/budgets', component: BudgetsComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
   { path: 'p/:projectId/legal', component: LegalComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
+  { path: 'p/:projectId/assistant', component: AssistantComponent, canActivate: [AuthGuard, ProjectGuard, TabPermissionGuard] },
 ];
