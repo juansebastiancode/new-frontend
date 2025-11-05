@@ -256,12 +256,6 @@ export class MenubarComponent implements OnInit, OnDestroy {
     else this.router.navigate(['/technology']);
   }
 
-  goToAssistant() {
-    const proj = this.projectCtx.getCurrent();
-    if (proj?._id) this.router.navigate(['/p', proj._id, 'assistant']);
-    else this.router.navigate(['/assistant']);
-  }
-
   goToRnd() {
     const proj = this.projectCtx.getCurrent();
     if (proj?._id) this.router.navigate(['/p', proj._id, 'rnd']);
@@ -398,7 +392,6 @@ export class MenubarComponent implements OnInit, OnDestroy {
       case 'credentials': return 'credentials';
       case 'documents': return 'documents';
       case 'technology': return 'technology';
-      case 'assistant': return 'assistant';
       case 'rnd': return 'rnd';
       case 'financials': return 'financials';
       case 'budgets': return 'budgets';
