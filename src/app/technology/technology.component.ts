@@ -152,3 +152,4 @@ export class TechnologyComponent {
   deleteTechnology(tech: any) { if (confirm(`¿Eliminar tecnología ${tech.name}?`)) { alert(`Eliminar tecnología: ${tech.name}`); } }
 }
 
+

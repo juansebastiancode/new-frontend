@@ -147,3 +147,4 @@ export class LegalComponent {
   deleteDocument(doc: any) { if (confirm(`¿Eliminar documento ${doc.name}?`)) { alert(`Eliminar documento: ${doc.name}`); } }
 }
 
+

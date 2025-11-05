@@ -142,3 +142,4 @@ export class RndComponent {
   deleteProject(project: any) { if (confirm(`¿Eliminar proyecto ${project.name}?`)) { alert(`Eliminar proyecto: ${project.name}`); } }
 }
 
+

@@ -195,3 +195,4 @@ export class DocumentsComponent {
   downloadDocument(document: any) { alert(`Descargar documento: ${document.name}`); }
 }
 
+
